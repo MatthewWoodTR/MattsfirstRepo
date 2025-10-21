@@ -1,0 +1,2118 @@
+Epic 4237546
+Feature 1: Database Structure, Migration, and Navigation Feature 4237550
+
+4484384: User Story 1.1 - Database Structure ✅
+4484386: User Story 1.2 - API Service Layer ✅
+4484388: User Story 1.3 - API Endpoints ✅
+4484390: User Story 1.4 - Remove Navigation Arrows ✅
+4484391: User Story 1.5 - Separate Consolidated Dropdown ✅
+4484392: User Story 1.6 - Display Consolidated Menu ✅
+4484393: User Story 1.7 - Nested Tree Structure ✅
+4484394: User Story 1.8 - Update Engagement Dropdown ✅
+Feature 2: Consolidation Setup UI Feature 4381620
+
+4484395: User Story 2.1 - Create Setup Screen ✅
+4484396: User Story 2.2 - Add Engagement Functionality ✅
+4484397: User Story 2.3 - Change Parent Functionality (needs update)
+4484398: User Story 2.4 - Move Up/Down Functionality (needs update)
+4484399: User Story 2.5 - Delete Functionality ✅
+4484401: User Story 2.6 - Save Functionality ✅
+4484402: User Story 2.7 - Display Tree Levels (needs update)
+4484403: User Story 2.8 - API Merge Validation (needs update)
+4484407: User Story 2.9 - API Split Operation (needs update)
+4484414: User Story 2.10 - Merge Preview (needs update)
+
+# Feature 1: Database Structure, Migration, and Navigation
+
+## User Story 1.1: Design and Implement Multi-Level Consolidation Tree Database Structure
+
+**As a** system architect  
+**I want to** design a database structure that supports multi-level consolidation hierarchies  
+**So that** the application can traverse and display the entire consolidation tree regardless of depth
+
+**Problem Statement:**  
+The current database structure only supports one-level parent-child relationships (each engagement knows its immediate parent, but not its position in the overall hierarchy). To display a complete consolidation tree and enable navigation across all levels, we need a database structure that can store and efficiently query the entire hierarchy.
+
+**Description:**  
+Design and implement a new database structure that captures the complete consolidation tree, including all ancestor-descendant relationships, levels, and hierarchy paths. This will enable the application to query the full tree structure for any engagement node.
+
+**Acceptance Criteria:**
+
+**Database Schema Design:**
+- [ ] New table created: `ConsolidationHierarchy`
+- [ ] Schema includes: `Id` (PK), `EngagementId` (FK), `ParentEngagementId` (FK, nullable), `Level` (int), `Path` (varchar), `RootEngagementId` (FK), `DisplayOrder` (int)
+- [ ] Schema includes: `IsActive` (bit), `CreatedBy`, `CreatedDate`, `ModifiedBy`, `ModifiedDate`
+- [ ] Proper indexes created on `EngagementId`, `ParentEngagementId`, `RootEngagementId`, `Path`
+- [ ] Composite index on (RootEngagementId, Level, DisplayOrder) for efficient tree queries
+- [ ] Foreign key constraints to `Engagements` table with appropriate cascade rules
+- [ ] Check constraint: Level >= 1 (root is level 1)
+- [ ] Check constraint: If ParentEngagementId IS NULL, then Level = 1
+
+**Hierarchical Path Storage:**
+- [ ] `Path` field stores full hierarchy path (e.g., "/1/5/12/45")
+- [ ] Path starts and ends with "/" for consistent querying
+- [ ] Path enables efficient ancestor/descendant queries using LIKE operations
+- [ ] Path length accommodates deep hierarchies (varchar(1000) minimum)
+- [ ] Path is automatically calculated and maintained by triggers/stored procedures
+
+**Tree Traversal Support:**
+- [ ] Stored procedure: `sp_GetConsolidationTree(@EngagementId)` returns full tree from root
+- [ ] Stored procedure: `sp_GetAncestors(@EngagementId)` returns all ancestors ordered by level
+- [ ] Stored procedure: `sp_GetDescendants(@EngagementId)` returns all descendants with levels
+- [ ] Stored procedure: `sp_GetSiblings(@EngagementId)` returns nodes with same parent
+- [ ] Stored procedure: `sp_GetTreeDepth(@EngagementId)` returns maximum depth from node
+- [ ] Function: `fn_IsPartOfConsolidation(@EngagementId)` returns bit (1 if in tree, 0 if not)
+- [ ] All queries perform well with 1000+ nodes (< 100ms)
+
+**Data Integrity:**
+- [ ] Trigger prevents circular references on INSERT/UPDATE
+- [ ] Trigger prevents orphaned nodes (parent must exist if ParentEngagementId is not null)
+- [ ] Trigger automatically updates Path when parent changes
+- [ ] Trigger automatically updates Level when parent changes
+- [ ] Trigger automatically updates RootEngagementId when parent changes
+- [ ] Trigger cascades Path/Level updates to all descendants when node moves
+- [ ] Check constraint or trigger prevents engagement from being its own parent
+- [ ] Referential integrity maintained with Engagements table
+- [ ] Soft delete support (IsActive flag) preserves historical trees
+
+**Migration Strategy:**
+- [ ] Migration script: `001_CreateConsolidationHierarchy.sql` creates new table and indexes
+- [ ] Migration script: `002_MigrateExistingConsolidations.sql` migrates data
+- [ ] Migration identifies existing parent-child relationships from current structure
+- [ ] Migration calculates and populates Level for all existing engagements (root = 1, children = 2, etc.)
+- [ ] Migration calculates and populates Path for all existing engagements
+- [ ] Migration calculates and populates RootEngagementId for all nodes
+- [ ] Migration sets DisplayOrder based on existing order or alphabetically
+- [ ] Migration sets IsActive = 1 for all migrated records
+- [ ] Migration validates data integrity after conversion (no orphans, no cycles)
+- [ ] Rollback script available: `002_Rollback_MigrateExistingConsolidations.sql`
+- [ ] Migration tested on copy of production data with verification queries
+- [ ] Migration includes logging/reporting of any issues encountered
+
+**Performance:**
+- [ ] Tree query for 10-level hierarchy completes in < 100ms
+- [ ] Ancestor query completes in < 50ms
+- [ ] Descendant query for 100+ children completes in < 100ms
+- [ ] Insert/update operations maintain tree integrity without performance degradation
+- [ ] Caching strategy implemented for frequently accessed trees (application layer)
+- [ ] Database query execution plans reviewed and optimized
+- [ ] Statistics updated after migration
+
+**Documentation:**
+- [ ] Database schema documented with ERD diagram showing relationships
+- [ ] Stored procedure parameters and return values documented
+- [ ] Query patterns documented with examples (get tree, get ancestors, etc.)
+- [ ] Migration process documented step-by-step
+- [ ] Rollback procedure documented
+- [ ] Performance benchmarks documented with test data sizes
+
+**Testing:**
+- [ ] Unit tests for all stored procedures with various tree structures
+- [ ] Integration tests for tree operations (add, move, delete nodes)
+- [ ] Performance tests with large hierarchies (1000+ nodes, 15 levels deep)
+- [ ] Migration tests on sample data with verification
+- [ ] Data integrity tests (circular reference prevention, orphan prevention)
+- [ ] Concurrent update tests (race condition handling with locks)
+- [ ] Test with empty tree (no consolidations)
+- [ ] Test with single-level tree (all siblings, no children)
+- [ ] Test with maximum depth tree (15+ levels)
+
+---
+
+## User Story 1.2: Create API Service Layer for Consolidation Tree Operations
+
+**As a** backend developer  
+**I want to** create a service layer that wraps database operations  
+**So that** the frontend can interact with consolidation trees through a clean API
+
+**Problem Statement:**  
+The frontend needs a consistent, well-documented API to interact with the consolidation tree structure. Direct database access is not appropriate, and we need business logic validation and error handling.
+
+**Description:**  
+Create a service layer (C# or similar) that provides methods for all consolidation tree operations, including retrieval, validation, and manipulation.
+
+**Acceptance Criteria:**
+
+**Service Class Structure:**
+- [ ] Service class created: `ConsolidationTreeService`
+- [ ] Service implements interface: `IConsolidationTreeService`
+- [ ] Service is registered in dependency injection container
+- [ ] Service has constructor injection for database context and logging
+- [ ] Service includes XML documentation comments on all public methods
+
+**Retrieval Methods:**
+- [ ] `GetConsolidationTree(int engagementId)` returns `ConsolidationTreeDto` with full tree
+- [ ] `GetAncestors(int engagementId)` returns `List<ConsolidationNodeDto>` ordered by level
+- [ ] `GetDescendants(int engagementId)` returns `List<ConsolidationNodeDto>` with children
+- [ ] `GetSiblings(int engagementId)` returns `List<ConsolidationNodeDto>` at same level
+- [ ] `GetTreeLevel(int engagementId)` returns `int` (level number, 0 if not in tree)
+- [ ] `IsPartOfConsolidation(int engagementId)` returns `bool`
+- [ ] `GetRootEngagement(int engagementId)` returns `ConsolidationNodeDto` or null
+- [ ] All methods return null or empty collections for invalid engagement IDs
+- [ ] All methods include error handling with logging
+
+**Validation Methods:**
+- [ ] `ValidateParentChild(int childId, int parentId)` returns `ValidationResult`
+- [ ] Validation checks: circular reference would be created
+- [ ] Validation checks: parent exists and is active
+- [ ] Validation checks: child exists and is active
+- [ ] Validation checks: maximum depth would not be exceeded (15 levels)
+- [ ] Validation checks: child is not already in a different tree
+- [ ] `CanAddToTree(int engagementId, int parentId)` returns `bool` with reason
+
+**DTOs (Data Transfer Objects):**
+- [ ] `ConsolidationTreeDto` includes: RootNode, TotalNodes, MaxDepth
+- [ ] `ConsolidationNodeDto` includes: EngagementId, EngagementName, ClientName, ClientNumber, Date, Level, ParentId, Children (recursive), IsFinalized, DisplayOrder, Label
+- [ ] DTOs are properly mapped from database entities
+- [ ] DTOs include navigation properties for parent/children relationships
+- [ ] DTOs are serializable to JSON
+
+**Error Handling:**
+- [ ] All methods catch and log exceptions
+- [ ] Methods return appropriate error responses (not just null)
+- [ ] Custom exceptions: `CircularReferenceException`, `InvalidTreeOperationException`
+- [ ] Validation errors return structured error messages
+- [ ] Database errors are logged with full stack trace
+- [ ] User-friendly error messages returned to frontend
+
+**Performance:**
+- [ ] Service methods complete within same time constraints as database operations
+- [ ] Service implements caching for frequently accessed trees (5-minute cache)
+- [ ] Cache invalidation on tree structure changes
+- [ ] Async methods available for all operations: `GetConsolidationTreeAsync`, etc.
+- [ ] Batch operations supported for multiple engagement queries
+
+**Testing:**
+- [ ] Unit tests for all service methods with mocked database
+- [ ] Unit tests for validation logic with various scenarios
+- [ ] Integration tests with real database
+- [ ] Test error handling paths
+- [ ] Test caching behavior
+- [ ] Test concurrent access scenarios
+
+---
+
+## User Story 1.3: Create API Endpoints for Consolidation Tree Navigation
+
+**As a** frontend developer  
+**I want to** REST API endpoints for consolidation tree operations  
+**So that** I can fetch tree data and check consolidation status from the UI
+
+**Problem Statement:**  
+The frontend needs HTTP endpoints to retrieve consolidation tree data for display in the breadcrumb navigation dropdown.
+
+**Description:**  
+Create REST API endpoints that expose the consolidation tree service methods to the frontend application.
+
+**Acceptance Criteria:**
+
+**API Endpoints:**
+- [ ] `GET /api/engagements/{id}/consolidation-tree` - Returns full tree structure
+- [ ] `GET /api/engagements/{id}/is-consolidated` - Returns boolean indicating if part of tree
+- [ ] `GET /api/engagements/{id}/consolidation-level` - Returns level number (0 if not in tree)
+- [ ] `GET /api/engagements/{id}/consolidation-ancestors` - Returns list of ancestor nodes
+- [ ] `GET /api/engagements/{id}/consolidation-root` - Returns root node of tree
+- [ ] All endpoints return 404 if engagement not found
+- [ ] All endpoints return 200 with appropriate data structure
+- [ ] All endpoints support CORS for frontend application
+
+**Request/Response Format:**
+- [ ] All responses are JSON format
+- [ ] Response for `/consolidation-tree`: `{ "rootNode": {...}, "totalNodes": 10, "maxDepth": 3, "currentNodeId": 5 }`
+- [ ] Response for `/is-consolidated`: `{ "isConsolidated": true, "rootEngagementId": 1 }`
+- [ ] Response for `/consolidation-level`: `{ "level": 2, "isRoot": false }`
+- [ ] Response includes engagement details: id, name, date, client info, finalization status
+- [ ] Tree nodes include children recursively with proper nesting
+
+**Error Handling:**
+- [ ] 400 Bad Request for invalid engagement ID format
+- [ ] 404 Not Found if engagement doesn't exist
+- [ ] 500 Internal Server Error with generic message (details logged)
+- [ ] Error response format: `{ "error": "message", "code": "ERROR_CODE" }`
+- [ ] Validation errors return 400 with detailed field errors
+
+**Security:**
+- [ ] Endpoints require authentication
+- [ ] User must have permission to view engagement
+- [ ] User must have permission to view client
+- [ ] Cross-engagement access is validated
+- [ ] Rate limiting applied (100 requests per minute per user)
+
+**Performance:**
+- [ ] Endpoints respond within 200ms for typical requests
+- [ ] Response compression enabled (gzip)
+- [ ] ETags supported for caching
+- [ ] Conditional requests supported (If-None-Match)
+
+**Documentation:**
+- [ ] Swagger/OpenAPI documentation generated
+- [ ] Each endpoint documented with description, parameters, responses
+- [ ] Example requests and responses provided
+- [ ] Error codes documented
+
+**Testing:**
+- [ ] Integration tests for all endpoints
+- [ ] Test authentication/authorization
+- [ ] Test with valid and invalid engagement IDs
+- [ ] Test with engagements in trees and standalone engagements
+- [ ] Test error scenarios (not found, unauthorized, etc.)
+- [ ] Load testing with concurrent requests
+
+---
+
+## User Story 1.4: Remove Consolidated Navigation Arrows and Go to Parent Button
+
+**As a** user navigating the Trial Balance breadcrumb  
+**I want to** have the consolidated up/down arrows and "Go to Parent" button removed from the breadcrumb  
+**So that** the interface is cleaner and prepares for the new dropdown menu approach
+
+**Problem Statement:**  
+The current breadcrumb has up/down arrow buttons next to "Consolidated" and a "Go to Parent" button at the bottom that will be replaced by a more intuitive dropdown menu system. These elements need to be removed to make way for the new interaction pattern.
+
+**Description:**  
+Remove the existing consolidated navigation arrows (up/down buttons) that appear next to the "Consolidated" text in the breadcrumb, and remove the "Go to Parent" button that appears at the bottom of the breadcrumb area.
+
+**Acceptance Criteria:**
+- [ ] Up arrow button next to "Consolidated" is removed
+- [ ] Down arrow button next to "Consolidated" is removed
+- [ ] "Go to Parent" button at bottom of breadcrumb is removed
+- [ ] "Consolidated" text remains visible in breadcrumb
+- [ ] Breadcrumb layout adjusts properly after removal (no gaps or misalignment)
+- [ ] No console errors after removal
+- [ ] Existing engagement dropdown functionality remains unchanged
+- [ ] Page functionality is not broken by removal
+- [ ] Visual regression tests pass for breadcrumb area
+- [ ] Changes are deployed to all environments
+
+---
+
+## User Story 1.5: Separate Consolidated into Independent Dropdown Menu
+
+**As a** user navigating between consolidation levels  
+**I want to** click on "Consolidated" as a separate dropdown menu  
+**So that** I can access the consolidation hierarchy independently from the engagement selection
+
+**Problem Statement:**  
+Currently, "Consolidated" is part of the engagement dropdown structure. Users need a dedicated dropdown for navigating the consolidation hierarchy that is separate from client/engagement selection, providing clearer separation of concerns.
+
+**Description:**  
+Add a separator (/) between the engagement name and "Consolidated" in the breadcrumb, and convert "Consolidated" into its own clickable dropdown button that will eventually contain the consolidation tree structure.
+
+**Acceptance Criteria:**
+- [ ] A forward slash "/" separator is added between the engagement dropdown and "Consolidated"
+- [ ] "Consolidated" is converted to a clickable button element
+- [ ] "Consolidated" button displays a down arrow (▼) indicator
+- [ ] "Consolidated" button has blue text color (#0066cc) matching other breadcrumb buttons
+- [ ] Clicking "Consolidated" button shows/hides an empty dropdown (placeholder for next story)
+- [ ] Dropdown has white background, 1px border (#ddd), and box shadow (0 4px 12px rgba(0,0,0,0.15))
+- [ ] Dropdown is right-aligned with the "Consolidated" button
+- [ ] Dropdown extends to the left (right edge aligns with button)
+- [ ] Minimum dropdown width is 600px
+- [ ] Maximum dropdown height is 500px with scrolling
+- [ ] Border radius is 4px
+- [ ] Hover state shows light blue background (#e6f2ff) on button
+- [ ] Clicking outside dropdown closes it
+- [ ] Opening consolidated dropdown closes engagement dropdown (and vice versa)
+- [ ] Dropdown z-index (1000) ensures proper layering
+- [ ] Button has proper ARIA attributes: `role="button"`, `aria-haspopup="true"`, `aria-expanded`
+- [ ] Keyboard navigation: Enter/Space opens dropdown, Escape closes it
+- [ ] Focus indicator is clearly visible on button
+- [ ] No console errors or warnings
+- [ ] Visual regression tests pass
+
+---
+
+## User Story 1.6: Display Consolidated Menu for Any Engagement in Consolidation Tree
+
+**As a** user viewing any engagement that is part of a consolidation structure  
+**I want to** see the "Consolidated" dropdown menu in the breadcrumb  
+**So that** I can navigate the consolidation hierarchy from any node, not just from the top-level consolidated engagement
+
+**Problem Statement:**  
+Currently, the "Consolidated" text only appears in the breadcrumb when viewing a top-level consolidated engagement. Users working on child engagements (at any level) have no visibility into the consolidation structure or ability to navigate to other nodes in the tree.
+
+**Description:**  
+Modify the breadcrumb component to check if the current engagement is part of a consolidation tree and conditionally display the "Consolidated" dropdown menu.
+
+**Acceptance Criteria:**
+
+**Conditional Display Logic:**
+- [ ] On page load, call `GET /api/engagements/{id}/is-consolidated` API
+- [ ] If API returns `isConsolidated: true`, display "Consolidated" menu in breadcrumb
+- [ ] If API returns `isConsolidated: false`, hide "Consolidated" menu (no separator before it)
+- [ ] "Consolidated" menu appears regardless of engagement's level in tree (root, branch, or leaf)
+- [ ] Display logic updates if engagement consolidation status changes during session
+- [ ] Loading state shown while checking consolidation status (small spinner or skeleton)
+
+**Breadcrumb Structure Variations:**
+- [ ] For engagement in consolidation: `Home / 1984 - 053B2 - TEST CLIENT / [EngagementName] (Date) ▼ / Consolidated ▼`
+- [ ] For standalone engagement: `Home / 1984 - 053B2 - TEST CLIENT / [EngagementName] (Date) ▼`
+- [ ] Separator "/" appears before "Consolidated" only when it should display
+- [ ] No extra separators or spacing issues when "Consolidated" is hidden
+- [ ] Breadcrumb layout is consistent regardless of consolidation status
+- [ ] Client info format: "1984 - 053B2 - TEST CLIENT" (matches screenshot)
+
+**API Integration:**
+- [ ] Consolidation status check completes in < 50ms
+- [ ] API call includes proper error handling
+- [ ] If API call fails, assume not consolidated and hide menu (fail safely)
+- [ ] Failed API calls are logged to console
+- [ ] Retry logic for failed API calls (1 retry after 1 second)
+
+**Performance:**
+- [ ] Status check does not block page rendering
+- [ ] Status check is cached for session (doesn't re-check on every navigation within same engagement)
+- [ ] Cache invalidates when user saves changes to consolidation structure
+- [ ] Prefetch tree data in background if isConsolidated is true
+
+**Testing:**
+- [ ] Unit test for conditional display logic
+- [ ] Test with engagement in consolidation (should show menu)
+- [ ] Test with standalone engagement (should hide menu)
+- [ ] Test with root engagement (should show menu)
+- [ ] Test with leaf engagement (should show menu)
+- [ ] Test with API failure (should hide menu gracefully)
+- [ ] Visual regression test for breadcrumb with/without "Consolidated"
+
+---
+
+## User Story 1.7: Implement Nested Tree Structure in Consolidated Dropdown
+
+**As a** user working with multi-level consolidations  
+**I want to** see a fully expanded nested tree of all consolidation levels in the Consolidated dropdown  
+**So that** I can visualize the entire hierarchy and quickly navigate to any level
+
+**Problem Statement:**  
+Users need to navigate through complex consolidation hierarchies but have no way to visualize the structure or quickly jump between levels. The new dropdown needs to display the complete tree structure with proper visual hierarchy and interaction patterns.
+
+**Description:**  
+Populate the Consolidated dropdown with a nested tree structure that displays all consolidation levels. The tree should show proper indentation, expand/collapse controls, and support navigation to any level in the hierarchy.
+
+**Acceptance Criteria:**
+
+**Data Fetching:**
+- [ ] When dropdown opens, call `GET /api/engagements/{id}/consolidation-tree` API
+- [ ] Display loading spinner while fetching tree data (200ms delay before showing)
+- [ ] Tree data includes all nodes with: id, name, date, client info, level, parent, children, isFinalized, label
+- [ ] Service returns complete tree structure starting from root node
+- [ ] Service includes all nodes regardless of current engagement's position
+- [ ] If API call fails, show error message: "Unable to load consolidation structure. Please try again."
+- [ ] Retry button appears in error state
+- [ ] Empty state message if no consolidation levels exist: "No consolidation levels available"
+
+**Tree Structure & Display:**
+- [ ] Tree displays all consolidation levels based on the returned data
+- [ ] Each node displays label from `Label` field in database
+- [ ] If Label is empty, display engagement name
+- [ ] Level 1 nodes (root level) are displayed in bold (font-weight: 600)
+- [ ] All nodes are expanded by default when dropdown first opens
+- [ ] Tree structure matches hierarchical relationships from database
+
+**Visual Hierarchy & Indentation:**
+- [ ] Each level is indented 20px more than its parent level
+- [ ] Level 1: 16px padding-left
+- [ ] Level 2: 36px padding-left  
+- [ ] Level 3: 56px padding-left
+- [ ] Pattern continues (+20px per level) for all levels
+- [ ] Indentation is visually clear and distinguishable
+
+**Expand/Collapse Functionality:**
+- [ ] Nodes with children display a right-pointing caret (▶) when collapsed
+- [ ] Caret rotates 90 degrees to point down when node is expanded
+- [ ] Clicking the caret toggles expand/collapse state
+- [ ] Clicking the caret does NOT select the node or close the dropdown
+- [ ] Expand/collapse animation is smooth (CSS transition: 0.2s)
+- [ ] Child nodes are hidden (display: none) when parent is collapsed
+- [ ] Expand/collapse state is maintained while dropdown remains open
+- [ ] Nodes without children display a spacer (16px width) instead of caret
+- [ ] Caret has proper aria-label: "Expand" or "Collapse"
+
+**Current Node Highlighting:**
+- [ ] When dropdown opens, current engagement is highlighted in tree
+- [ ] Current engagement has distinct background color (#cce5ff)
+- [ ] Current engagement has bold text (font-weight: 600)
+- [ ] Current engagement has 3px left border (#0066cc)
+- [ ] Current engagement is scrolled into view when dropdown opens (scrollIntoView with smooth behavior)
+- [ ] If current engagement is nested, all parent nodes are automatically expanded to show it
+- [ ] Current engagement has aria-current="location" attribute
+- [ ] Screen readers announce "Current engagement" for highlighted node
+
+**Node Selection & Navigation:**
+- [ ] Clicking a node label selects that node and navigates to engagement in current window
+- [ ] Selected node shows hover state before click (light gray background #f5f5f5)
+- [ ] Clicking node updates URL to that engagement's trial balance page
+- [ ] Navigation closes the dropdown
+- [ ] After navigation, page reloads with new engagement
+- [ ] Browser back/forward buttons work correctly after navigation
+
+**Pop-out Icon Functionality:**
+- [ ] Each node displays a pop-out icon (external link: ↗) to the right of the label
+- [ ] Pop-out icon is visible on hover over the node row
+- [ ] Pop-out icon is 16x16px in size
+- [ ] Pop-out icon has 8px margin-left from label
+- [ ] Clicking the node label opens engagement in current window
+- [ ] Clicking the pop-out icon opens engagement in new browser tab
+- [ ] Pop-out icon has hover state with darker color (#0066cc)
+- [ ] Pop-out icon has aria-label="Open in new window"
+- [ ] Pop-out icon has cursor: pointer
+- [ ] New tab opens with full URL including trial balance path
+
+**Status Indicators:**
+- [ ] Finalized nodes display a lock icon (🔒) before the label
+- [ ] Lock icon is 16x16px in size (or font-size: 16px if using icon font)
+- [ ] Lock icon has 4px margin-right from label
+- [ ] Lock icon has aria-label="Finalized engagement"
+- [ ] Lock icon color is gray (#666)
+
+**Dropdown Styling:**
+- [ ] Dropdown has white background
+- [ ] Dropdown has 1px border (#ddd)
+- [ ] Dropdown has box shadow: 0 4px 12px rgba(0,0,0,0.15)
+- [ ] Dropdown has border-radius: 4px
+- [ ] Dropdown is right-aligned with "Consolidated" button
+- [ ] Dropdown extends to the left (right edge aligns with button)
+- [ ] Minimum dropdown width is 600px
+- [ ] Maximum dropdown height is 500px with vertical scrolling
+- [ ] Custom scrollbar: 8px width, #888 thumb, #555 hover
+- [ ] Dropdown z-index: 1000
+
+**Hover & Interaction States:**
+- [ ] Hovering over a node row shows light gray background (#f5f5f5)
+- [ ] Hover state is distinct from current node highlight
+- [ ] Hover state applies to entire row (not just label)
+- [ ] Hover state does NOT apply to caret area
+- [ ] Cursor changes to pointer on hover over clickable elements
+- [ ] Active/pressed state provides visual feedback (darker background)
+
+**Accessibility:**
+- [ ] Tree container has `role="tree"` attribute
+- [ ] Tree nodes have `role="treeitem"` attribute
+- [ ] Expandable nodes have `aria-expanded` attribute (true/false)
+- [ ] Nodes with children have `aria-level` attribute indicating level number
+- [ ] Selected node has `aria-selected="true"`
+- [ ] Arrow Down key navigates to next visible node
+- [ ] Arrow Up key navigates to previous visible node
+- [ ] Right Arrow key expands collapsed node (if has children)
+- [ ] Left Arrow key collapses expanded node or moves to parent
+- [ ] Enter key selects focused node and navigates in current window
+- [ ] Ctrl+Enter (Cmd+Enter on Mac) opens focused node in new window
+- [ ] Home key focuses first node in tree
+- [ ] End key focuses last visible node in tree
+- [ ] Tab key moves focus out of tree to next element
+- [ ] Focus indicator is clearly visible (2px outline, color #0066cc, offset 2px)
+- [ ] Screen readers announce node label, level, expanded/collapsed state
+- [ ] Screen readers announce "Finalized" for locked nodes
+- [ ] All interactive elements meet WCAG 2.1 AA contrast requirements (4.5:1 minimum)
+- [ ] Focus is trapped within dropdown when open (Tab cycles through tree nodes)
+- [ ] Escape key closes dropdown and returns focus to "Consolidated" button
+
+**Performance:**
+- [ ] Tree renders initial visible nodes within 200ms
+- [ ] Scrolling is smooth (60fps) even with 100+ nodes
+- [ ] Expand/collapse actions complete within 100ms
+- [ ] Memory usage remains stable on repeated open/close
+- [ ] Virtual scrolling implemented if tree exceeds 200 nodes
+- [ ] No layout thrashing during expand/collapse
+
+**Testing:**
+- [ ] Unit tests for tree rendering logic
+- [ ] Unit tests for expand/collapse functionality
+- [ ] Unit tests for current node highlighting
+- [ ] Integration tests for API data fetching
+- [ ] E2E tests for navigation from different nodes
+- [ ] E2E tests for pop-out icon opening new window
+- [ ] Accessibility tests using axe-core
+- [ ] Keyboard navigation tests for all key combinations
+- [ ] Screen reader testing (NVDA, JAWS, VoiceOver)
+- [ ] Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- [ ] Mobile/tablet testing (iOS Safari, Android Chrome)
+- [ ] Performance testing with large hierarchies (500+ nodes)
+- [ ] Test with 1-level tree (no children)
+- [ ] Test with 10-level deep tree
+- [ ] Test with wide tree (50+ siblings at one level)
+
+---
+
+## User Story 1.8: Update Engagement Dropdown to Show Expandable Client List
+
+**As a** user switching between engagements  
+**I want to** see clients in the engagement dropdown that I can expand to view their associated engagements  
+**So that** I can quickly find and navigate to any engagement across all clients
+
+**Problem Statement:**  
+The current engagement dropdown needs to be updated to show the client grouping structure visible in the screenshot, where clients can be expanded to show their engagements.
+
+**Description:**  
+Update the existing engagement dropdown to display clients as expandable rows, with each client showing their associated engagements when expanded, matching the design in the "breadcrumb with clients.png" screenshot.
+
+**Acceptance Criteria:**
+
+**Client Display:**
+- [ ] Clients are listed in format: "[ClientNumber] | [ClientName]" (e.g., "1984 | 053B2 - TEST CLIENT")
+- [ ] Client rows display in bold (font-weight: 600)
+- [ ] Each client row shows a right-pointing caret (▶) when collapsed
+- [ ] Clients are sorted alphabetically by client name
+- [ ] Client rows have 12px vertical padding, 16px horizontal padding
+- [ ] Client rows have border-bottom: 1px solid #f0f0f0
+
+**Expand/Collapse Functionality:**
+- [ ] Clicking anywhere on client header row expands/collapses the engagement list
+- [ ] Caret rotates 90 degrees when client is expanded
+- [ ] Expanded clients show light gray background (#fafafa) for engagement list
+- [ ] Multiple clients can be expanded simultaneously
+- [ ] Expand/collapse state is maintained while dropdown remains open
+- [ ] Expand/collapse animation is smooth (0.2s CSS transition)
+- [ ] Collapsed state hides all engagements (display: none)
+
+**Engagement Display:**
+- [ ] Engagements are indented 48px from the left (to align with screenshot)
+- [ ] Engagement format: "[EngagementName] ([Date])" (e.g., "!18decRestorauditICconprod (12/31/2024)")
+- [ ] Engagements have 10px vertical padding
+- [ ] Engagements are sorted by date (most recent first)
+- [ ] Finalized engagements display lock icon (🔒) before the name
+- [ ] Lock icon has aria-label="Finalized"
+- [ ] Each engagement row has subtle border-bottom: 1px solid #f0f0f0
+
+**Selection & Navigation:**
+- [ ] Hovering over an engagement shows light blue background (#e6f2ff)
+- [ ] Clicking an engagement selects it
+- [ ] Selected engagement shows blue background (#cce5ff) with blue border
+- [ ] Selected engagement has bold text (font-weight: 600)
+- [ ] Selected engagement has 3px left border in blue (#0066cc)
+- [ ] Clicking an engagement closes the dropdown and navigates to that engagement
+- [ ] Currently active engagement is highlighted when dropdown opens
+- [ ] If active engagement is in collapsed client, that client auto-expands on dropdown open
+- [ ] Active engagement is scrolled into view when dropdown opens
+
+**Action Buttons:**
+- [ ] "Add new" and "Open" buttons at bottom of dropdown (matching screenshot)
+- [ ] Footer has light gray background (#f9f9f9) and 1px top border (#e0e0e0)
+- [ ] Footer padding: 12px 16px
+- [ ] Buttons are equal width (flex: 1) with 8px gap between
+- [ ] "Add new" button shows "+ Add new" text with plus icon
+- [ ] "Open" button shows "📂 Open" text with folder icon
+- [ ] Buttons have white background, 1px border (#ddd), 4px border-radius
+- [ ] Button font-size: 14px, font-weight: 500
+- [ ] Hover state shows light gray background (#f5f5f5)
+- [ ] Footer remains visible during scrolling (position: sticky, bottom: 0)
+- [ ] "Add new" button opens dialog to create new engagement
+- [ ] "Open" button opens selected engagement (or shows message if none selected)
+
+**Dropdown Styling:**
+- [ ] Dropdown has white background
+- [ ] Dropdown has 1px border (#ddd)
+- [ ] Dropdown has box shadow: 0 4px 12px rgba(0,0,0,0.15)
+- [ ] Dropdown has border-radius: 4px
+- [ ] Dropdown is left-aligned with engagement button
+- [ ] Minimum dropdown width is 500px (to match screenshot width)
+- [ ] Maximum dropdown height is 500px with vertical scrolling
+- [ ] Custom scrollbar: 8px width, #888 thumb, #555 hover
+- [ ] Dropdown z-index: 1000
+
+**Loading & Error States:**
+- [ ] Loading spinner displays while fetching client/engagement data
+- [ ] Loading state appears after 200ms delay
+- [ ] Empty state message: "No engagements found"
+- [ ] Error message: "Unable to load engagements. Please try again."
+- [ ] Retry button appears in error state
+- [ ] Partial data loads gracefully (shows available clients/engagements)
+
+**Accessibility:**
+- [ ] Client headers have `role="button"` and `aria-expanded` attribute
+- [ ] Engagement list has `role="group"` and `aria-labelledby` referencing client
+- [ ] Engagement items have `role="menuitem"`
+- [ ] Arrow Down/Up keys navigate between clients and engagements
+- [ ] Right Arrow expands collapsed client when focused
+- [ ] Left Arrow collapses expanded client when focused
+- [ ] Enter key on client expands/collapses it
+- [ ] Enter key on engagement selects it and navigates
+- [ ] Screen readers announce client expand/collapse state
+- [ ] Screen readers announce engagement details (name, date, finalized status)
+- [ ] Focus indicator is clearly visible (2px outline)
+- [ ] All contrast requirements met (WCAG 2.1 AA)
+- [ ] Tab key moves focus through clients and engagements
+- [ ] Escape key closes dropdown
+
+**Performance & Testing:**
+- [ ] Dropdown renders within 200ms for 50 clients
+- [ ] Smooth scrolling with 100+ engagements
+- [ ] Expand/collapse is instant (no lag)
+- [ ] Unit tests for expand/collapse logic
+- [ ] Unit tests for client/engagement sorting
+- [ ] E2E tests for navigation workflows
+- [ ] E2E tests for action buttons
+- [ ] Accessibility tests pass
+- [ ] Cross-browser testing completed
+- [ ] Visual regression tests match screenshot
+
+---
+
+# Feature 2: Consolidation Setup UI
+
+## User Story 2.1: Create Consolidation Setup Screen with Tree Table View
+
+**As a** user with consolidation management permissions  
+**I want to** access a dedicated screen to set up and manage consolidation structures  
+**So that** I can build multi-level consolidation hierarchies for my engagements
+
+**Problem Statement:**  
+Users need a UI to create and manage multi-level consolidation trees. The current system only allows setting a single parent, but users need to build complex hierarchies with multiple levels and manage parent-child relationships.
+
+**Description:**  
+Create a consolidation setup screen (accessible from "Trial balance" in left navigation) that displays the current consolidation structure in a tree table format with expand/collapse functionality, level indicators, and columns for Label, Structure, Balance, Client Name, Client Number, and Engagement name.
+
+**Acceptance Criteria:**
+
+**Screen Access & Layout:**
+- [ ] Screen accessible from left navigation menu: "Trial balance" item
+- [ ] Screen title: "Consolidation"
+- [ ] Breadcrumb shows: Home / 1984 - 053B2 - TEST CLIENT / Consolidated 5/31 RF (12/31/2025) Consolidated dropdown with back arrow
+- [ ] Screen has three main sections: Toolbar, Table, Options
+- [ ] Screen has full-width layout
+- [ ] Header shows "Trial balance" with back arrow for navigation
+
+**Toolbar:**
+- [ ] Toolbar positioned above table with buttons in this order: Add engagement, Change Parent, Move up, Move down, Delete
+- [ ] "Add engagement" button with plus circle icon (⊕)
+- [ ] "Change Parent" button with hierarchy/parent icon (⤴)
+- [ ] "Move up" button with up arrow (↑)
+- [ ] "Move down" button with down arrow (↓)
+- [ ] "Delete" button with trash icon (🗑)
+- [ ] All buttons have icon + text label
+- [ ] Buttons are disabled (grayed out) when no row is selected (except "Add engagement")
+- [ ] "Move up" disabled when first row selected or when selected row is first among its siblings
+- [ ] "Move down" disabled when last row selected or when selected row is last among its siblings
+- [ ] Buttons have consistent styling: white background, 1px border (#ddd), 4px border-radius
+- [ ] Hover state: light gray background (#f5f5f5)
+- [ ] Disabled state: reduced opacity (0.5), no hover effect
+
+**Table Structure:**
+- [ ] Table has 6 columns: Label, Structure, Balance, Client Name, Client number, Engagement name
+- [ ] Table header row with column titles in bold (font-weight: 600)
+- [ ] Table rows are selectable (single selection only)
+- [ ] Selected row has blue background (#e6f2ff) and 3px left border (#0066cc)
+- [ ] Rows have hover state (light gray background #f5f5f5)
+- [ ] Table has horizontal scrolling if content exceeds viewport width
+- [ ] Table has vertical scrolling if content exceeds available height
+- [ ] Table height adjusts to fill available space between toolbar and options section
+- [ ] Minimum table height: 200px
+
+**Table Columns:**
+- [ ] Label: displays custom label or engagement name if label is empty
+- [ ] Structure: displays badge with "Consolidated" or "None"
+- [ ] Structure badge for "Consolidated" has blue background (#cce5ff) and blue text (#0066cc)
+- [ ] Structure badge for "None" has gray background (#f0f0f0) and gray text (#999)
+- [ ] Balance: displays balance type (e.g., "Total", "Adjusted")
+- [ ] Client Name: displays full client name
+- [ ] Client number: displays client number
+- [ ] Engagement name: displays engagement name
+- [ ] All columns have consistent padding: 12px
+- [ ] Column widths distribute appropriately
+- [ ] Text truncates with ellipsis if too long for column width
+- [ ] Tooltip shows full text on hover if truncated
+
+**Tree Structure in Label Column:**
+- [ ] Label column shows tree structure with visual hierarchy
+- [ ] Each level is indented 20px more than its parent level
+- [ ] Root level (Level 1): 0px indent
+- [ ] Level 2: 20px indent
+- [ ] Level 3: 40px indent, etc.
+- [ ] Nodes with children display expand/collapse caret (▶ when collapsed, ▼ when expanded)
+- [ ] Caret appears to the left of the label text
+- [ ] Caret is 16x16px, clickable area
+- [ ] Clicking caret toggles expand/collapse (does NOT select row)
+- [ ] Nodes without children show spacer (16px width) for alignment
+- [ ] All nodes are expanded by default when page loads
+- [ ] Expand/collapse animation is smooth (CSS transition: 0.2s)
+- [ ] Collapsed parent hides all descendants (children, grandchildren, etc.)
+- [ ] Expand/collapse state persists during session
+
+**Row Selection:**
+- [ ] Clicking anywhere on row (except caret) selects it
+- [ ] Only one row can be selected at a time
+- [ ] Selected row persists until another row is selected
+- [ ] Selected row is indicated by blue background and left border
+- [ ] Clicking selected row again does NOT deselect it
+- [ ] Arrow Up/Down keys navigate between visible rows when table has focus
+- [ ] Selection updates toolbar button states immediately
+- [ ] Selected row remains selected even when collapsed (hidden)
+
+**Options Section:**
+- [ ] Options section positioned below table with title "Options"
+- [ ] Section has light gray background (#f9f9f9)
+- [ ] Section padding: 20px
+- [ ] Section has 1px border (#e0e0e0) and 4px border-radius
+- [ ] Section shows "No selection" state when no consolidated engagement is selected
+- [ ] "No selection" state shows icon and message: "Select a consolidated engagement from the table above to view and edit its options"
+- [ ] When consolidated engagement (Structure = "Consolidated") is selected, shows options
+- [ ] When non-consolidated engagement (Structure = "None") is selected, shows message: "Options are only available for consolidated engagements"
+
+**Options Fields (when consolidated engagement selected):**
+- [ ] Options header shows engagement label/name: "Options - Configuration for: [EngagementLabel]"
+- [ ] Header shows consolidated indicator badge with engagement name
+- [ ] "Primary" dropdown with label above
+- [ ] Primary dropdown lists direct children (one level down) of selected consolidated engagement
+- [ ] Primary dropdown format: shows child engagement labels
+- [ ] Primary dropdown shows "No child engagements" if selected engagement has no children
+- [ ] "Consolidate by" dropdown with label and asterisk (required field)
+- [ ] Consolidate by dropdown options determined by Primary engagement's setup:
+  - [ ] "Account Grouping" - available if Primary has account groupings setup
+  - [ ] "Account Grouping with Subcode" - available if Primary has account groupings setup
+  - [ ] "Account Number" - always available
+  - [ ] "Tax Code" - available if Primary has tax vendor and entity set
+- [ ] For prototype: show all options (Account Grouping, Account Grouping with Subcode, Account Number, Tax Code)
+- [ ] "Account grouping" dropdown with label
+- [ ] Account grouping dropdown is disabled by default
+- [ ] Account grouping dropdown enables when "Account Grouping" or "Account Grouping with Subcode" is selected in Consolidate by
+- [ ] Account grouping dropdown options: "Leadsheet", "Account Classification", "Financial Statements"
+- [ ] "Include budget balance" checkbox
+- [ ] "Recalculate prior year balances" checkbox
+- [ ] All dropdowns have consistent styling: white background, 1px border (#ddd), 4px border-radius
+- [ ] Dropdowns are full-width within options section
+- [ ] Each field has 16px margin-bottom for spacing
+
+**Save & Cancel Buttons:**
+- [ ] "Save" and "Cancel" buttons positioned below options fields
+- [ ] Buttons aligned to left
+- [ ] "Save" button: dark gray background (#4a4a4a), white text
+- [ ] "Cancel" button: light gray background (#e0e0e0), dark text
+- [ ] Buttons have equal width (approximately 100-120px each)
+- [ ] Buttons have 12px gap between them
+- [ ] "Save" button is disabled (grayed out) if no changes made
+- [ ] "Save" button is disabled if validation errors exist
+- [ ] "Cancel" button is always enabled
+- [ ] Buttons have padding: 10px 24px
+- [ ] Buttons have border-radius: 4px
+- [ ] Buttons have font-size: 14px, font-weight: 500
+
+**Initial Data Load:**
+- [ ] On screen load, call API to fetch current consolidation structure
+- [ ] Display loading spinner/skeleton while fetching data
+- [ ] Populate table with existing consolidation engagements in tree structure
+- [ ] All nodes are expanded by default
+- [ ] If no consolidation exists, show empty table with message
+- [ ] Error message if data load fails: "Unable to load consolidation structure. Please try again."
+- [ ] Retry button in error message
+
+**Empty State:**
+- [ ] If no engagements in consolidation, show message in table area: "No engagements in consolidation. Click 'Add engagement' to begin."
+- [ ] Message appears in center of table area with icon
+- [ ] "Add engagement" button remains enabled in empty state
+- [ ] Options section shows "No selection" state
+
+**Permissions:**
+- [ ] Only users with "Manage Consolidation" permission can access screen
+- [ ] Users without permission see "Access Denied" message or are redirected
+- [ ] Read-only users see table and options but all buttons/controls are disabled
+- [ ] Permission check happens on screen load
+
+**Testing:**
+- [ ] Unit tests for table rendering with tree structure
+- [ ] Unit tests for expand/collapse logic
+- [ ] Unit tests for row selection logic
+- [ ] Integration tests for data loading from API
+- [ ] E2E tests for screen access from left navigation
+- [ ] E2E tests for all sections visible and functional
+- [ ] E2E tests for expand/collapse in table
+- [ ] Accessibility tests (keyboard navigation, screen reader)
+- [ ] Visual regression tests
+- [ ] Test with empty consolidation (no rows)
+- [ ] Test with 1 engagement
+- [ ] Test with 5-level deep hierarchy
+- [ ] Test with 50+ engagements (scrolling behavior)
+
+---
+
+## User Story 2.2: Implement Add Engagement Functionality with Consolidation Merge Support
+
+**As a** user setting up a consolidation  
+**I want to** add engagements to the consolidation structure, including existing consolidated engagements  
+**So that** I can build a multi-level hierarchy and merge separate consolidation trees into a single structure
+
+**Problem Statement:**  
+Users need to add engagements to the consolidation structure. The UI should allow selecting a client, then an engagement from that client (including existing consolidated engagements with their own trees), then a balance type based on the engagement's structure, and finally a custom label. When adding an existing consolidated engagement, the entire tree structure should be merged into the parent consolidation.
+
+**Description:**  
+Implement the "Add engagement" button functionality that opens a dialog with a four-field flow: Client → Engagement → Balance type → Label. The dialog should support adding both standalone engagements and existing consolidated engagements (which merges their entire tree structure).
+
+**Acceptance Criteria:**
+
+**Add Engagement Button:**
+- [ ] "Add engagement" button is always enabled (even with no row selection)
+- [ ] Clicking button opens "Add Engagement to Consolidation" dialog
+- [ ] Dialog appears centered on screen with semi-transparent overlay background (rgba(0,0,0,0.5))
+- [ ] Dialog has white background with box shadow (0 4px 20px rgba(0,0,0,0.3))
+- [ ] Dialog width: 600px
+- [ ] Dialog has close button (X) in top-right corner
+- [ ] Dialog has border-radius: 8px
+- [ ] Clicking overlay background does NOT close dialog (requires explicit action)
+
+**Dialog Structure:**
+- [ ] Dialog title: "Add Engagement to Consolidation"
+- [ ] Dialog has four fields in order: Client, Engagement, Balance type, Label
+- [ ] Fields are arranged vertically with consistent spacing (20px between groups)
+- [ ] Dialog has proper padding: 24px
+- [ ] Dialog footer has "Cancel" and "Add" buttons
+
+**Field 1: Client Selection:**
+- [ ] Label: "Client" with red asterisk (required field)
+- [ ] Dropdown listing all available clients
+- [ ] Client format: "[ClientNumber] - [ClientName]" (e.g., "1984 - 053B2 - TEST CLIENT")
+- [ ] Dropdown shows placeholder: "Choose a client..." when nothing selected
+- [ ] Clients sorted alphabetically by client name
+- [ ] Dropdown has white background, 1px border (#ddd), 4px border-radius
+- [ ] Dropdown width: 100% of dialog width
+- [ ] Dropdown padding: 10px 12px
+- [ ] Dropdown font-size: 14px
+
+**Field 2: Engagement Selection:**
+- [ ] Label: "Engagement" with red asterisk (required field)
+- [ ] Dropdown is disabled until client is selected
+- [ ] When client selected, dropdown populates with that client's engagements
+- [ ] Engagement format: "[EngagementName] ([Date])" (e.g., "Annual Audit 2024 (12/31/2024)")
+- [ ] Dropdown shows placeholder: "Choose an engagement..." when nothing selected
+- [ ] Shows ALL engagements from selected client, including those that are already consolidated
+- [ ] Engagements that are consolidated roots show a tree icon (🌳) prefix
+- [ ] Engagements already in current consolidation tree are filtered out (cannot add same engagement twice)
+- [ ] Engagements include structure metadata (Consolidated or None) stored but not displayed in dropdown
+- [ ] Same styling as Client dropdown
+
+**Field 3: Balance Type Selection:**
+- [ ] Label: "Balance type" with red asterisk (required field)
+- [ ] Dropdown is disabled until engagement is selected
+- [ ] When engagement selected, dropdown populates based on engagement's structure type
+- [ ] If engagement structure = "None": options are Unadjusted, Adjusted, Report, Federal Tax, State Tax, Other, Other 2, Other 3
+- [ ] If engagement structure = "Consolidated": options are Total, Final, Federal Tax, State Tax, Other, Other 2, Other 3
+- [ ] Dropdown shows placeholder: "Choose balance type..." when nothing selected
+- [ ] Single selection dropdown (not multiselect)
+- [ ] Same styling as other dropdowns
+
+**Field 4: Label:**
+- [ ] Label: "Label" with red asterisk (required field)
+- [ ] Text input field
+- [ ] Input is enabled from start (not dependent on other fields)
+- [ ] Input auto-fills with client name when client is selected
+- [ ] User can edit the auto-filled text
+- [ ] Input has white background, 1px border (#ddd), 4px border-radius
+- [ ] Input width: 100%
+- [ ] Input padding: 10px 12px
+- [ ] Input font-size: 14px
+- [ ] Input placeholder: "Enter label"
+- [ ] Maximum length: 100 characters
+
+**Parent Selection (Implicit):**
+- [ ] If a row was selected in table when "Add engagement" was clicked, new engagement will be added as child of that row
+- [ ] Only consolidated engagements (Structure = "Consolidated") can be parents
+- [ ] If selected row is not consolidated, engagement is added as root level
+- [ ] If no row was selected, new engagement will be added as root level
+- [ ] Parent selection is implicit (not shown in dialog for simplicity in this story)
+
+**Consolidation Merge Logic:**
+- [ ] When adding an engagement that is already a consolidated root (has its own tree):
+  - [ ] System detects that selected engagement is root of another consolidation tree
+  - [ ] All descendants of the selected engagement are included in the merge
+  - [ ] Selected engagement becomes child of the target parent (or root if no parent)
+  - [ ] All descendants maintain their relative parent-child relationships
+  - [ ] Levels are recalculated for merged engagement and all its descendants
+  - [ ] DisplayOrder is assigned to merged engagement among its new siblings
+  - [ ] Descendants retain their relative displayOrder within their sibling groups
+  - [ ] RootEngagementId is updated for merged engagement and all descendants to match new tree root
+  - [ ] Path is recalculated for merged engagement and all descendants
+  - [ ] Original consolidation record for the merged tree is marked as inactive (soft delete)
+  - [ ] New consolidation structure contains all nodes from both trees
+- [ ] When adding a standalone engagement (Structure = "None"):
+  - [ ] Engagement is added as a single node (no descendants)
+  - [ ] Normal add logic applies (as in original story)
+
+**Merge Preview (Optional Enhancement):**
+- [ ] If selected engagement is a consolidated root, show info message in dialog
+- [ ] Message: "This engagement is a consolidated structure with [X] level(s) and [Y] total engagement(s). Adding it will merge the entire structure into this consolidation."
+- [ ] Message appears below Engagement dropdown in light blue info box
+- [ ] Icon: ℹ️ information icon
+- [ ] User can proceed with merge by clicking "Add"
+
+**Validation:**
+- [ ] All four fields are required
+- [ ] "Add" button is disabled until all fields are filled
+- [ ] Show inline validation errors if user tries to submit with empty fields
+- [ ] Validation error text appears below field in red (#d32f2f)
+- [ ] Error icon appears next to error text
+- [ ] Example error: "Please select a client"
+- [ ] Validation: Selected engagement cannot already exist in current consolidation tree
+- [ ] Validation: If adding to a parent, parent must have Structure = "Consolidated"
+- [ ] Validation: Maximum tree depth (15 levels) would not be exceeded after merge
+- [ ] Error message if depth exceeded: "Adding this engagement would exceed the maximum consolidation depth of 15 levels."
+
+**Dialog Actions:**
+- [ ] "Add" button (primary action, dark gray background #4a4a4a, white text)
+- [ ] "Cancel" button (secondary action, light gray background #e0e0e0, dark text)
+- [ ] Buttons positioned at bottom-right of dialog
+- [ ] "Cancel" on left, "Add" on right
+- [ ] Buttons have 12px gap between them
+- [ ] Button padding: 10px 24px
+- [ ] Button border-radius: 4px
+- [ ] Button font-size: 14px, font-weight: 500
+- [ ] Clicking "Add" validates and adds engagement to consolidation (or merges tree)
+- [ ] Clicking "Cancel" closes dialog without changes
+- [ ] Clicking X close button same as Cancel
+- [ ] Pressing Escape key closes dialog (same as Cancel)
+
+**Adding Engagement (Standalone):**
+- [ ] On "Add" click, validate all fields first
+- [ ] If validation passes, add engagement to consolidation data structure
+- [ ] New engagement is added as child of selected parent (or root if no parent)
+- [ ] New engagement gets next available displayOrder value among siblings
+- [ ] New engagement's structure comes from selected engagement metadata
+- [ ] Table updates immediately to show new engagement
+- [ ] If added as child of collapsed parent, parent auto-expands
+- [ ] New engagement is automatically selected in table (highlighted row)
+- [ ] Dialog closes after successful add
+- [ ] Success toast message: "Engagement added to consolidation successfully"
+- [ ] "Save" button in options section becomes enabled (unsaved changes)
+
+**Adding Engagement (Merge Consolidated Tree):**
+- [ ] On "Add" click, validate all fields first
+- [ ] If validation passes and engagement is a consolidated root:
+  - [ ] Fetch complete tree structure for selected engagement from database
+  - [ ] Calculate new levels for all nodes in merged tree (root becomes child level, descendants adjust accordingly)
+  - [ ] Calculate new paths for all merged nodes
+  - [ ] Update RootEngagementId for all merged nodes to current tree's root
+  - [ ] Assign displayOrder to merged root among its new siblings
+  - [ ] Insert all nodes from merged tree into current consolidation structure
+  - [ ] Mark original consolidation record as inactive (IsActive = 0)
+  - [ ] Table updates immediately to show entire merged structure
+  - [ ] If added as child of collapsed parent, parent auto-expands to show merged tree
+  - [ ] Merged root engagement is automatically selected in table
+  - [ ] Dialog closes after successful merge
+  - [ ] Success toast message: "[X] engagement(s) merged into consolidation successfully" (where X is total count of merged nodes)
+  - [ ] "Save" button in options section becomes enabled (unsaved changes)
+
+**Error Handling:**
+- [ ] If add operation fails, show error message in dialog (don't close)
+- [ ] Error message appears at top of dialog in red with error icon
+- [ ] Error examples: "Unable to add engagement. Please try again."
+- [ ] Error example: "Cannot merge: maximum depth of 15 levels would be exceeded."
+- [ ] User can correct and retry without losing other selections
+- [ ] If merge operation fails partway through, rollback transaction to maintain data integrity
+
+**Accessibility:**
+- [ ] Dialog has `role="dialog"` and `aria-labelledby` pointing to dialog title
+- [ ] Dialog has `aria-modal="true"`
+- [ ] Focus moves to first input (Client dropdown) when dialog opens
+- [ ] Focus is trapped within dialog (Tab cycles through dialog elements only)
+- [ ] Tab order: Client → Engagement → Balance type → Label → Add → Cancel → X close
+- [ ] Escape key closes dialog and returns focus to "Add engagement" button
+- [ ] All form elements have proper labels (using label element or aria-label)
+- [ ] Error messages have `role="alert"` for screen reader announcement
+- [ ] Disabled state is announced by screen readers
+- [ ] Info message for consolidated merge is announced by screen readers
+
+**Testing:**
+- [ ] Unit tests for dialog open/close
+- [ ] Unit tests for field dependency logic (engagement depends on client, balance depends on engagement)
+- [ ] Unit tests for validation logic
+- [ ] Unit tests for balance type options based on structure
+- [ ] Unit tests for merge logic (level recalculation, path updates, RootEngagementId updates)
+- [ ] Integration tests for adding standalone engagement
+- [ ] Integration tests for merging consolidated tree
+- [ ] E2E test: add standalone engagement as root level (no parent selected)
+- [ ] E2E test: add standalone engagement as child of selected node
+- [ ] E2E test: add consolidated engagement (merge) as child of selected node
+- [ ] E2E test: add consolidated engagement (merge) as root level
+- [ ] E2E test: validation errors for empty fields
+- [ ] E2E test: validation error for exceeding maximum depth
+- [ ] E2E test: validation error for duplicate engagement
+- [ ] E2E test: cancel dialog without adding
+- [ ] E2E test: label auto-fills with client name
+- [ ] Test with "None" structure engagement (verify balance options)
+- [ ] Test with "Consolidated" structure engagement (verify balance options and merge preview)
+- [ ] Test merge of 2-level tree into 3-level tree (verify levels recalculate correctly)
+- [ ] Test merge that would exceed 15-level maximum (verify validation blocks it)
+- [ ] Accessibility tests for dialog keyboard navigation and screen reader
+
+---
+
+## User Story 2.3: Implement Change Parent Functionality with Tree Visualization
+
+**As a** user managing a consolidation structure  
+**I want to** change the parent of an engagement to reorganize the tree  
+**So that** I can adjust the hierarchy without removing and re-adding engagements
+
+**Problem Statement:**  
+Users need to reorganize the consolidation tree by moving engagements to different parents. This should be easy to do with a visual representation of the tree to help users understand the current structure and make informed decisions.
+
+**Description:**  
+Implement the "Change Parent" button functionality through a dialog that shows the full tree structure visually, allowing users to select a new parent for the selected engagement.
+
+**Acceptance Criteria:**
+
+**Change Parent Button:**
+- [ ] "Change Parent" button is in toolbar between "Add engagement" and "Move up"
+- [ ] Button shows hierarchy/parent icon (⤴)
+- [ ] Button text: "Change Parent"
+- [ ] Button is disabled when no row is selected in table
+- [ ] Button is enabled when a row is selected
+- [ ] Clicking button opens "Change Parent" dialog
+
+**Change Parent Dialog:**
+- [ ] Dialog title: "Change Parent for [EngagementLabel]"
+- [ ] Engagement label in title is from selected row's Label field
+- [ ] Dialog appears centered on screen with overlay
+- [ ] Dialog width: 600px
+- [ ] Dialog has white background with box shadow
+- [ ] Dialog has close button (X) in top-right corner
+- [ ] Dialog has border-radius: 8px
+
+**Current Parent Display:**
+- [ ] Below title, shows: "Current parent: [ParentLabel]" in gray text (#666)
+- [ ] If current parent is root level: "Current parent: (Root level)"
+- [ ] Text font-size: 14px
+- [ ] Provides context before user makes selection
+
+**Tree Visualization:**
+- [ ] Section label: "Select New Parent" (bold, font-weight: 600)
+- [ ] Tree displays entire consolidation structure with visual hierarchy
+- [ ] Tree uses indentation (20px per level) to show parent-child relationships
+- [ ] Each node shows: [Label] (Level [X])
+- [ ] Example: "Global Consolidated (Level 1)", "  North America Division (Level 2)"
+- [ ] Current engagement (being moved) is highlighted with light yellow background (#fff3cd)
+- [ ] Current parent is highlighted with light blue background (#e6f2ff)
+- [ ] Tree is scrollable if it exceeds dialog height (max height: 400px)
+- [ ] All nodes are expanded by default to show full structure
+- [ ] Tree has white background, 1px border (#ddd), 4px border-radius
+- [ ] Tree has custom scrollbar: 8px width, #888 thumb
+
+**Root Level Option:**
+- [ ] First option at top: "(None - Move to root level)" - clickable
+- [ ] Option has same styling as tree nodes
+- [ ] Option has 8px padding vertically, 12px horizontally
+- [ ] Clicking selects it as the new parent (null parent)
+
+**Parent Selection in Tree:**
+- [ ] Each valid node in tree is clickable/selectable
+- [ ] Clicking a node selects it as the new parent
+- [ ] Selected node has blue background (#e6f2ff) and 3px left border (#0066cc)
+- [ ] Only one node can be selected at a time
+- [ ] Previously selected node is deselected when new node is clicked
+- [ ] Hover state shows light gray background (#f5f5f5)
+
+**Invalid Parent Options (Disabled):**
+- [ ] Current engagement itself is disabled (can't be its own parent) - grayed out (opacity: 0.5)
+- [ ] Any descendant of current engagement is disabled (would create circular reference)
+- [ ] Non-consolidated engagements (Structure = "None") are disabled as parent options
+- [ ] Disabled nodes have cursor: not-allowed
+- [ ] Disabled nodes are not clickable
+- [ ] Disabled nodes still visible in tree for context
+- [ ] Tooltip on hover over disabled nodes: "Cannot select: would create circular reference" or "Cannot select: this is the current engagement" or "Cannot select: only consolidated engagements can be parents"
+
+**Validation:**
+- [ ] Validate that new parent is different from current parent
+- [ ] If same parent selected, "Save" button remains disabled
+- [ ] Validate that new parent won't create circular reference (prevented by disabling)
+- [ ] Validate that new parent has Structure = "Consolidated" (prevented by disabling)
+- [ ] Validate that moving engagement won't exceed maximum depth of 15 levels
+- [ ] If depth would be exceeded, show validation message: "Cannot move: would exceed maximum depth of 15 levels"
+- [ ] "Save" button is disabled if no new parent is selected yet
+- [ ] "Save" button is disabled if selected parent is same as current parent
+- [ ] "Save" button is disabled if validation errors exist
+
+**Preview Section:**
+- [ ] Below tree, shows: "Preview:" (bold label)
+- [ ] Shows: "[EngagementLabel] will become child of [NewParentLabel] at Level [X]"
+- [ ] If moving to root: "[EngagementLabel] will become a root level engagement at Level 1"
+- [ ] Preview updates immediately as user selects different parent in tree
+- [ ] Preview has light gray background (#f5f5f5)
+- [ ] Preview padding: 12px
+- [ ] Preview border-radius: 4px
+- [ ] Preview font-size: 14px
+
+**Saving Changes:**
+- [ ] "Save" button at bottom-right of dialog (primary action, dark gray #4a4a4a)
+- [ ] "Cancel" button next to Save (secondary action, light gray #e0e0e0)
+- [ ] Buttons have 12px gap between them
+- [ ] Clicking "Save" updates parent relationship in data structure
+- [ ] On save, close dialog
+- [ ] Table refreshes to show updated hierarchy
+- [ ] Moved engagement and its descendants update to new positions
+- [ ] Moved engagement's level is recalculated based on new parent
+- [ ] All descendants' levels are recalculated (adjusted by same amount)
+- [ ] Paths are recalculated for moved engagement and all descendants
+- [ ] DisplayOrder is assigned to moved engagement among its new siblings
+- [ ] Updated engagement remains selected in table
+- [ ] Success toast: "Parent changed successfully"
+- [ ] "Save" button in options section becomes enabled (unsaved changes)
+
+**Impact on Children:**
+- [ ] When moving an engagement, all its descendants move with it automatically
+- [ ] Descendants maintain their relative positions in tree
+- [ ] Descendants' levels are recalculated
+- [ ] Descendants' paths are recalculated
+- [ ] After save, table shows all affected engagements in their new positions
+
+**Accessibility:**
+- [ ] Dialog has `role="dialog"` and `aria-labelledby` for title
+- [ ] Dialog has `aria-modal="true"`
+- [ ] Tree has `role="tree"` with proper ARIA attributes
+- [ ] Tree nodes have `role="treeitem"` and `aria-level` indicating depth
+- [ ] Disabled nodes have `aria-disabled="true"` and tooltip
+- [ ] Selected node has `aria-selected="true"`
+- [ ] Focus moves to tree when dialog opens
+- [ ] Keyboard navigation: Arrow Up/Down navigate tree, Enter selects node, Escape closes dialog
+- [ ] Tab moves focus from tree to buttons
+- [ ] Screen readers announce current and new parent selections
+
+**Testing:**
+- [ ] Unit tests for tree rendering with current/parent highlighting
+- [ ] Unit tests for validation logic (circular reference prevention)
+- [ ] Unit tests for disabling invalid parent options
+- [ ] Unit tests for level and path recalculation
+- [ ] E2E test: change parent to different node at same level
+- [ ] E2E test: change parent to node at different level
+- [ ] E2E test: move to root level
+- [ ] E2E test: attempt to select invalid parent (should be disabled)
+- [ ] E2E test: cancel without saving
+- [ ] E2E test: move engagement with children (verify children move too)
+- [ ] E2E test: validation error for exceeding maximum depth
+- [ ] Test with deep tree (10 levels) - verify scrolling
+- [ ] Accessibility tests for dialog and tree keyboard navigation
+
+---
+
+## User Story 2.4: Implement Move Up/Down Functionality
+
+**As a** user organizing a consolidation structure  
+**I want to** reorder engagements within their sibling group  
+**So that** I can control the display order and sequence of engagements at the same level
+
+**Problem Statement:**  
+Users need to control the order in which sibling engagements appear in the consolidation structure. The order affects how data is displayed and processed, so users need an easy way to move engagements up or down within their level.
+
+**Description:**  
+Implement the "Move up" and "Move down" buttons to allow users to reorder engagements within their sibling group (engagements with the same parent).
+
+**Acceptance Criteria:**
+
+**Move Up Button:**
+- [ ] "Move up" button is in toolbar with up arrow icon (↑)
+- [ ] Button text: "Move up"
+- [ ] Button is disabled (grayed out) when no row is selected
+- [ ] Button is disabled when selected engagement is first among its siblings
+- [ ] Button is enabled when selected engagement has at least one sibling above it (same parent)
+- [ ] Clicking "Move up" swaps display order with the sibling immediately above
+- [ ] Move operation only affects display order within sibling group, not parent-child relationships
+- [ ] After move, engagement remains selected in table
+- [ ] Table updates immediately to show new order (row visually moves up)
+- [ ] Row smoothly animates to new position (CSS transition: 0.2s) - optional
+- [ ] "Save" button in options section enables to indicate unsaved changes
+- [ ] Success toast: "Engagement moved up"
+
+**Move Down Button:**
+- [ ] "Move down" button is in toolbar with down arrow icon (↓)
+- [ ] Button text: "Move down"
+- [ ] Button is disabled when no row is selected
+- [ ] Button is disabled when selected engagement is last among its siblings
+- [ ] Button is enabled when selected engagement has at least one sibling below it (same parent)
+- [ ] Clicking "Move down" swaps display order with the sibling immediately below
+- [ ] Move operation only affects display order, not hierarchy
+- [ ] After move, engagement remains selected
+- [ ] Table updates immediately to show new order (row visually moves down)
+- [ ] Row smoothly animates to new position (CSS transition: 0.2s) - optional
+- [ ] "Save" button enables to indicate unsaved changes
+- [ ] Success toast: "Engagement moved down"
+
+**Sibling Detection Logic:**
+- [ ] Siblings = engagements with the same ParentId (or both null for root level)
+- [ ] Order determined by DisplayOrder field
+- [ ] First sibling = lowest DisplayOrder value among siblings
+- [ ] Last sibling = highest DisplayOrder value among siblings
+- [ ] Button states update immediately when selection changes
+
+**Order Calculation:**
+- [ ] When moving up: swap DisplayOrder values with sibling above
+- [ ] When moving down: swap DisplayOrder values with sibling below
+- [ ] DisplayOrder values are maintained as integers (e.g., 1, 2, 3, 4...)
+- [ ] Changes are stored in component state until user clicks Save
+- [ ] Multiple moves can be made before saving
+
+**Visual Feedback:**
+- [ ] Selected row moves visually in table to new position
+- [ ] Other rows shift to accommodate the move
+- [ ] No flickering or layout jumps during move
+- [ ] Smooth transition animation for professional feel
+- [ ] Table scrolls if needed to keep moved row visible
+- [ ] Tree structure (indentation, expand/collapse) is maintained
+
+**Edge Cases:**
+- [ ] If only one engagement in consolidation, both buttons disabled
+- [ ] If only one engagement at a given level (no siblings), both buttons disabled
+- [ ] If engagement has siblings but is first, only "Move down" enabled
+- [ ] If engagement has siblings but is last, only "Move up" enabled
+- [ ] Moving engagement does not affect its children (they move with parent)
+- [ ] If parent is collapsed, move still works (affects order when expanded)
+
+**Accessibility:**
+- [ ] Buttons have proper aria-labels: "Move engagement up" / "Move engagement down"
+- [ ] Disabled state is announced by screen readers
+- [ ] Keyboard shortcuts: Alt+Up for move up, Alt+Down for move down (optional)
+- [ ] Screen readers announce when engagement position changes
+- [ ] Focus remains on moved row after move operation
+
+**Testing:**
+- [ ] Unit tests for sibling detection logic
+- [ ] Unit tests for button enable/disable logic based on position
+- [ ] Unit tests for DisplayOrder swap calculation
+- [ ] E2E test: move engagement up one position
+- [ ] E2E test: move engagement down one position
+- [ ] E2E test: move up when already first (button should be disabled)
+- [ ] E2E test: move down when already last (button should be disabled)
+- [ ] E2E test: make multiple moves before saving
+- [ ] E2E test: move engagement with children (children move with parent)
+- [ ] Test with 2 siblings (minimal case)
+- [ ] Test with 10+ siblings (scrolling behavior)
+- [ ] Test with mixed levels (verify only siblings at same level are considered)
+- [ ] Accessibility tests for keyboard navigation and screen reader announcements
+
+---
+
+## User Story 2.5: Implement Delete Functionality with Children Handling and Consolidation Split
+
+**As a** user managing a consolidation structure  
+**I want to** remove engagements from the consolidation with proper confirmation  
+**So that** I can clean up or reorganize the structure as needed, and preserve child structures as independent consolidations when appropriate
+
+**Problem Statement:**  
+Users need to remove engagements from the consolidation structure. When removing an engagement that has children, they need clear information about what will happen to those children and confirm the deletion. If the deleted engagement is a consolidated node with children, those children should be preserved as a new independent consolidation structure (split operation).
+
+**Description:**  
+Implement the "Delete" button functionality that opens a confirmation dialog, with special messaging for engagements that have children. When a consolidated engagement with children is deleted, create a new consolidation structure with the first child as the new root.
+
+**Acceptance Criteria:**
+
+**Delete Button:**
+- [ ] "Delete" button is in toolbar with trash/delete icon (🗑)
+- [ ] Button text: "Delete"
+- [ ] Button is disabled when no row is selected
+- [ ] Button is enabled when a row is selected
+- [ ] Clicking button opens "Remove from Consolidation?" confirmation dialog
+- [ ] Dialog appears centered on screen with overlay
+
+**Delete Confirmation Dialog:**
+- [ ] Dialog title: "Remove from Consolidation?"
+- [ ] Warning icon (⚠) displayed prominently at top
+- [ ] Warning icon font-size: 48px, color: orange (#ff9800)
+- [ ] Warning icon centered above message
+- [ ] Dialog width: 500px
+- [ ] Dialog has white background with box shadow
+- [ ] Dialog has border-radius: 8px
+
+**Dialog Message (No Children):**
+- [ ] Message: "Are you sure you want to remove [EngagementLabel] from this consolidation?"
+- [ ] Engagement label shown is from Label field (or Engagement name if Label empty)
+- [ ] Engagement name in message is bold (<strong> tag)
+- [ ] Message font-size: 15px
+- [ ] Message has line-height: 1.5 for readability
+- [ ] Message padding: 16px 0
+
+**Dialog Message (With Children - Leaf/Non-Consolidated Parent):**
+- [ ] First message: "Are you sure you want to remove [EngagementLabel] from this consolidation?"
+- [ ] Second message in highlighted warning box: "This engagement has [X] child engagement(s). All child engagements will also be removed."
+- [ ] Warning box has light yellow background (#fff3cd)
+- [ ] Warning box has 4px left border in orange (#ff9800)
+- [ ] Warning box padding: 12px
+- [ ] Warning box border-radius: 4px
+- [ ] Warning box margin-top: 16px
+- [ ] Child count is accurate (total descendants at all levels)
+- [ ] Child count in message is bold (<strong> tag)
+
+**Dialog Message (With Children - Consolidated Parent):**
+- [ ] First message: "Are you sure you want to remove [EngagementLabel] from this consolidation?"
+- [ ] Second message in highlighted info box: "This engagement has [X] child engagement(s). The child structure will be preserved as a separate consolidation with [FirstChildLabel] as the new root."
+- [ ] Info box has light blue background (#e6f2ff)
+- [ ] Info box has 4px left border in blue (#0066cc)
+- [ ] Info box padding: 12px
+- [ ] Info box border-radius: 4px
+- [ ] Info box margin-top: 16px
+- [ ] Child count is accurate (total descendants at all levels)
+- [ ] FirstChildLabel is the label of the first child (by DisplayOrder) of the engagement being deleted
+- [ ] Child count and FirstChildLabel in message are bold (<strong> tag)
+
+**Dialog Actions:**
+- [ ] Two buttons: "Cancel" (secondary, gray) and "Remove" (danger, red)
+- [ ] Buttons positioned at bottom-right of dialog
+- [ ] "Cancel" on left, "Remove" on right
+- [ ] Buttons have 12px gap between them
+- [ ] "Cancel" button: light gray background (#e0e0e0), dark text
+- [ ] "Remove" button: red background (#d32f2f), white text
+- [ ] Button padding: 10px 24px
+- [ ] Button border-radius: 4px
+- [ ] Button font-size: 14px, font-weight: 500
+- [ ] "Remove" button hover state: darker red (#b71c1c)
+- [ ] "Cancel" closes dialog without changes
+- [ ] "Remove" proceeds with deletion
+
+**Delete Operation (No Children):**
+- [ ] Clicking "Remove" removes engagement from consolidation data structure
+- [ ] Engagement row disappears from table
+- [ ] Selection moves to next row in table (or previous if last row was deleted)
+- [ ] If no rows remain, table shows empty state message
+- [ ] Dialog closes automatically after successful removal
+- [ ] Success toast: "Engagement removed from consolidation"
+- [ ] "Save" button in options section enables (unsaved changes)
+
+**Delete Operation (With Children - Leaf/Non-Consolidated Parent):**
+- [ ] Clicking "Remove" removes engagement and all descendants from consolidation
+- [ ] All affected rows disappear from table
+- [ ] No new consolidation is created (children are simply removed)
+- [ ] Table updates to show remaining engagements
+- [ ] Dialog closes after successful removal
+- [ ] Success toast: "[X] engagement(s) removed from consolidation" (where X is total including children)
+- [ ] "Save" button enables
+
+**Delete Operation (With Children - Consolidated Parent - Split Logic):**
+- [ ] Clicking "Remove" triggers consolidation split operation:
+  - [ ] Remove engagement from current consolidation structure
+  - [ ] Identify first child (by DisplayOrder) of deleted engagement
+  - [ ] Create new consolidation structure with first child as root:
+    - [ ] First child's ParentId becomes null (new root)
+    - [ ] First child's Level becomes 1
+    - [ ] All descendants of first child maintain their relative parent-child relationships
+    - [ ] All descendants' levels are recalculated relative to new root (subtract deleted node's level, add 1)
+    - [ ] New RootEngagementId is set to first child's ID for all nodes in new tree
+    - [ ] Paths are recalculated for all nodes in new tree
+    - [ ] DisplayOrder values are preserved within sibling groups
+    - [ ] New consolidation record is created in database with first child as root
+    - [ ] All nodes in new tree reference the new consolidation record
+  - [ ] Deleted engagement is removed from original consolidation
+  - [ ] Original consolidation structure continues without deleted engagement and its descendants
+- [ ] Table updates to show remaining engagements (split structure no longer visible in current consolidation)
+- [ ] Dialog closes after successful split
+- [ ] Success toast: "Engagement removed. Child structure preserved as separate consolidation with [FirstChildLabel] as root."
+- [ ] "Save" button enables
+
+**Cascading Effects:**
+- [ ] When removing engagement without children, only that engagement is removed
+- [ ] When removing leaf or non-consolidated parent with children, all descendants at all levels are removed
+- [ ] When removing consolidated parent with children, split logic preserves children as new consolidation
+- [ ] If removed engagement was a parent, siblings remain unaffected
+- [ ] Primary dropdown in Options section updates if deleted engagement was listed
+- [ ] If primary engagement is deleted, options section shows validation message
+
+**Split Operation Data Integrity:**
+- [ ] Split operation is transactional (all database changes succeed or all rollback)
+- [ ] Original consolidation remains valid after split
+- [ ] New consolidation is fully formed and valid after split
+- [ ] No orphaned nodes exist after split
+- [ ] No circular references created by split
+- [ ] Paths are valid and consistent in both trees after split
+- [ ] RootEngagementId is correct for all nodes in both trees
+- [ ] Levels are correct for all nodes in both trees
+
+**Accessibility:**
+- [ ] Dialog has `role="alertdialog"` for confirmation dialogs
+- [ ] Dialog has `aria-labelledby` for title and `aria-describedby` for message
+- [ ] Focus moves to "Cancel" button when dialog opens (safer default)
+- [ ] Escape key closes dialog (same as Cancel)
+- [ ] Enter key does NOT submit (prevents accidental deletion)
+- [ ] Screen readers announce child count and warning/info message
+- [ ] "Remove" button color/style indicates danger action
+- [ ] Tab order: Cancel → Remove → X close button
+
+**Testing:**
+- [ ] Unit tests for delete logic
+- [ ] Unit tests for children detection and counting
+- [ ] Unit tests for split logic (level recalculation, path updates, RootEngagementId updates)
+- [ ] E2E test: delete engagement with no children
+- [ ] E2E test: delete leaf engagement with children (verify all removed)
+- [ ] E2E test: delete non-consolidated parent with children (verify all removed)
+- [ ] E2E test: delete consolidated parent with children (verify split creates new consolidation)
+- [ ] E2E test: cancel deletion dialog
+- [ ] E2E test: delete engagement with grandchildren (verify all descendants removed or split correctly)
+- [ ] E2E test: verify new consolidation structure is valid after split
+- [ ] E2E test: verify original consolidation structure remains valid after split
+- [ ] Test with engagement that has 1 child (split with 1-node new tree)
+- [ ] Test with engagement that has 10+ children (split with large new tree)
+- [ ] Test with engagement that has multi-level descendants (3+ levels deep) - verify split preserves structure
+- [ ] Test split operation rollback on database error
+- [ ] Accessibility tests for dialog keyboard navigation
+
+---
+
+## User Story 2.6: Implement Save Functionality and Change Tracking
+
+**As a** user making changes to a consolidation structure  
+**I want to** save all my changes at once and be warned about unsaved changes  
+**So that** I can commit my changes when ready and not lose work accidentally
+
+**Problem Statement:**  
+Users make multiple changes to the consolidation structure (add, move, delete, change parent, merge, split) and need to save them all at once. They also need to be warned if they try to navigate away with unsaved changes.
+
+**Description:**  
+Implement the Save and Cancel buttons, track all changes made during the session, and warn users about unsaved changes when navigating away.
+
+**Acceptance Criteria:**
+
+**Change Tracking:**
+- [ ] Track all changes made during session in component state:
+  - [ ] Engagements added (with parent, displayOrder, label, balance, structure)
+  - [ ] Engagements deleted
+  - [ ] Consolidation merges (entire trees added)
+  - [ ] Consolidation splits (new consolidation structures created)
+  - [ ] Parent changes (engagement moved to different parent)
+  - [ ] DisplayOrder changes (move up/down operations)
+  - [ ] Options changes (Primary, Consolidate by, Account grouping, checkboxes)
+- [ ] "Save" button is disabled initially when page loads (no changes)
+- [ ] "Save" button enables immediately when any change is made
+- [ ] Changes are stored in component state (not persisted to database until save)
+- [ ] Table shows current state including all unsaved changes
+
+**Save Button:**
+- [ ] "Save" button is in Options section, dark gray background (#4a4a4a), white text
+- [ ] Button padding: 10px 24px
+- [ ] Button border-radius: 4px
+- [ ] Button font-size: 14px, font-weight: 500
+- [ ] Button is disabled when no changes exist (grayed out, opacity: 0.5)
+- [ ] Button is enabled when changes exist
+- [ ] Clicking "Save" persists all changes
+- [ ] Show loading state on button while saving: "Saving..." with spinner
+- [ ] Disable all controls while saving (prevent changes during save)
+
+**Save Success:**
+- [ ] On successful save, show success toast: "Consolidation structure saved successfully"
+- [ ] Toast appears at top-right of screen, green background, auto-dismisses after 3 seconds
+- [ ] "Save" button becomes disabled again
+- [ ] All controls re-enabled
+- [ ] Change tracking resets (empty change list)
+- [ ] If merge occurred, original consolidation is marked inactive in database
+- [ ] If split occurred, new consolidation record is created in database
+
+**Save Error:**
+- [ ] On error, show error toast with specific reason
+- [ ] Toast appears at top-right, red background, stays visible until dismissed
+- [ ] Error message examples:
+  - [ ] "Unable to save changes. Please try again."
+  - [ ] "Network error: Please check your connection and try again"
+  - [ ] "Data conflict: Another user has modified this consolidation. Please refresh and try again."
+- [ ] "Save" button remains enabled (user can retry)
+- [ ] Changes remain in component state (not lost)
+- [ ] Error details logged to console
+
+**Cancel Button:**
+- [ ] "Cancel" button is in Options section, light gray background (#e0e0e0), dark text
+- [ ] Button is always enabled (even with no changes)
+- [ ] Clicking "Cancel" discards all unsaved changes
+- [ ] If changes exist, show confirmation dialog: "Discard unsaved changes?"
+- [ ] Confirmation message: "You have unsaved changes. Are you sure you want to discard them?"
+- [ ] Dialog has two buttons: "Discard Changes" (danger, red) and "Keep Editing" (secondary, gray)
+- [ ] Clicking "Discard Changes" reloads original data (resets to last saved state)
+- [ ] Clicking "Keep Editing" closes dialog and returns to editing
+- [ ] If no changes exist, "Cancel" simply reloads without confirmation
+- [ ] After discarding changes, brief toast: "Changes discarded" (2 seconds)
+- [ ] "Save" button becomes disabled after discard
+
+**Navigation Warning:**
+- [ ] If user navigates away (clicks back arrow, breadcrumb, menu item) with unsaved changes, show warning dialog
+- [ ] Warning dialog title: "Unsaved Changes"
+- [ ] Warning message: "You have unsaved changes. Do you want to save before leaving?"
+- [ ] Dialog has three buttons:
+  - [ ] "Save and Leave" (primary, blue) - saves changes then navigates
+  - [ ] "Leave Without Saving" (danger, red) - discards changes and navigates
+  - [ ] "Stay on Page" (secondary, gray) - closes dialog, stays on page
+- [ ] "Save and Leave" triggers save operation, then navigates on success
+- [ ] If save fails, user stays on page with error message
+- [ ] "Leave Without Saving" discards changes and navigates immediately
+- [ ] "Stay on Page" closes dialog, user continues editing
+- [ ] Browser back button also triggers warning (use beforeunload or router guards)
+- [ ] Warning does not appear if no unsaved changes exist
+
+**Options Section Save:**
+- [ ] Changes to Primary dropdown are tracked
+- [ ] Changes to Consolidate by dropdown are tracked
+- [ ] Changes to Account grouping dropdown are tracked
+- [ ] Changes to checkboxes are tracked
+- [ ] Options changes are saved with same "Save" button (same transaction as structure changes)
+
+**Performance:**
+- [ ] Save operation completes in < 2 seconds for typical consolidation
+- [ ] Save operation for merge completes in < 5 seconds for large trees (100+ nodes)
+- [ ] Save operation for split completes in < 5 seconds for large trees
+- [ ] Table refresh after save is smooth (no flicker)
+- [ ] Loading state shows progress
+
+**Testing:**
+- [ ] Unit tests for change tracking (add, delete, move, reorder, merge, split)
+- [ ] E2E test: make changes and save successfully
+- [ ] E2E test: make changes and cancel (discard)
+- [ ] E2E test: make changes, navigate away, save and leave
+- [ ] E2E test: make changes, navigate away, leave without saving
+- [ ] E2E test: make changes, navigate away, stay on page
+- [ ] E2E test: save button disabled when no changes
+- [ ] E2E test: save button enabled after any change
+- [ ] E2E test: save merge operation (verify original consolidation marked inactive)
+- [ ] E2E test: save split operation (verify new consolidation created)
+- [ ] E2E test: save error handling (verify changes not lost)
+- [ ] Test: browser back button with unsaved changes
+- [ ] Test: multiple changes before save (5+ changes including merge/split)
+
+---
+
+## User Story 2.7: Display Tree Levels in Table with Visual Indicators
+
+**As a** user viewing the consolidation table  
+**I want to** see the tree structure visually represented in the table  
+**So that** I can understand the hierarchy and parent-child relationships at a glance
+
+**Problem Statement:**  
+The table needs to show the hierarchical structure (which engagements are parents, which are children, and at what level) directly in the Label column with proper visual indicators.
+
+**Description:**  
+Enhance the table Label column to show tree structure with expand/collapse icons and indentation so users can see parent-child relationships directly in the table.
+
+**Acceptance Criteria:**
+
+**Tree Structure Display:**
+- [ ] Label column shows tree structure with visual hierarchy
+- [ ] Root-level engagements (Level 1) have no indentation
+- [ ] Child engagements are indented based on their level
+- [ ] Indentation amount: 20px per level
+- [ ] Level 1 (root): 0px indent
+- [ ] Level 2: 20px indent
+- [ ] Level 3: 40px indent
+- [ ] Pattern continues for all levels
+
+**Expand/Collapse in Table:**
+- [ ] Parent engagements (those with children) display expand/collapse icon
+- [ ] Icon is a caret: ▶ when collapsed, ▼ when expanded (rotates 90 degrees)
+- [ ] Icon appears to the left of label text
+- [ ] Icon size: 16x16px
+- [ ] Icon color: medium gray (#666)
+- [ ] Clicking icon toggles visibility of children
+- [ ] Clicking icon does NOT select the row or close any dropdowns
+- [ ] Collapsed parent hides all descendants (children, grandchildren, etc.)
+- [ ] Expanded parent shows immediate children (children can be independently collapsed)
+- [ ] Icon rotates smoothly when toggling (CSS transition: 0.2s)
+- [ ] Engagements without children show spacer (16px width) instead of icon for alignment
+
+**Expand/Collapse Behavior:**
+- [ ] All nodes are expanded by default when page loads
+- [ ] Clicking collapse icon hides all descendants of that node (sets display: none)
+- [ ] Descendants remain in DOM but are hidden
+- [ ] Clicking expand icon shows immediate children only
+- [ ] Children's expand/collapse state is preserved
+- [ ] Expand/collapse state persists during session
+- [ ] Expand/collapse does NOT affect selection (selected row remains selected even if collapsed/hidden)
+
+**Cell Layout:**
+- [ ] Label cell contains: [Indent][Icon/Spacer][Label Text]
+- [ ] All elements aligned horizontally with proper spacing
+- [ ] Cell has flex display for proper alignment
+- [ ] Cell has sufficient padding to accommodate all elements (12px vertical, 12px horizontal)
+- [ ] Text doesn't wrap (single line with ellipsis if too long)
+- [ ] Tooltip shows full text on hover if truncated
+
+**Interaction with Other Features:**
+- [ ] Add engagement: new row appears at correct position based on parent
+- [ ] If added as child of collapsed parent, parent auto-expands to show new child
+- [ ] Merge consolidation: all merged nodes appear at correct positions, parent auto-expands
+- [ ] Delete engagement: if parent becomes childless, expand/collapse icon disappears
+- [ ] Split consolidation: split nodes disappear from table (now in separate consolidation)
+- [ ] Move up/down: row moves within visible siblings only
+- [ ] Change parent: row moves to new parent's children, indentation updates
+
+**Performance:**
+- [ ] Expand/collapse is instant (< 50ms)
+- [ ] No flickering or layout jumps during expand/collapse
+- [ ] Smooth animation for expand/collapse (0.2s transition)
+- [ ] Table remains responsive with 100+ rows
+
+**Accessibility:**
+- [ ] Tree structure is conveyed to screen readers
+- [ ] Each row has `aria-level` attribute indicating depth
+- [ ] Expandable rows have `aria-expanded` attribute (true/false)
+- [ ] Screen readers announce "Level [X]" for each row
+- [ ] Screen readers announce "Collapsed" or "Expanded" for parent rows
+- [ ] Keyboard navigation: Left arrow collapses node, Right arrow expands node
+- [ ] Keyboard navigation: Up/Down arrows navigate between visible rows only
+- [ ] Focus indicator clearly visible on expand/collapse icon
+- [ ] Expand/collapse icon has aria-label: "Expand" or "Collapse"
+
+**Testing:**
+- [ ] Unit tests for tree rendering logic with various structures
+- [ ] Unit tests for expand/collapse logic
+- [ ] Unit tests for indentation calculation based on level
+- [ ] E2E test: expand/collapse parent node
+- [ ] E2E test: expand/collapse multiple levels
+- [ ] E2E test: add child to collapsed parent (should auto-expand)
+- [ ] E2E test: merge consolidation into collapsed parent (should auto-expand)
+- [ ] E2E test: delete parent with children
+- [ ] E2E test: split consolidation (verify nodes disappear from table)
+- [ ] Test with 1-level tree (no children, no icons shown)
+- [ ] Test with 5-level deep tree (verify indentation increases correctly)
+- [ ] Test with wide tree (20+ siblings at one level)
+- [ ] Accessibility tests for screen reader announcements and keyboard navigation
+- [ ] Performance test with 100+ rows (expand/collapse speed)
+
+---
+
+## User Story 2.8: Add API Endpoint for Consolidation Merge Validation
+
+**As a** backend developer  
+**I want to** create an API endpoint that validates consolidation merge operations  
+**So that** the frontend can check if a merge is valid before attempting it
+
+**Problem Statement:**  
+When users attempt to merge an existing consolidation into another, the system needs to validate that the merge won't exceed maximum depth, create circular references, or violate other business rules. This validation should happen before the merge is attempted.
+
+**Description:**  
+Create a REST API endpoint that validates whether a consolidation merge operation is valid, returning validation results and any error messages.
+
+**Acceptance Criteria:**
+
+**API Endpoint:**
+- [ ] `POST /api/consolidations/validate-merge` - Validates merge operation
+- [ ] Request body: `{ "sourceEngagementId": 123, "targetParentId": 456, "targetRootId": 1 }`
+- [ ] Response: `{ "isValid": true/false, "errors": [], "warnings": [], "resultingDepth": 5 }`
+- [ ] Endpoint requires authentication
+- [ ] Endpoint validates user has permission to modify both consolidations
+- [ ] Endpoint returns 200 with validation result (even if validation fails)
+- [ ] Endpoint returns 400 for malformed requests
+- [ ] Endpoint returns 404 if source or target engagement not found
+
+**Validation Checks:**
+- [ ] Source engagement exists and is a consolidation root
+- [ ] Target parent exists (if not null)
+- [ ] Target parent has Structure = "Consolidated" (if not null)
+- [ ] Source engagement is not already in target consolidation tree
+- [ ] Merge would not create circular reference
+- [ ] Merge would not exceed maximum depth of 15 levels
+- [ ] Calculate resulting depth: max(target tree depth, target parent level + source tree depth)
+- [ ] User has permission to modify source consolidation
+- [ ] User has permission to modify target consolidation
+- [ ] Source consolidation is not locked/finalized
+- [ ] Target consolidation is not locked/finalized
+
+**Response Format:**
+- [ ] `isValid`: boolean indicating if merge is allowed
+- [ ] `errors`: array of error messages (blocking issues)
+- [ ] `warnings`: array of warning messages (non-blocking issues)
+- [ ] `resultingDepth`: integer showing depth of merged tree
+- [ ] `sourceTreeNodeCount`: integer showing number of nodes in source tree
+- [ ] `targetTreeNodeCount`: integer showing number of nodes in target tree
+- [ ] `mergedTreeNodeCount`: integer showing total nodes after merge
+
+**Error Messages:**
+- [ ] "Source engagement is not a consolidation root"
+- [ ] "Target parent does not exist"
+- [ ] "Target parent is not a consolidated engagement"
+- [ ] "Source engagement is already in target consolidation"
+- [ ] "Merge would create circular reference"
+- [ ] "Merge would exceed maximum depth of 15 levels (resulting depth: [X])"
+- [ ] "User does not have permission to modify source consolidation"
+- [ ] "User does not have permission to modify target consolidation"
+- [ ] "Source consolidation is locked and cannot be modified"
+- [ ] "Target consolidation is locked and cannot be modified"
+
+**Warning Messages:**
+- [ ] "Merge will add [X] engagements to target consolidation"
+- [ ] "Source consolidation will be marked as inactive after merge"
+- [ ] "Resulting tree will have [X] levels"
+
+**Performance:**
+- [ ] Validation completes in < 500ms for typical trees
+- [ ] Validation uses efficient queries (no N+1 problems)
+- [ ] Validation does not lock database tables
+
+**Testing:**
+- [ ] Unit tests for all validation checks
+- [ ] Integration test: valid merge (returns isValid: true)
+- [ ] Integration test: invalid merge - exceeds depth (returns isValid: false with error)
+- [ ] Integration test: invalid merge - circular reference (returns isValid: false with error)
+- [ ] Integration test: invalid merge - source not root (returns isValid: false with error)
+- [ ] Integration test: invalid merge - target not consolidated (returns isValid: false with error)
+- [ ] Integration test: invalid merge - already in target tree (returns isValid: false with error)
+- [ ] Integration test: invalid merge - no permission (returns isValid: false with error)
+- [ ] Integration test: valid merge with warnings (returns isValid: true with warnings)
+- [ ] Test with large trees (100+ nodes) - verify performance
+
+---
+
+## User Story 2.9: Add API Endpoint for Consolidation Split Operation
+
+**As a** backend developer  
+**I want to** create an API endpoint that executes consolidation split operations  
+**So that** the frontend can split a consolidation when a consolidated parent is deleted
+
+**Problem Statement:**  
+When users delete a consolidated parent engagement with children, the system needs to preserve the child structure as a new independent consolidation. This requires creating a new consolidation record and updating all child nodes to reference the new consolidation.
+
+**Description:**  
+Create a REST API endpoint that executes a consolidation split operation, creating a new consolidation with a specified engagement as the root and all its descendants as members.
+
+**Acceptance Criteria:**
+
+**API Endpoint:**
+- [ ] `POST /api/consolidations/split` - Executes split operation
+- [ ] Request body: `{ "sourceRootId": 1, "nodeToSplitId": 123, "newRootId": 124 }`
+- [ ] Response: `{ "success": true, "newConsolidationId": 456, "nodeCount": 25, "newRootEngagementId": 124 }`
+- [ ] Endpoint requires authentication
+- [ ] Endpoint validates user has permission to modify consolidation
+- [ ] Endpoint returns 200 on success
+- [ ] Endpoint returns 400 for invalid requests
+- [ ] Endpoint returns 404 if engagements not found
+- [ ] Endpoint returns 500 on database errors (with transaction rollback)
+
+**Split Operation Logic:**
+- [ ] Validate nodeToSplitId exists in source consolidation
+- [ ] Validate nodeToSplitId has children
+- [ ] Validate newRootId is a child of nodeToSplitId
+- [ ] Begin database transaction
+- [ ] Create new consolidation record in database
+- [ ] Update newRootId engagement:
+  - [ ] Set ParentId to null (new root)
+  - [ ] Set Level to 1
+  - [ ] Set RootEngagementId to newRootId
+  - [ ] Recalculate Path
+  - [ ] Set consolidation reference to new consolidation record
+- [ ] Update all descendants of newRootId:
+  - [ ] Recalculate Level (subtract nodeToSplitId level, add 1)
+  - [ ] Set RootEngagementId to newRootId
+  - [ ] Recalculate Path
+  - [ ] Set consolidation reference to new consolidation record
+  - [ ] Maintain parent-child relationships within split tree
+- [ ] Remove nodeToSplitId and all its descendants from source consolidation
+- [ ] Update source consolidation to remove references to split nodes
+- [ ] Commit transaction
+- [ ] Return success response with new consolidation details
+
+**Data Integrity:**
+- [ ] Operation is atomic (all changes succeed or all rollback)
+- [ ] No orphaned nodes after split
+- [ ] No circular references created
+- [ ] Paths are valid in both trees after split
+- [ ] RootEngagementId is correct for all nodes in both trees
+- [ ] Levels are correct for all nodes in both trees
+- [ ] DisplayOrder values are preserved within sibling groups
+- [ ] Source consolidation remains valid after split
+- [ ] New consolidation is fully formed and valid
+
+**Response Format:**
+- [ ] `success`: boolean indicating operation success
+- [ ] `newConsolidationId`: ID of newly created consolidation record
+- [ ] `nodeCount`: number of nodes in new consolidation (including new root)
+- [ ] `newRootEngagementId`: ID of engagement that is root of new consolidation
+- [ ] `newRootLabel`: label of new root engagement
+- [ ] `removedFromSource`: number of nodes removed from source consolidation
+
+**Error Handling:**
+- [ ] Validate all inputs before starting transaction
+- [ ] Rollback transaction on any database error
+- [ ] Log detailed error information for debugging
+- [ ] Return user-friendly error messages
+- [ ] Error examples:
+  - [ ] "Node to split does not exist in consolidation"
+  - [ ] "Node to split has no children"
+  - [ ] "New root is not a child of node to split"
+  - [ ] "User does not have permission to modify this consolidation"
+  - [ ] "Database error occurred during split operation"
+
+**Performance:**
+- [ ] Split operation completes in < 5 seconds for trees with 100+ nodes
+- [ ] Operation uses batch updates where possible
+- [ ] Operation does not cause long-running locks
+- [ ] Database indexes support efficient path and level updates
+
+**Testing:**
+- [ ] Unit tests for split logic (level recalculation, path updates)
+- [ ] Integration test: split 2-level tree (root + 1 child)
+- [ ] Integration test: split 5-level tree (verify all descendants updated)
+- [ ] Integration test: split with 10+ children (verify all moved to new consolidation)
+- [ ] Integration test: split with grandchildren (verify multi-level structure preserved)
+- [ ] Integration test: verify source consolidation valid after split
+- [ ] Integration test: verify new consolidation valid after split
+- [ ] Integration test: split error - node has no children
+- [ ] Integration test: split error - new root not child of split node
+- [ ] Integration test: split error - database error triggers rollback
+- [ ] Performance test: split 100+ node tree (verify completes in < 5 seconds)
+- [ ] Concurrent operation test: verify transaction isolation
+
+---
+
+## User Story 2.10: Update Add Engagement Dialog to Show Merge Preview
+
+**As a** user adding an existing consolidated engagement  
+**I want to** see a preview of the merge operation  
+**So that** I understand what will happen before I commit to the merge
+
+**Problem Statement:**  
+When users select an existing consolidated engagement to add to their current consolidation, they need to see information about the merge operation (how many nodes will be added, resulting depth, etc.) before they commit to the action.
+
+**Description:**  
+Enhance the Add Engagement dialog to show a merge preview section when a consolidated engagement is selected, displaying key information about the merge operation.
+
+**Acceptance Criteria:**
+
+**Merge Detection:**
+- [ ] When engagement is selected in dialog, check if it has Structure = "Consolidated"
+- [ ] If consolidated, call merge validation API: `POST /api/consolidations/validate-merge`
+- [ ] Pass sourceEngagementId (selected engagement), targetParentId (selected parent or null), targetRootId (current consolidation root)
+- [ ] Show loading indicator while validation is in progress
+- [ ] Display validation results in preview section
+
+**Preview Section Display:**
+- [ ] Preview section appears below Balance Type field when consolidated engagement is selected
+- [ ] Section has light blue background (#e6f2ff)
+- [ ] Section has 4px left border in blue (#0066cc)
+- [ ] Section padding: 16px
+- [ ] Section border-radius: 4px
+- [ ] Section has info icon (ℹ️) at top-left
+- [ ] Section title: "Consolidation Merge Preview" (bold, font-weight: 600)
+
+**Preview Content (Valid Merge):**
+- [ ] Shows message: "This engagement is a consolidated structure. Adding it will merge the entire tree into this consolidation."
+- [ ] Shows detail: "Engagements to be added: [X]" (where X is sourceTreeNodeCount from API)
+- [ ] Shows detail: "Resulting tree depth: [X] levels" (where X is resultingDepth from API)
+- [ ] Shows detail: "New parent: [ParentLabel]" (or "Root level" if no parent)
+- [ ] If warnings exist, display them in yellow warning box below details
+- [ ] Warning box has light yellow background (#fff3cd)
+- [ ] Each warning on separate line with warning icon (⚠️)
+
+**Preview Content (Invalid Merge):**
+- [ ] If validation returns isValid: false, show error message in preview section
+- [ ] Preview section changes to light red background (#ffebee)
+- [ ] Preview section border changes to red (#d32f2f)
+- [ ] Shows error icon (❌) instead of info icon
+- [ ] Section title changes to "Cannot Merge Consolidation"
+- [ ] Display all error messages from API response
+- [ ] Each error on separate line with error icon (❌)
+- [ ] "Add" button is disabled when validation fails
+- [ ] Tooltip on disabled "Add" button explains why it's disabled
+
+**Preview Content (Loading):**
+- [ ] While validation API call is in progress, show loading state
+- [ ] Loading spinner with text "Validating merge..."
+- [ ] Preview section has light gray background (#f5f5f5)
+- [ ] "Add" button is disabled during validation
+
+**Preview Content (Validation Error):**
+- [ ] If validation API call fails (network error, etc.), show error state
+- [ ] Error message: "Unable to validate merge. Please try again."
+- [ ] Retry button to re-trigger validation
+- [ ] "Add" button is disabled until validation succeeds
+
+**User Interaction:**
+- [ ] User can still change engagement selection after seeing preview
+- [ ] Preview updates when different engagement is selected
+- [ ] Preview disappears if non-consolidated engagement is selected
+- [ ] User can proceed with merge by clicking "Add" if validation passes
+- [ ] User cannot proceed if validation fails (button disabled)
+
+**Visual Design:**
+- [ ] Preview section is visually distinct from form fields
+- [ ] Typography is clear and readable (font-size: 14px)
+- [ ] Icons are appropriately sized (16x16px)
+- [ ] Colors follow existing design system
+- [ ] Section has subtle box-shadow for depth: 0 2px 4px rgba(0,0,0,0.1)
+
+**Accessibility:**
+- [ ] Preview section has appropriate ARIA attributes
+- [ ] Section has `role="region"` and `aria-label="Merge preview"`
+- [ ] Error messages have `role="alert"` for screen reader announcement
+- [ ] Warning messages are announced by screen readers
+- [ ] Loading state is announced by screen readers
+- [ ] Disabled "Add" button has aria-describedby pointing to error message
+
+**Testing:**
+- [ ] Unit test: preview appears when consolidated engagement selected
+- [ ] Unit test: preview disappears when non-consolidated engagement selected
+- [ ] Unit test: preview shows loading state during validation
+- [ ] Unit test: preview shows valid merge information
+- [ ] Unit test: preview shows invalid merge errors
+- [ ] Unit test: preview shows warnings for valid merge
+- [ ] E2E test: select consolidated engagement, see preview, proceed with merge
+- [ ] E2E test: select consolidated engagement with invalid merge, see errors, button disabled
+- [ ] E2E test: validation API error, see error message, retry successfully
+- [ ] E2E test: change engagement selection, preview updates correctly
+- [ ] Accessibility test: screen reader announces preview content
+- [ ] Visual regression test: preview section matches design
+
+Feature Multi‑Level Consolidation Change Detection and Staged Reconsolidation
+Problem statement Today, consolidated engagements only recognize a single parent-child level and surface a "recalculate" prompt to the immediate parent when a child changes. In real client structures, consolidations are multi-level and deeply nested. When users edit a leaf engagement 5–10 levels down (balances, groupings, tax codes, or journals), the application doesn't automatically propagate that "dirty" signal up the tree, leaving ancestors out of sync. Recalculations are also expensive; naively re-running on every atomic edit causes latency spikes, wasted compute, and a poor UX. Users need a predictable, performant way to (a) detect and surface what changed across the entire consolidation hierarchy, and (b) reconsolidate descendants → ancestors in the correct order with clear progress and control.
+
+Proposed solution Introduce a bottom‑up, staged reconsolidation model powered by multi‑level change detection, ancestor propagation, debounced job orchestration, and clear UI cues. The solution has four pillars:
+
+Change detection and ancestor propagation
+What we detect: Any change to trial balance account balances, account grouping assignments, tax code assignments, or journal entries (add/update/delete).
+How we detect: Hook a single MarkDirty(engagementId, source) call into existing save pipelines (TB grid, grouping/tax assignments, JE service).
+How we propagate: Persist a "dirty" event and set IsDirty for the changed node and every ancestor up to the root (using the ConsolidationHierarchy path). Store hints like DirtySince, DirtyDepthHint, LastDirtySources to power UI and scheduling.
+Outcome: Every ancestor "knows" a descendent changed and can participate in recalculation.
+Staged reconsolidation (debounced, bottom‑up, idempotent)
+Debounce/coalesce: Group many quick edits under the same root into one job using a configurable debounce window (e.g., 90s) and optional quiet‑time windows.
+Job orchestration: Build a per‑root job with ordered items from deepest level to root. Enforce that a parent runs only after all dirty children succeed (or are skipped).
+Correctness and performance:
+Bottom‑up reads children's latest outputs (or native TB for leaves) and writes parent's consolidated TB.
+Idempotency via input hashes; no‑op if inputs didn't change.
+Locks, retries, and partial continues prevent stalls (child failure marks parent skipped; overall job becomes Partial).
+Outcome: Accurate consolidations that run once per burst of changes, with minimal duplication.
+UX and API surface (visibility, control, and progress)
+Status endpoints:
+GET /engagements/{id}/consolidation-status – returns isDirty, dirtySince, lastConsolidatedAt, dirtyDepthHint, etc.
+GET /consolidations/{rootId}/pending – returns dirty nodes ordered deepest‑first.
+Actions:
+POST /engagements/{id}/consolidate-now – recalc this node upward until first clean parent.
+POST /consolidations/{rootId}/consolidate-all – run all IsDirty nodes under the root.
+UI cues:
+Show a yellow "Recalculate required" banner on every dirty ancestor (including root). Clicking "Consolidate now" triggers scoped recompute.
+Consolidated dropdown/menu surfaces pending counts, details panel (deepest‑first list), and a progress dialog (Queued/Running/Succeeded/Failed/Skipped).
+Outcome: Users can see what changed, choose when/how to run, and monitor progress.
+Operability (security, audit, telemetry, scale)
+Security: Only users with "Manage Consolidation" can enqueue/cancel jobs; read-only users can view status.
+Audit: Who/when initiated, job/item durations, failures, and results.
+Telemetry & SLAs: Queue depth, job durations, per‑level timings, failure codes, p95/p99 metrics. Operational alerts when thresholds are exceeded.
+Performance targets (typical tree depth 5, ~25 nodes):
+End‑to‑end "Consolidate all" in < 45s p95.
+Leaf 10k TB lines in < 2.5s p95; mid‑level (10 children) in < 3s p95; root (50 children) in < 5s p95.
+Key design highlights
+
+Data model (additive, no duplication of hierarchy):
+Reuse ConsolidationHierarchy (EngagementId, ParentEngagementId, Level, Path, RootEngagementId) as the single source of truth.
+Add operational tables: ConsolidationDirtyEvent (append‑only), ConsolidationConformance (current flags), ConsolidationJob/ConsolidationJobItem (execution).
+Ordering guarantees:
+Strict deepest‑first execution; parents recalc only after children succeed/skip.
+Safe concurrent roots; per‑root only one active job.
+Resource efficiency:
+Debounced batches avoid running on every keystroke.
+Idempotency prevents wasted recalcs.
+Resilience:
+Retry with backoff; lock TTLs; partial continues.
+Orphan detection and job resumption.
+Before vs. after
+
+Before: Only immediate parent is flagged; deep changes are invisible to higher ancestors. Frequent recalcs waste compute; users lack control/visibility.
+After: Every ancestor is flagged immediately; users can see, batch, and run accurate bottom‑up reconsolidations with progress and guardrails.
+Non‑goals
+
+Changing consolidation math or TB semantics.
+Cross‑root merge/split logic (covered by separate "merge/split" stories).
+Replacing existing hierarchy storage (we only read from it).
+Risks & mitigations
+
+Long jobs on very deep/wide trees → Debounce, quiet‑time, per‑level timings, and alerts; optional virtual scrolling in UI when listing hundreds of nodes.
+User confusion on scope → Clear banner copy, details panel with deepest‑first list, and explicit "Consolidate all" vs. "Consolidate now."
+Data races → Per‑node locks, single active job per root, idempotent recalcs.
+In short: this feature makes multi‑level consolidations reliable and usable at scale. It automatically detects changes anywhere in the tree, marks all ancestors, and executes a safe, batched, bottom‑up reconsolidation with clear UI, APIs, and operational controls.
+Story 1 (foundation): Change Detection and Ancestor Propagation Title Multi‑level change detection and ancestor propagation
+
+Description (Problem + Scope + Data model reuse) Problem: today only the immediate parent is notified when TB, grouping/tax assignments, or JEs change. We need to mark the changed node and all its ancestors "dirty," safely and fast.
+
+Scope: emit one "dirty" event per user action and atomically mark the node and all ancestors; set hints for UI and scheduling.
+
+Data model reuse (no duplicates): this story reuses your Feature 1.1–1.8 schema, especially ConsolidationHierarchy (EngagementId, ParentEngagementId, Level, Path, RootEngagementId, DisplayOrder, IsActive). We do not add or modify those columns. We add new, separate operational tables (ConsolidationConformance, ConsolidationDirtyEvent) that only reference ConsolidationHierarchy by EngagementId/RootEngagementId. We also reuse your stored procedures (e.g., sp_GetAncestors) for propagation; no duplicates are created.
+
+Acceptance Criteria
+
+Emit a single dirty event per user action across:
+TB balance edits, TB account grouping/tax assignments
+Journal Entry add/update/delete
+Service method MarkDirty(engagementId, source, correlationId?) sets:
+IsDirty=1 for the node and all ancestors to the root (in one set‑based op)
+DirtySince=min(existing, now), DirtyDepthHint=max(existing, new), LastDirtySources=union
+Performance: 10‑level path update < 100 ms p95
+Auditing: correlationId persisted; userId captured when available
+Story 2: Orchestrator, Debounce, and Background Jobs Title Debounced bottom‑up reconsolidation orchestrator
+
+Description (Problem + Scope + Dependencies) Problem: recalculating on every micro‑change wastes resources; running parents before children breaks correctness.
+
+Scope: coalesce events per root; plan items deepest‑first; lock per node; run resiliently.
+
+Dependencies (successor): This story assumes the Feature 1.1 ConsolidationHierarchy and the dirty marks from Story 1 are present. It does not add/duplicate schema from Feature 1.1–1.8. It also reuses root/level/path from your hierarchy to compute the execution plan.
+
+Acceptance Criteria
+
+DebounceWindowSeconds per Root (default 90); changes within the window merge into one job
+Create ConsolidationJob and ConsolidationJobItem rows ordered Level DESC, DisplayOrder as tiebreaker
+One active job per Root; per‑Engagement lock while computing
+Retries (5s, 30s, 2m) per item; Partial job if any failures
+Idempotency via InputHash; skip if inputs unchanged
+Telemetry for queue depth, durations, failures
+Story 3: Dirty Status API Title Consolidation status and "pending" endpoints
+
+Description (Problem + Scope + Dependencies) Problem: UI needs a single source of truth for dirty status, pending counts, jobs, and details.
+
+Scope: read‑only endpoints to drive banners, details drawer, progress, and menu badges.
+
+Dependencies (successor): Requires dirty propagation (Story 1) and the job model (Story 2). Reuses Feature 1.3 service/API conventions and authentication/authorization. No changes to Feature 1.3 endpoints; these are new endpoints that align with your API style.
+
+Acceptance Criteria
+
+GET /api/engagements/{id}/consolidation-status returns:
+isDirty, dirtySince, lastConsolidatedAt, dirtyDepthHint, dirtyChildCount, lastDirtySources, rootEngagementId, hasQueuedJob, jobStatus
+GET /api/consolidations/{rootId}/pending returns flattened list ordered Level DESC with running/queued markers
+Perf: <150 ms p95; gzip enabled; authz enforced
+Story 4: Bottom‑Up Recalculation Engine Title Bottom‑up reconsolidation engine
+
+Description (Problem + Scope + Dependencies) Problem: parents must compute over finalized children; leaves compute from native TB.
+
+Scope: compute per node; clear dirty; write consolidated TB.
+
+Dependencies (successor): This story consumes the plan created in Story 2. It reuses ConsolidationHierarchy for child discovery (no schema changes) and your existing TB/consolidated TB storage. No duplication of any data structures from Feature 1.1–1.8.
+
+Acceptance Criteria
+
+Leaf: read native TB (10k lines < 2.5 s p95)
+Non‑leaf: read children's consolidated outputs; compute by "Consolidate by" rules
+Update LastConsolidatedAt; clear IsDirty for node after success
+Engine runs only after all children succeeded or were skipped
+Perf examples: mid‑node with 10 children < 3 s p95; root with 50 children < 5 s p95
+Story 5: Manual "Consolidate Now" and "Consolidate All" Title Manual consolidation triggers
+
+Description (Problem + Scope + Dependencies) Problem: users need on‑demand actions for scoped or full reconsolidation.
+
+Scope: two actions with immediate feedback; throttle duplicate clicks; link to progress.
+
+Dependencies (successor): Requires Story 2 (planner) and Story 3 (status). Reuses Feature 1.6 breadcrumb/Consolidated visibility rules for enabling/disabling UI affordances.
+
+Acceptance Criteria
+
+POST /api/engagements/{id}/consolidate-now: enqueue node→first clean parent chain
+POST /api/consolidations/{rootId}/consolidate-all: enqueue all IsDirty under root
+Idempotent; returns { jobId, queued:true } or { jobId, status } if active
+Story 6: Multi‑Level Banners, Details, and Progress Title Multi‑level banners and progress UI
+
+Description (Problem + Scope + Dependencies) Problem: users must see where consolidation is required and track progress across deep trees.
+
+Scope: banner on any dirty ancestor; details drawer with deepest‑first list; progress dialog.
+
+Dependencies (successor): consumes APIs from Story 3 and actions from Story 5. Reuses your "Consolidated" dropdown paradigm from Feature 1.5–1.7 (no changes to those artifacts) and your existing breadcrumb patterns. No new database artifacts.
+
+Acceptance Criteria
+
+Banner: "Changes were made in a lower‑level engagement. Consolidation is required."
+Actions: Consolidate now, View details, Dismiss for now (session only)
+Details: Level, Engagement, Dirty since, Sources; filterable; keyboard accessible
+Progress: live status via SSE/poll; statuses Queued/Running/Succeeded/Failed/Skipped
+Story 7: Permissions and Audit Title Permissions and audit trail for consolidations
+
+Description (Problem + Scope + Dependencies) Problem: consolidation impacts financials; require gated actions and reliable audit.
+
+Scope: enforce Manage Consolidation for enqueue/cancel; admins for cancel; read for status; full audit.
+
+Dependencies (successor): Hooks into Story 2 (jobs) and Story 5 (actions). Reuses your platform authZ and audit conventions; no schema duplication from prior features.
+
+Acceptance Criteria
+
+Only Manage Consolidation can enqueue; cancel restricted to admins
+Audit records: who, when, nodes, durations, errors; per item and per job
+API to list jobs by date range; pageable
+Story 8: Resilience, Observability, and Test Plan Title Resilience patterns, telemetry, and comprehensive tests
+
+Description (Problem + Scope + Dependencies) Problem: long‑running hierarchical operations can fail; must not get stuck; must be observable.
+
+Scope: retries, timeouts, lock stealing, idempotency; end‑to‑end telemetry and tests.
+
+Dependencies (successor): depends on Stories 1–7 to run realistic end‑to‑end tests. Reuses your logging/metrics platform; no duplication.
+
+Acceptance Criteria
+
+Retries: per‑item exponential backoff; Partial job on failures
+Locks: stale lock detection; safe lock stealing with telemetry
+Metrics: events/sec, queue depth, p95/p99 durations, failure codes
+Tests: unit (engines, planner, APIs), integration (deep trees), E2E (UX); perf with 1k+ nodes, 15 levels
