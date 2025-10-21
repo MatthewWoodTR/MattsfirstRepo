@@ -22,6 +22,17 @@ Feature 2: Consolidation Setup UI Feature 4381620
 4484407: User Story 2.9 - API Split Operation (needs update)
 4484414: User Story 2.10 - Merge Preview (needs update)
 
+Feature 3: Multi-Level Consolidation Change Detection and Staged Reconsolidation Feature 4485253
+
+4485245: Story 1: Multi-level change detection and ancestor propagation
+4485246: Story 2: Debounced bottom-up reconsolidation orchestrator
+4485247: Story 3: Consolidation status and pending endpoints
+4485248: Story 4: Bottom-up reconsolidation engine
+4485249: Story 5: Manual consolidation triggers
+4485250: Story 6: Multi-level banners and progress UI
+4485251: Story 7: Permissions and audit trail for consolidations
+4485252: Story 8: Resilience patterns, telemetry, and comprehensive tests
+
 # Feature 1: Database Structure, Migration, and Navigation
 
 ## User Story 1.1: Design and Implement Multi-Level Consolidation Tree Database Structure
