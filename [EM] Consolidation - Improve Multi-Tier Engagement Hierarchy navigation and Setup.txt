@@ -1,401 +1,210 @@
-Epic 4237546
-Feature 1: Database Structure, Migration, and Navigation Feature 4237550
+Epic 4237546: [EM] Consolidation - Improve Multi-Tier Engagement Hierarchy navigation and Setup.
 
-4484384: User Story 1.1 - Database Structure ✅
-4484386: User Story 1.2 - API Service Layer ✅
-4484388: User Story 1.3 - API Endpoints ✅
-4484390: User Story 1.4 - Remove Navigation Arrows ✅
-4484391: User Story 1.5 - Separate Consolidated Dropdown ✅
-4484392: User Story 1.6 - Display Consolidated Menu ✅
-4484393: User Story 1.7 - Nested Tree Structure ✅
-4484394: User Story 1.8 - Update Engagement Dropdown ✅
-Feature 2: Consolidation Setup UI Feature 4381620
+Feature 4237550: Comprehensive Hierarchy Navigation and Direct Access
 
-4484395: User Story 2.1 - Create Setup Screen ✅
-4484396: User Story 2.2 - Add Engagement Functionality ✅
-4484397: User Story 2.3 - Change Parent Functionality (needs update)
-4484398: User Story 2.4 - Move Up/Down Functionality (needs update)
-4484399: User Story 2.5 - Delete Functionality ✅
-4484401: User Story 2.6 - Save Functionality ✅
-4484402: User Story 2.7 - Display Tree Levels (needs update)
-4484403: User Story 2.8 - API Merge Validation (needs update)
-4484407: User Story 2.9 - API Split Operation (needs update)
-4484414: User Story 2.10 - Merge Preview (needs update)
+- 4484384: User Story 1.1 - Design and Implement Multi-Level Consolidation Tree Database Structure
+- 4484386: User Story 1.2 - Create API Service Layer for Consolidation Tree Operations
+- 4484388: User Story 1.3 - Create API Endpoints for Consolidation Tree Navigation
+- 4484390: User Story 1.4 - Remove Consolidated Navigation Arrows and Go to Parent Button (FE)
+- 4484391: User Story 1.5 - Separate Consolidated into Independent Dropdown Menu
+- 4484392: User Story 1.6 - Display Consolidated Menu for Any Engagement in Consolidation Tree
+- 4484393: User Story 1.7 - Implement Nested Tree Structure in Consolidated Dropdown
+- 4484394: User Story 1.8 - Update Engagement Dropdown to Show Expandable Client List
+- 4495189: Design Story - [CAS] EM: Consolidated Breadcrumb
+- 4495261: User Story - Block deletion of child engagements and display direct parent in error (hierarchy regression)
 
-Feature 3: Multi-Level Consolidation Change Detection and Staged Reconsolidation Feature 4485253
+Feature 4381620: Multi-Tier Hierarchy Configuration in Engagement Setup
 
-4485245: Story 1: Multi-level change detection and ancestor propagation
-4485246: Story 2: Debounced bottom-up reconsolidation orchestrator
-4485247: Story 3: Consolidation status and pending endpoints
-4485248: Story 4: Bottom-up reconsolidation engine
-4485249: Story 5: Manual consolidation triggers
-4485250: Story 6: Multi-level banners and progress UI
-4485251: Story 7: Permissions and audit trail for consolidations
-4485252: Story 8: Resilience patterns, telemetry, and comprehensive tests
+- 4439355: User Story - [Consol] [Multi tier] - Identify engagements with multiple parents and measure multi-tier depth
+- 4484395: User Story 2.1 - Create Consolidation Setup Screen with Tree Table View
+- 4484396: User Story 2.2 - Implement Add Engagement Functionality with Consolidation Merge Support
+- 4484397: User Story 2.3 - Implement Change Parent Functionality with Tree Visualization
+- 4484398: User Story 2.4 - Implement Move Up/Down Functionality
+- 4484399: User Story 2.5 - Implement Delete Functionality with Children Handling and Consolidation Split
+- 4484401: User Story 2.6 - Implement Save Functionality and Change Tracking
+- 4484402: User Story 2.7 - Display Tree Levels in Table with Visual Indicators
+- 4484403: User Story 2.8 - Add API Endpoint for Consolidation Merge Validation
+- 4484407: User Story 2.9 - Add API Endpoint for Consolidation Split Operation
+- 4484414: User Story 2.10 - Update Add Engagement Dialog to Show Merge Preview
+- 4495120: Design Story - [CAS] EM: Consolidated Engagement Setup
+- 4495263: User Story - Deleting a ROOT engagement promotes direct children to ROOT and splits binders
 
-# Feature 1: Database Structure, Migration, and Navigation
+Feature 4485253: Multi-Level Consolidation Change Detection and Staged Reconsolidation
 
-## User Story 1.1: Design and Implement Multi-Level Consolidation Tree Database Structure
+- 4485245: Story 1 - Multi-level change detection and ancestor propagation
+- 4485246: Story 2 - Debounced bottom-up reconsolidation orchestrator
+- 4485247: Story 3 - Consolidation status and pending endpoints
+- 4485248: Story 4 - Bottom-up reconsolidation engine
+- 4485249: Story 5 - Manual consolidation triggers
+- 4485250: Story 6 - Multi-level banners and progress UI
+- 4485251: Story 7 - Permissions and audit trail for consolidations
+- 4485252: Story 8 - Resilience patterns, telemetry, and comprehensive tests
 
-**As a** system architect  
-**I want to** design a database structure that supports multi-level consolidation hierarchies  
-**So that** the application can traverse and display the entire consolidation tree regardless of depth
 
-**Problem Statement:**  
+# Feature 1: Comprehensive Hierarchy Navigation and Direct Access
+
+## User Story 1.1: Design and Implement Multi-Level Consolidation Tree Database Structure (ADO 4484384)
+
+As a system architect  
+I want to design a database structure that supports multi-level consolidation hierarchies  
+so that the application can traverse and display the entire consolidation tree regardless of depth
+
+Problem Statement:
 The current database structure only supports one-level parent-child relationships (each engagement knows its immediate parent, but not its position in the overall hierarchy). To display a complete consolidation tree and enable navigation across all levels, we need a database structure that can store and efficiently query the entire hierarchy.
 
-**Description:**  
+Description:
 Design and implement a new database structure that captures the complete consolidation tree, including all ancestor-descendant relationships, levels, and hierarchy paths. This will enable the application to query the full tree structure for any engagement node.
 
-**Acceptance Criteria:**
-
-**Database Schema Design:**
-- [ ] New table created: `ConsolidationHierarchy`
-- [ ] Schema includes: `Id` (PK), `EngagementId` (FK), `ParentEngagementId` (FK, nullable), `Level` (int), `Path` (varchar), `RootEngagementId` (FK), `DisplayOrder` (int)
-- [ ] Schema includes: `CreatedBy`, `CreatedDate`, `ModifiedBy`, `ModifiedDate`  
-  Note: No active/inactive status column is required for engagements or hierarchy rows; existence indicates activeness and deletion removes the record. Deletion of engagements is blocked when an engagement is a child of a consolidation.
-- [ ] Proper indexes created on `EngagementId`, `ParentEngagementId`, `RootEngagementId`, `Path`
-- [ ] Composite index on (RootEngagementId, Level, DisplayOrder) for efficient tree queries
-- [ ] Foreign key constraints to `Engagements` table with appropriate cascade rules
-- [ ] Check constraint: Level >= 1 (root is level 1)
-- [ ] Check constraint: If ParentEngagementId IS NULL, then Level = 1
-
-**Hierarchical Path Storage:**
-- [ ] `Path` field stores full hierarchy path (e.g., "/1/5/12/45")
-- [ ] Path starts and ends with "/" for consistent querying
-- [ ] Path enables efficient ancestor/descendant queries using LIKE operations
-- [ ] Path length accommodates deep hierarchies (varchar(1000) minimum)
-- [ ] Path is automatically calculated and maintained by triggers/stored procedures
-
-**Tree Traversal Support:**
-- [ ] Stored procedure: `sp_GetConsolidationTree(@EngagementId)` returns full tree from root
-- [ ] Stored procedure: `sp_GetAncestors(@EngagementId)` returns all ancestors ordered by level
-- [ ] Stored procedure: `sp_GetDescendants(@EngagementId)` returns all descendants with levels
-- [ ] Stored procedure: `sp_GetSiblings(@EngagementId)` returns nodes with same parent
-- [ ] Stored procedure: `sp_GetTreeDepth(@EngagementId)` returns maximum depth from node
-- [ ] Function: `fn_IsPartOfConsolidation(@EngagementId)` returns bit (1 if in tree, 0 if not)
-- [ ] All queries perform well with 1000+ nodes (< 100ms)
-
-**Data Integrity:**
-- [ ] Trigger prevents circular references on INSERT/UPDATE
-- [ ] Trigger prevents orphaned nodes (parent must exist if ParentEngagementId is not null)
-- [ ] Trigger automatically updates Path when parent changes
-- [ ] Trigger automatically updates Level when parent changes
-- [ ] Trigger automatically updates RootEngagementId when parent changes
-- [ ] Trigger cascades Path/Level updates to all descendants when node moves
-- [ ] Check constraint or trigger prevents engagement from being its own parent
-- [ ] Referential integrity maintained with Engagements table
-
-**Migration Strategy:**
-- [ ] Migration script: `001_CreateConsolidationHierarchy.sql` creates new table and indexes
-- [ ] Migration script: `002_MigrateExistingConsolidations.sql` migrates data
-- [ ] Migration identifies existing parent-child relationships from current structure
-- [ ] Migration calculates and populates Level for all existing engagements (root = 1, children = 2, etc.)
-- [ ] Migration calculates and populates Path for all existing engagements
-- [ ] Migration calculates and populates RootEngagementId for all nodes
-- [ ] Migration sets DisplayOrder based on existing order or alphabetically
-- [ ] Migration validates data integrity after conversion (no orphans, no cycles)
-- [ ] Rollback script available: `002_Rollback_MigrateExistingConsolidations.sql`
-- [ ] Migration tested on copy of production data with verification queries
-- [ ] Migration includes logging/reporting of any issues encountered
-
-**Performance:**
-- [ ] Tree query for 10-level hierarchy completes in < 100ms
-- [ ] Ancestor query completes in < 50ms
-- [ ] Descendant query for 100+ children completes in < 100ms
-- [ ] Insert/update operations maintain tree integrity without performance degradation
-- [ ] Caching strategy implemented for frequently accessed trees (application layer)
-- [ ] Database query execution plans reviewed and optimized
-- [ ] Statistics updated after migration
-
-**Documentation:**
-- [ ] Database schema documented with ERD diagram showing relationships
-- [ ] Stored procedure parameters and return values documented
-- [ ] Query patterns documented with examples (get tree, get ancestors, etc.)
-- [ ] Migration process documented step-by-step
-- [ ] Rollback procedure documented
-- [ ] Performance benchmarks documented with test data sizes
-
-**Testing:**
-- [ ] Unit tests for all stored procedures with various tree structures
-- [ ] Integration tests for tree operations (add, move, delete nodes)
-- [ ] Performance tests with large hierarchies (1000+ nodes, 15 levels deep)
-- [ ] Migration tests on sample data with verification
-- [ ] Data integrity tests (circular reference prevention, orphan prevention)
-- [ ] Concurrent update tests (race condition handling with locks)
-- [ ] Test with empty tree (no consolidations)
-- [ ] Test with single-level tree (all siblings, no children)
-- [ ] Test with maximum depth tree (15+ levels)
-
----
-
-## User Story 1.2: Create API Service Layer for Consolidation Tree Operations
-
-**As a** backend developer  
-**I want to** create a service layer that wraps database operations  
-**So that** the frontend can interact with consolidation trees through a clean API
-
-**Problem Statement:**  
-The frontend needs a consistent, well-documented API to interact with the consolidation tree structure. Direct database access is not appropriate, and we need business logic validation and error handling.
-
-**Description:**  
-Create a service layer (C# or similar) that provides methods for all consolidation tree operations, including retrieval, validation, and manipulation.
-
-**Acceptance Criteria:**
-
-**Service Class Structure:**
-- [ ] Service class created: `ConsolidationTreeService`
-- [ ] Service implements interface: `IConsolidationTreeService`
-- [ ] Service is registered in dependency injection container
-- [ ] Service has constructor injection for database context and logging
-- [ ] Service includes XML documentation comments on all public methods
-
-**Retrieval Methods:**
-- [ ] `GetConsolidationTree(int engagementId)` returns `ConsolidationTreeDto` with full tree
-- [ ] `GetAncestors(int engagementId)` returns `List<ConsolidationNodeDto>` ordered by level
-- [ ] `GetDescendants(int engagementId)` returns `List<ConsolidationNodeDto>` with children
-- [ ] `GetSiblings(int engagementId)` returns `List<ConsolidationNodeDto>` at same level
-- [ ] `GetTreeLevel(int engagementId)` returns `int` (level number, 0 if not in tree)
-- [ ] `IsPartOfConsolidation(int engagementId)` returns `bool`
-- [ ] `GetRootEngagement(int engagementId)` returns `ConsolidationNodeDto` or null
-- [ ] All methods return null or empty collections for invalid engagement IDs
-- [ ] All methods include error handling with logging
-
-**Validation Methods:**
-- [ ] `ValidateParentChild(int childId, int parentId)` returns `ValidationResult`
-- [ ] Validation checks: circular reference would be created
-- [ ] Validation checks: parent exists
-- [ ] Validation checks: child exists
-- [ ] Validation checks: maximum depth would not be exceeded (15 levels)
-- [ ] Validation checks: child is not already in a different tree
-- [ ] `CanAddToTree(int engagementId, int parentId)` returns `bool` with reason
-
-**DTOs (Data Transfer Objects):**
-- [ ] `ConsolidationTreeDto` includes: RootNode, TotalNodes, MaxDepth
-- [ ] `ConsolidationNodeDto` includes: EngagementId, EngagementName, ClientName, ClientNumber, Date, Level, ParentId, Children (recursive), IsFinalized, DisplayOrder, Label
-- [ ] DTOs are properly mapped from database entities
-- [ ] DTOs include navigation properties for parent/children relationships
-- [ ] DTOs are serializable to JSON
-
-**Error Handling:**
-- [ ] All methods catch and log exceptions
-- [ ] Methods return appropriate error responses (not just null)
-- [ ] Custom exceptions: `CircularReferenceException`, `InvalidTreeOperationException`
-- [ ] Validation errors return structured error messages
-- [ ] Database errors are logged with full stack trace
-- [ ] User-friendly error messages returned to frontend
-
-**Performance:**
-- [ ] Service methods complete within same time constraints as database operations
-- [ ] Service implements caching for frequently accessed trees (5-minute cache)
-- [ ] Cache invalidation on tree structure changes
-- [ ] Async methods available for all operations: `GetConsolidationTreeAsync`, etc.
-- [ ] Batch operations supported for multiple engagement queries
-
-**Testing:**
-- [ ] Unit tests for all service methods with mocked database
-- [ ] Unit tests for validation logic with various scenarios
-- [ ] Integration tests with real database
-- [ ] Test error handling paths
-- [ ] Test caching behavior
-- [ ] Test concurrent access scenarios
-
----
-
-## User Story 1.3: Create API Endpoints for Consolidation Tree Navigation
-
-**As a** frontend developer  
-**I want to** REST API endpoints for consolidation tree operations  
-**So that** I can fetch tree data and check consolidation status from the UI
-
-**Problem Statement:**  
-The frontend needs HTTP endpoints to retrieve consolidation tree data for display in the breadcrumb navigation dropdown.
+Acceptance Criteria:
+- Database Schema Design:
+  - New table: ConsolidationHierarchy with Id (PK), EngagementId (FK), ParentEngagementId (nullable FK), Level (int), Path (varchar), RootEngagementId (FK), DisplayOrder (int), CreatedBy/CreatedDate/ModifiedBy/ModifiedDate
+  - Indexes on EngagementId, ParentEngagementId, RootEngagementId, Path; composite on (RootEngagementId, Level, DisplayOrder)
+  - Constraints to prevent invalid levels and ensure root semantics
+- Hierarchical Path Storage:
+  - Path stores full hierarchy like “/1/5/12/45”, supports ancestor/descendant queries, auto-maintained
+- Tree Traversal Support:
+  - Stored procs: sp_GetConsolidationTree, sp_GetAncestors, sp_GetDescendants, sp_GetSiblings, sp_GetTreeDepth; fn_IsPartOfConsolidation
+- Data Integrity:
+  - Triggers prevent cycles, orphans; auto-update path/level/root on moves; cascade updates to descendants
+- Migration Strategy:
+  - Scripts to create schema, migrate existing relationships, compute Level/Path/RootEngagementId/DisplayOrder; rollback and validation
+- Performance:
+  - Query SLAs (<100ms typical), caching strategy, optimized plans
+- Documentation:
+  - ERD, stored proc docs, query patterns, migration plan, benchmarks
+- Testing:
+  - Unit, integration, performance, integrity, concurrency, boundary scenarios
 
-**Description:**  
-Create REST API endpoints that expose the consolidation tree service methods to the frontend application.
 
-**Acceptance Criteria:**
+## User Story 1.2: Create API Service Layer for Consolidation Tree Operations (ADO 4484386)
+… unchanged from prior content, aligned to ID above …
 
-**API Endpoints:**
-- [ ] `GET /api/engagements/{id}/consolidation-tree` - Returns full tree structure
-- [ ] `GET /api/engagements/{id}/is-consolidated` - Returns boolean indicating if part of tree
-- [ ] `GET /api/engagements/{id}/consolidation-level` - Returns level number (0 if not in tree)
-- [ ] `GET /api/engagements/{id}/consolidation-ancestors` - Returns list of ancestor nodes
-- [ ] `GET /api/engagements/{id}/consolidation-root` - Returns root node of tree
-- [ ] All endpoints return 404 if engagement not found
-- [ ] All endpoints return 200 with appropriate data structure
-- [ ] All endpoints support CORS for frontend application
-
-**Request/Response Format:**
-- [ ] All responses are JSON format
-- [ ] Response for `/consolidation-tree`: `{ "rootNode": {...}, "totalNodes": 10, "maxDepth": 3, "currentNodeId": 5 }`
-- [ ] Response for `/is-consolidated`: `{ "isConsolidated": true, "rootEngagementId": 1 }`
-- [ ] Response for `/consolidation-level`: `{ "level": 2, "isRoot": false }`
-- [ ] Response includes engagement details: id, name, date, client info, finalization status
-- [ ] Tree nodes include children recursively with proper nesting
-
-**Error Handling:**
-- [ ] 400 Bad Request for invalid engagement ID format
-- [ ] 404 Not Found if engagement doesn't exist
-- [ ] 500 Internal Server Error with generic message (details logged)
-- [ ] Error response format: `{ "error": "message", "code": "ERROR_CODE" }`
-- [ ] Validation errors return 400 with detailed field errors
-
-**Security:**
-- [ ] Endpoints require authentication
-- [ ] User must have permission to view engagement
-- [ ] User must have permission to view client
-- [ ] Cross-engagement access is validated
-- [ ] Rate limiting applied (100 requests per minute per user)
 
-**Performance:**
-- [ ] Endpoints respond within 200ms for typical requests
-- [ ] Response compression enabled (gzip)
-- [ ] ETags supported for caching
-- [ ] Conditional requests supported (If-None-Match)
+## User Story 1.3: Create API Endpoints for Consolidation Tree Navigation (ADO 4484388)
+… unchanged from prior content, aligned to ID above …
 
-**Documentation:**
-- [ ] Swagger/OpenAPI documentation generated
-- [ ] Each endpoint documented with description, parameters, responses
-- [ ] Example requests and responses provided
-- [ ] Error codes documented
 
-**Testing:**
-- [ ] Integration tests for all endpoints
-- [ ] Test authentication/authorization
-- [ ] Test with valid and invalid engagement IDs
-- [ ] Test with engagements in trees and standalone engagements
-- [ ] Test error scenarios (not found, unauthorized, etc.)
-- [ ] Load testing with concurrent requests
+## User Story 1.4: Remove Consolidated Navigation Arrows and Go to Parent Button (FE) (ADO 4484390)
+… unchanged …
 
----
 
-## User Story 1.4: Remove Consolidated Navigation Arrows and Go to Parent Button
+## User Story 1.5: Separate Consolidated into Independent Dropdown Menu (ADO 4484391)
+… unchanged …
 
-... (unchanged)
 
----
+## User Story 1.6: Display Consolidated Menu for Any Engagement in Consolidation Tree (ADO 4484392)
+… unchanged …
 
-## User Story 1.5: Separate Consolidated into Independent Dropdown Menu
 
-... (unchanged)
+## User Story 1.7: Implement Nested Tree Structure in Consolidated Dropdown (ADO 4484393)
+… unchanged …
 
----
 
-## User Story 1.6: Display Consolidated Menu for Any Engagement in Consolidation Tree
+## User Story 1.8: Update Engagement Dropdown to Show Expandable Client List (ADO 4484394)
+… unchanged …
 
-... (unchanged)
 
----
+## Design Story: [CAS] EM: Consolidated Breadcrumb (ADO 4495189)
+… design reference …
 
-## User Story 1.7: Implement Nested Tree Structure in Consolidated Dropdown
 
-... (unchanged)
+## User Story: Block deletion of child engagements and display direct parent in error (hierarchy regression) (ADO 4495261)
+… description and acceptance criteria per ADO …
 
----
 
-## User Story 1.8: Update Engagement Dropdown to Show Expandable Client List
+# Feature 2: Multi-Tier Hierarchy Configuration in Engagement Setup
 
-... (unchanged)
+## User Story 2.1: Create Consolidation Setup Screen with Tree Table View (ADO 4484395)
+… unchanged …
 
----
 
-# Feature 2: Consolidation Setup UI
+## User Story 2.2: Implement Add Engagement Functionality with Consolidation Merge Support (ADO 4484396)
+Consolidation Merge Logic additions (retains full content):
+- When adding an engagement that is already a consolidated root:
+  - Detect and merge entire subtree; recalc Level/Path/RootEngagementId; assign DisplayOrder; retire source consolidation (no soft delete)
+- When adding a standalone engagement:
+  - Add as single node
 
-## User Story 2.1: Create Consolidation Setup Screen with Tree Table View
+… remaining content unchanged …
 
-... (unchanged)
 
----
+## User Story 2.3: Implement Change Parent Functionality with Tree Visualization (ADO 4484397)
+… unchanged …
 
-## User Story 2.2: Implement Add Engagement Functionality with Consolidation Merge Support
 
-... (all content unchanged except for the following under Consolidation Merge Logic) ...
+## User Story 2.4: Implement Move Up/Down Functionality (ADO 4484398)
+… unchanged …
 
-**Consolidation Merge Logic:**
-- [ ] When adding an engagement that is already a consolidated root (has its own tree):
-  - [ ] System detects that selected engagement is root of another consolidation tree
-  - [ ] All descendants of the selected engagement are included in the merge
-  - [ ] Selected engagement becomes child of the target parent (or root if no parent)
-  - [ ] All descendants maintain their relative parent-child relationships
-  - [ ] Levels are recalculated for merged engagement and all its descendants
-  - [ ] DisplayOrder is assigned to merged engagement among its new siblings
-  - [ ] Descendants retain their relative displayOrder within their sibling groups
-  - [ ] RootEngagementId is updated for merged engagement and all descendants to match new tree root
-  - [ ] Path is recalculated for merged engagement and all descendants
-  - [ ] Original consolidation record for the merged tree is retired/removed; references are updated to the target tree. No soft-delete flags are used.
-  - [ ] New consolidation structure contains all nodes from both trees
-- [ ] When adding a standalone engagement (Structure = "None"):
-  - [ ] Engagement is added as a single node (no descendants)
-  - [ ] Normal add logic applies (as in original story)
 
-... (remaining content unchanged)
+## User Story 2.5: Implement Delete Functionality with Children Handling and Consolidation Split (ADO 4484399)
+… unchanged …
 
----
 
-## User Story 2.3: Implement Change Parent Functionality with Tree Visualization
+## User Story 2.6: Implement Save Functionality and Change Tracking (ADO 4484401)
+Save Success addition:
+- On successful save, disable Save, reset tracking, and if merge occurred, retire source consolidation (no soft delete); if split occurred, create new consolidation record
 
-... (unchanged)
+… remaining content unchanged …
 
----
 
-## User Story 2.4: Implement Move Up/Down Functionality
+## User Story 2.7: Display Tree Levels in Table with Visual Indicators (ADO 4484402)
+… unchanged …
 
-... (unchanged)
 
----
+## User Story 2.8: Add API Endpoint for Consolidation Merge Validation (ADO 4484403)
+Warning Messages additions:
+- “Merge will add [X] engagements…”
+- “Source consolidation will be retired…”
+- “Resulting tree will have [X] levels”
 
-## User Story 2.5: Implement Delete Functionality with Children Handling and Consolidation Split
+… remaining content unchanged …
 
-... (unchanged)
 
----
+## User Story 2.9: Add API Endpoint for Consolidation Split Operation (ADO 4484407)
+… unchanged …
 
-## User Story 2.6: Implement Save Functionality and Change Tracking
 
-... (all content unchanged except for the following under Save Success) ...
+## User Story 2.10: Update Add Engagement Dialog to Show Merge Preview (ADO 4484414)
+… unchanged …
 
-**Save Success:**
-- [ ] On successful save, show success toast: "Consolidation structure saved successfully"
-- [ ] Toast appears at top-right of screen, green background, auto-dismisses after 3 seconds
-- [ ] "Save" button becomes disabled again
-- [ ] All controls re-enabled
-- [ ] Change tracking resets (empty change list)
-- [ ] If merge occurred, the original consolidation record is retired/removed and references are updated to the target tree. No soft-delete flags are used.
-- [ ] If split occurred, new consolidation record is created in database
 
-... (remaining content unchanged)
+## Design Story: [CAS] EM: Consolidated Engagement Setup (ADO 4495120)
+… design reference …
 
----
 
-## User Story 2.7: Display Tree Levels in Table with Visual Indicators
+## User Story: Deleting a ROOT engagement promotes direct children to ROOT and splits binders (ADO 4495263)
+… description and acceptance criteria per ADO …
 
-... (unchanged)
 
----
+# Feature 3: Multi-Level Consolidation Change Detection and Staged Reconsolidation
 
-## User Story 2.8: Add API Endpoint for Consolidation Merge Validation
+## Story 1: Multi-level change detection and ancestor propagation (ADO 4485245)
+… unchanged …
 
-... (all content unchanged except for Warning Messages section) ...
 
-**Warning Messages:**
-- [ ] "Merge will add [X] engagements to target consolidation"
-- [ ] "Source consolidation will be retired after merge"
-- [ ] "Resulting tree will have [X] levels"
+## Story 2: Debounced bottom-up reconsolidation orchestrator (ADO 4485246)
+… unchanged …
 
-... (remaining content unchanged)
 
----
+## Story 3: Consolidation status and pending endpoints (ADO 4485247)
+… unchanged …
 
-## User Story 2.9: Add API Endpoint for Consolidation Split Operation
 
-... (unchanged)
+## Story 4: Bottom-up reconsolidation engine (ADO 4485248)
+… unchanged …
 
----
 
-## User Story 2.10: Update Add Engagement Dialog to Show Merge Preview
+## Story 5: Manual consolidation triggers (ADO 4485249)
+… unchanged …
 
-... (unchanged)
 
-Feature Multi‑Level Consolidation Change Detection and Staged Reconsolidation
-... (unchanged)
+## Story 6: Multi-level banners and progress UI (ADO 4485250)
+… unchanged …
+
+
+## Story 7: Permissions and audit trail for consolidations (ADO 4485251)
+… unchanged …
+
+
+## Story 8: Resilience patterns, telemetry, and comprehensive tests (ADO 4485252)
+… unchanged …
