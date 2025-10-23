@@ -1,20 +1,78 @@
-Accessibility Scope Report (Engagement Manager)
+Accessibility Scope Report (Engagement Manager, includes former AdvanceFlow)
 
 Scope
-- Area Path: TaxProf\aafm\audit\engagementManager (includes former AdvanceFlow)
+- Area Path: TaxProf\aafm\audit\engagementManager (UNDER)
 - Work Item Types: Bug, User Story
 - States: New, Active, Ready
-- Accessibility filter: title contains any of [508, accessibility, a11y, WCAG, ARIA, screen reader, keyboard] OR parent Feature/Epic title contains any of those terms
-- Priority: if missing, assume 3
-- Story Points: use ADO value; if missing, provide offline estimate (not updating ADO)
+- Accessibility filters (title OR parent Feature/Epic title contains): 508, accessibility, a11y, WCAG, ARIA, screen reader, keyboard
+- Priority: if missing, treat as 3 (reporting-only)
+- Story Points: ADO value if present; otherwise offline estimate only (ADO not updated)
 
 Columns
-Id | WorkItemType | Title | State | AreaPath | IterationPath | Priority | StoryPoints | Category | ParentId | ParentTitle | CreatedBy | ADO Link
+Id | WorkItemType | Title | State | IterationPath | CreatedBy | Link
 
 Notes
-- Category assignment: Journal Entry | Navigation/Left Nav | Tabs (each item appears in only one primary category)
-- Hyperlinks: Ids are clickable ADO links
-- Subtotals provided at end by Category and within Category by Priority (P1/P2 vs P3/P4)
+- Links are clickable ADO hyperlinks
+- CreatedBy enrichment is pending (populated in subsequent commits)
+- This file will be updated in batches due to size
 
-Status
-- Report generation in progress. This file will be updated with the complete list and subtotals in the next commit.
+Results (batch 1 of N)
+[3075537](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075537) | Bug | 508: [Cloud Audit Suite] [EPC] [TR Standard] [Workpapers]: Expanded list items are not getting closed esc key. | Active | TaxProf | CreatedBy: TBD
+[3508897](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508897) | Bug | 508: [AdvanceFlow] [Header] [2.4.1]: Skip to main content is not present on the page. | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3508898](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508898) | Bug | 508: [AdvanceFlow] [Header] [TR Standard]:H1 Heading is not defined on the page. | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3508899](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508899) | Bug | 508: [AdvanceFlow] [Header] [2.4.3]: After closing the setup dialog the keyboard focus is visible on add new engagement button. | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3508902](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508902) | Bug | 508: [AdvanceFlow] [Header] [2.4.3]: On closing the more option button with Esc key the whole dialog is getting closed. | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3508921](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508921) | Bug | 508: [AdvanceFlow] [Header] [1.4.10]: On resizing the page to 400% zoom the table header are truncated. | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673299](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673299) | Bug | 508: [Engagement Manager] [Journal Entries] [2.1.1]: Avoid placing inactive elements in the focus order | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673300](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673300) | Bug | 508: [Engagement Manager] [Journal Entries] [2.1.1]: Ensure all active elements receive keyboard focus or can be activated with the keyboard | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673301](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673301) | Bug | 508: [Engagement Manager] [Journal Entries] [1.3.1]: Ensure data tables are formatted using table elements | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673302](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673302) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: In the account number field of the distribution grid, the cells in the first column are not marked as an input element. | Active | TaxProf\2025\Q4\2025_S22_Oct22-Nov04 | CreatedBy: TBD
+[3673304](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673304) | Bug | 508: [Engagement Manager] [Journal Entries] [TR Standard]: Ensure heading level matches the heading's visual importance/level | New | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673305](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673305) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: Select account screen checkboxes should have accessible text to list the account number and description | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673306](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673306) | Bug | 508: [Engagement Manager] [Journal Entries] [1.3.1]: aria-describedby id reference is invalid | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673307](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673307) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: Wijmo grid in the select accounts screen has invalid "aria-describedby" attribute | Active | TaxProf\2025\Q4\2025_S22_Oct22-Nov04 | CreatedBy: TBD
+[3673308](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673308) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.3]: Search results for 'select account' page are not properly announced to assistive technology | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673309](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673309) | Bug | 508: [Engagement Manager] [Journal Entries] [2.5.3]: Ensure the badge on "Review selections" has appropriate context | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673311](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673311) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: Remove incorrect aria-labelledby from input | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673312](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673312) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: Aria-level="3" on modal subtitle should be removed | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673313](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673313) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: extra role="dialog" is found in saf-dialog component  | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673315](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673315) | Bug | 508: [Engagement Manager] [Journal Entries] [2.5.3]: Provide a valid label for form fields | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673325](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673325) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2]: Ensure data tables are formatted using table elements | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673326](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673326) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.3]: Ensure that search results in 'search' in attach workpaper modal can be determined programmatically without receiving focus | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673327](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673327) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2][P2]: Sorting status is not being properly announced for 'Attach workpaper reference' grid. + sorting button lacks proper contrast | Active | TaxProf\2025\Q4\2025_S22_Oct22-Nov04 | CreatedBy: TBD
+[3673328](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673328) | Bug | 508: [Engagement Manager] [Journal Entries] [2.1.1][P3]: The order of the columns + column width cannot be changed via keyboard on the 'attach workpaper reference' modal | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673329](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673329) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2][P4]: Subheading text has an unnecessary aria level 3 | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673331](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673331) | Bug | 508: [Engagement Manager] [Journal Entries] [1.3.1][P3]: Journal Entry Accounts <ol>should have <li> as direct children  | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673332](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673332) | Bug | 508: [Engagement Manager] [Journal Entries] [4.1.2][Wijmo Issue][P3]: Ensure filter tabs contain descriptions indicating state and role | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673333](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673333) | Bug | 508: [Engagement Manager] [Journal Entries] [2.4.7][Wijmo issue][P3]: uneven visual focus on Wijmo filter | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673334](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673334) | Bug | 508: [Engagement Manager] [Journal Entries] [3.3.2] [Wijmo issue] [P3]: Provide visual labels or instructions for user input | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673335](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673335) | Bug | 508: [Engagement Manager] [Journal Entries] [2.5.3] [P1]: select checkbox on Journal Entries grid needs a programmatic label | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3673337](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3673337) | Bug | 508: [Engagement Manager] [Journal Entries] [1.4.3] [P3]: Links in reference section of journal entry grid need higher contrast | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3752444](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3752444) | Bug | 508: [Engagement Manager] [Journal Entries] [2.4.3]: Ensure focus and functionality of drag and drop movement menu function correctly | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3950272](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3950272) | Bug | 508: [Journal Entries][1.4.3]: Contrast ratio is less than minimum required ratio 4.5.:1 for the text. | New | TaxProf | CreatedBy: TBD
+[3950286](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3950286) | Bug | 508: [Journal Entries][1.3.1]: Label name is not defined for the checkboxes. | New | TaxProf | CreatedBy: TBD
+[3954373](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954373) | Bug | 508: [Journal Entries][2.4.3]: Focus is not moving sequential order in the table elements while using TAB key. | New | TaxProf | CreatedBy: TBD
+[3954374](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954374) | Bug | 508: [Journal Entries][4.1.2]: NVDA is not narrating the role information for the table elements while using TAB key. | New | TaxProf | CreatedBy: TBD
+[3954375](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954375) | Bug | 508: [Journal Entries][4.1.2]: Unnecessary aria required role is defined for the table elements. | New | TaxProf | CreatedBy: TBD
+[3954376](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954376) | Bug | 508: [Journal Entries][1.3.1]: List markup is not defined for the elements. | New | TaxProf | CreatedBy: TBD
+[3954377](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954377) | Bug | 508: [Journal Entries][4.1.2]: Incorrect accessible name is defined for the button. | New | TaxProf | CreatedBy: TBD
+[3954378](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954378) | Bug | 508: [Journal Entries][1.3.2]: Focus is moving twice to the elements in reading order while using NVDA scan mode(arrow keys). | New | TaxProf | CreatedBy: TBD
+[3954379](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954379) | Bug | 508: [Journal Entries][1.4.10]: On resizing the page into 400% zoom content is not visible and truncated. | New | TaxProf | CreatedBy: TBD
+[3954380](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954380) | Bug | 508:[Journal Entries][1.4.4]: On resizing the page into 200% zoom content is overlapped. | Ready | TaxProf\2025\Q4\2025_S23_Nov05-Nov18 | CreatedBy: TBD
+[3954407](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954407) | Bug | 508: [Journal Entries][2.4.3]: Screen reader Focus is not moving to the dialog elements once the dialog is opened. | New | TaxProf | CreatedBy: TBD
+[3954408](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954408) | Bug | 508: [Journal Entries][1.3.1]: Heading is not defined for the text in the dialog. | New | TaxProf | CreatedBy: TBD
+[3954410](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3954410) | Bug | 508: [Journal Entries][2.4.3]: Focus is moving to the hidden element 0 while using TAB Key. | New | TaxProf | CreatedBy: TBD
+[3971039](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971039) | Bug | 508: [Engagement Manager][Home][2.4.2]: Page title does not contain page topic or purpose. | New | TaxProf | CreatedBy: TBD
+[3971043](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971043) | Bug | 508: [Engagement Manager][Home][2.4.6]: The persistent input label is not descriptive. | New | TaxProf | CreatedBy: TBD
+[3971083](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971083) | Bug | 508: [Engagement Manager][Home][1.4.3]: Insufficient link text contrast. | New | TaxProf | CreatedBy: TBD
+[3971089](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971089) | Bug | 508: [Engagement Manager][Home][1.4.11]: Insufficient icon contrast for close button in Welcome dialog. | New | TaxProf | CreatedBy: TBD
+[3971092](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971092) | Bug | 508: [Engagement Manager][Home][1.4.11]: Insufficient contrast for X icon. | New | TaxProf | CreatedBy: TBD
+[3971101](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971101) | Bug | 508: [Engagement Manager][Home][1.4.13]: Tooltip disappears when the pointer is moved to it. | New | TaxProf | CreatedBy: TBD
+[3971112](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971112) | Bug | 508: [Engagement Manager][Home][2.1.1]: Elements in the table are not keyboard operable/reachable. | New | TaxProf | CreatedBy: TBD
+[3971116](https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3971116) | Bug | 508: [Engagement Manager][Home][4.1.2]: Missing role from interactive element. | New | TaxProf | CreatedBy: TBD
+
+... (truncated in this batch; full list continues in subsequent commits)
+
+Next
+- I will enrich CreatedBy and append the remaining items in batches.
+- If you prefer a CSV in addition to this human-readable report, say "CSV please" and I will add accessibility-scope.csv alongside this file.
