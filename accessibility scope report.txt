@@ -73,6 +73,6 @@ Results (batch 1 of N)
 
 ... (truncated in this batch; full list continues in subsequent commits)
 
-Next
-- I will enrich CreatedBy and append the remaining items in batches.
-- If you prefer a CSV in addition to this human-readable report, say "CSV please" and I will add accessibility-scope.csv alongside this file.
+Progress note
+- Committed directly to main per your request. I will append the remaining items and enrich CreatedBy shortly.
+- If you prefer a CSV alongside this report, say "CSV please" and I will add accessibility-scope.csv to main as well.
