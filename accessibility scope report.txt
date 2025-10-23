@@ -1,0 +1,20 @@
+Accessibility Scope Report (Engagement Manager)
+
+Scope
+- Area Path: TaxProf\aafm\audit\engagementManager (includes former AdvanceFlow)
+- Work Item Types: Bug, User Story
+- States: New, Active, Ready
+- Accessibility filter: title contains any of [508, accessibility, a11y, WCAG, ARIA, screen reader, keyboard] OR parent Feature/Epic title contains any of those terms
+- Priority: if missing, assume 3
+- Story Points: use ADO value; if missing, provide offline estimate (not updating ADO)
+
+Columns
+Id | WorkItemType | Title | State | AreaPath | IterationPath | Priority | StoryPoints | Category | ParentId | ParentTitle | CreatedBy | ADO Link
+
+Notes
+- Category assignment: Journal Entry | Navigation/Left Nav | Tabs (each item appears in only one primary category)
+- Hyperlinks: Ids are clickable ADO links
+- Subtotals provided at end by Category and within Category by Priority (P1/P2 vs P3/P4)
+
+Status
+- Report generation in progress. This file will be updated with the complete list and subtotals in the next commit.
