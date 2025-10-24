@@ -12,3 +12,30 @@ Setup,3974729,"508: [Engagement Manager][Engagement setup ][3.3.2]: In TAB 1 -->
 
 Category Totals (include Bugs),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
 Setup Totals,,,10,30,30,0,,,
+
+Client Communications,3974282,"508: [Engagement Manager][Communications][4.1.2]: 'Previous' Button does not have accessible name",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974282
+Client Communications,3974296,"508: [Engagement Manager][Communications][4.1.2]: Check box element does not have any label",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974296
+Client Communications,3974348,"508: [Engagement Manager][Communications][2.4.3]: Focus is moving to blank elements in the page which is affecting focus order",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974348
+Client Communications,3974391,"508: [Engagement Manager][Communications][4.1.2]: Button does not have an accessible name",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974391
+Client Communications,3974588,"508: [Engagement Manager][Communications][1.3.1]: NVDA is not announcing the associated label for toggle controls",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974588
+Client Communications,3974622,"508: [Engagement Manager][Communications][3.3.2]: The visual label is missing for the edit field.",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974622
+Client Communications,3974749,"508: [Engagement Manager][Communications][4.1.2]: Calendar button does not have discernible name",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974749
+Client Communications,3974775,"508: [Engagement Manager][Communications][4.1.2]: Aria-label is not defined for the edit field",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974775
+Client Communications,3974812,"508: [Engagement Manager][Communications][2.4.3]: Keyboard focus moving to the hidden element",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974812
+Client Communications,3974864,"508: [Engagement Manager][Communications][4.1.2]: form element dos not have label",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974864
+Client Communications,3974883,"508: [Engagement Manager][Communications][1.4.11]: Insufficient color contrast ratio for the Close button.",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974883
+Client Communications,3974913,"508: [Engagement Manager][Communications][1.3.1]: Heading not marked up semantically",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974913
+Client Communications,3974927,"508: [Engagement Manager][Communications][2.4.7]:  Keyboard focus indicator is not visible",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974927
+Client Communications,3976113,"508: [Engagement Manager][Communications][4.1.3]: NVDA is not announcing the search result information.",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976113
+Client Communications,3976138,"508: [Engagement Manager][Communications][4.1.3]: Updated message is not getting conveyed to the screen reader user",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976138
+Client Communications,3976361,"508: [Engagement Manager][Communications][2.4.3]: Keyboard focus does not land on triggered control",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976361
+Client Communications,3976391,"508: [Engagement Manager][Communications][2.4.3]: Keyboard focus is not in logical order after closing the dialog",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976391
+Client Communications,3976445,"508: [Engagement Manager][Communications][2.4.3]: Keyboard focus does not moves back to triggered control",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976445
+Client Communications,3976620,"508: [Engagement Manager][Communications][2.4.3]: Keyboard focus moving to two different control which encounter same content",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976620
+Client Communications,3976847,"508: [Engagement Manager][Communications][1.4.3]: Contrast ratio of text is fails with the background",Bug,2,P1/P2,3,"Baniya, Sachin",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976847
+
+Category Totals (include Bugs),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+Client Communications Totals,,,20,60,60,0,,,
+
+Report Totals (running),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+All Categories to date,,,30,90,90,0,,,
