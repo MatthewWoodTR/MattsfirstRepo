@@ -104,3 +104,27 @@ Trial Balance Totals,,,10,30,21,9,,,
 
 Report Totals (running),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
 All Categories to date,,,74,201,182,19,,,
+
+Manage Users,3508906,"508: [AdvanceFlow] [Manage Users] [1.4.11]: Focus Indicator for Action button is not meeting the required ratio of 3:1.",Bug,2,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508906
+Manage Users,3508907,"508: [AdvanceFlow] [Manage Users] [1.4.11]: Focus Indicator for Checkbox is not meeting the required ratio of 3:1.",Bug,2,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508907
+Manage Users,3508908,"508: [AdvanceFlow] [Manage Users] [1.3.1]: Provide an accessible name for search field.",Bug,1,P1/P2,1,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508908
+Manage Users,3508909,"508: [AdvanceFlow] [Manage Users] [1.1.1]: NVDA is not announcing the name of the search button.",Bug,1,P1/P2,1,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508909
+Manage Users,3508910,"508: [AdvanceFlow] [Manage Users] [1.3.1]: NVDA is not announcing the Label associated with the check box.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508910
+Manage Users,3508911,"508: [AdvanceFlow] [Manage Users] [TR Standard]: NVDA is announcing required field incorrectly.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508911
+Manage Users,3508912,"508: [AdvanceFlow] [Manage Users] [4.1.2]: NVDA is not announcing the label associated with combo box",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508912
+Manage Users,3508913,"508: [AdvanceFlow] [Manage Users] [1.3.1]:  Switch off button are not Grouped with instruction.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508913
+Manage Users,3508914,"508: [AdvanceFlow] [Manage Users] [3.3.2]: Avoid placeholder values to explain the input.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508914
+Manage Users,3508915,"508: [AdvanceFlow] [Manage Users] [4.1.2]: NVDA is not announcing the name of the calendar button.",Bug,1,P1/P2,1,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508915
+Manage Users,3508916,"508: [AdvanceFlow] [Manage Users] [4.1.13]: NVDA is not announcing the search results information.",Bug,1,P1/P2,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508916
+Manage Users,3508917,"508: [AdvanceFlow] [Manage Users] [4.1.2]: NVDA is not announcing the label associated with switch of button.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508917
+Manage Users,3508930,"508: [AdvanceFlow] [Manage Users] [4.1.2]: NVDA is not announcing the label associated with Priority and Status combo boxes. The elements have explicit <label>s that are hidden.",Bug,1,P1/P2,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508930
+Manage Users,3508931,"508: [AdvanceFlow] [Manage Users] [4.1.2]: the NVDA is not announcing the name of the Note field",Bug,1,P1/P2,1,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508931
+Manage Users,3508934,"508: [AdvanceFlow] [Manage Users] [1.4.3]: Blue text with blue background doesnot meet the required contrast ratio of 4.5:1.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508934
+Manage Users,3508935,"508: [AdvanceFlow] [Manage Users] [1.4.11]: Focus Indicator for Month and Year control doesnot meet the required ratio of 3:1.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508935
+Manage Users,3508947,"508: [AdvanceFlow] [Manage Users] [1.4.3]: White text with blue background doesnot meet the required contrast ratio of 4.5:1.",Bug,1,P1/P2,2,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508947
+
+Category Totals (include Bugs),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+Manage Users Totals,,,17,32,32,0,,,
+
+Report Totals (running),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+All Categories to date,,,91,233,214,19,,,
