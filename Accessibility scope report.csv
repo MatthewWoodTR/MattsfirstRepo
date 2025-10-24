@@ -39,3 +39,19 @@ Client Communications Totals,,,20,60,60,0,,,
 
 Report Totals (running),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
 All Categories to date,,,30,90,90,0,,,
+
+Header and Notifications,3508897,"508: [AdvanceFlow] [Header] [2.4.1]: Skip to main content is not present on the page.",Bug,3,P3/P4,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508897
+Header and Notifications,3508898,"508: [AdvanceFlow] [Header] [TR Standard]:H1 Heading is not defined on the page.",Bug,2,P1/P2,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508898
+Header and Notifications,3508899,"508: [AdvanceFlow] [Header] [2.4.3]: After closing the setup dialog the keyboard focus is visible on add new engagement button.",Bug,1,P1/P2,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508899
+Header and Notifications,3508902,"508: [AdvanceFlow] [Header] [2.4.3]: On closing the more option button with Esc key the whole dialog is getting closed.",Bug,1,P1/P2,3,"M U, Suprada (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508902
+Header and Notifications,3508921,"508: [AdvanceFlow] [Header] [1.4.10]: On resizing the page to 400% zoom the table header are truncated.",Bug,1,P1/P2,3,"M U, Suprada (TR Product)",Ready,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3508921
+Header and Notifications,3980686,"508: [Engagement Manager][Header][2.4.3]: Focus is moving to twice to the help and support button while using TAB key.",Bug,2,P1/P2,3,"Kotwalu, Saddam Hussen (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3980686
+Header and Notifications,3980688,"508: [Engagement Manager][Header][3.2.2]: Screen reader focus is moving to the profile icon and activating after clicking the navigation button.",Bug,2,P1/P2,3,"Kotwalu, Saddam Hussen (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3980688
+Header and Notifications,3983037,"508: [Engagement Manager][Header][2.4.3]: After closing the dialog focus doesn't moves back to the trigger element setup element button.",Bug,2,P1/P2,3,"Kotwalu, Saddam Hussen (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3983037
+Header and Notifications,3983070,"508: [Engagement Manager][Notifications][4.1.2]: Role is not defined for the tab elements.",Bug,2,P1/P2,3,"Kotwalu, Saddam Hussen (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3983070
+
+Category Totals (include Bugs),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+Header and Notifications Totals,,,9,27,24,3,,,
+
+Report Totals (running),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+All Categories to date,,,39,117,114,3,,,
