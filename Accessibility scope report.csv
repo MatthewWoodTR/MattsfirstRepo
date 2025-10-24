@@ -1,0 +1,14 @@
+Category,Work Item ID,Title,Type,Priority,Priority Group,Story Points,Created By,State,URL
+Setup,3973607,"508: [Engagement Manager][Engagement setup ][1.3.1]: The Label association is not implemented for Source, Engagement Type , Industry and template combo box.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3973607
+Setup,3973735,"508: [Engagement Manager][Engagement setup ][1.4.1]: The color alone-Red border is used to highlight the error state for the ""Industry"" combo box ",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3973735
+Setup,3974451,"508: [Engagement Manager][Engagement setup ][1.3.1]: For ""Template"" combo box , error message is not programmatically associated.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974451
+Setup,3974478,"508: [Engagement Manager][Engagement setup ][2.4.7]: Focus indicator not available for check box's- Use Risk to Procedure Links ,Internal Control and Disclosure.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974478
+Setup,3974507,"508: [Engagement Manager][Engagement setup ][1.3.1]: Grouping is not done for the ""Select the Guided Assurance modules you wish to Include in this engagement"" checkbox group.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974507
+Setup,3974574,"508: [Engagement Manager][Engagement setup ][2.1.1]: In TAB 1 -Explain link is not keyboard accessible.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974574
+Setup,3974591,"508: [Engagement Manager][Engagement setup ][2.4.7]: Focus indicator is not available for all links present inside the dialog box of ""Explanatory Comments""",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974591
+Setup,3974601,"508: [Engagement Manager][Engagement setup ][TR Standard]: In TAB 1 - In Explanatory Comments dialog, the primary heading(Explanatory Comments) is coded as h3.",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974601
+Setup,3974611,"508: [Engagement Manager][Engagement setup ][1.3.1]: The grouping is not done for the radio button group of ""Select the Disclosure checklist type you wish to use in this engagement"".",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974611
+Setup,3974729,"508: [Engagement Manager][Engagement setup ][3.3.2]: In TAB 1 --> required fields are not indicated .",Bug,2,P1/P2,3,"Nagarajan, Varsha",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3974729
+
+Category Totals (include Bugs),,,Items,Total SP,P1/P2 SP,P3/P4 SP,,,
+Setup Totals,,,10,30,30,0,,,
