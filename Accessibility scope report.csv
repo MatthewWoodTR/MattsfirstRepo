@@ -18,7 +18,7 @@ Category, Work Item ID, Title, Type, Priority, Priority Group, Story Points, Cre
 "Add/Edit/Delete Engagement (incl. Engagement Properties)",3976555,"508: [Engagement Manager][Properties][4.1.2]: No Accessible name and role is provided for Engagement management properties, and Guided assurance properties.",Bug,2,P1/P2,3,"Gupta, Himalaya (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976555
 "Add/Edit/Delete Engagement (incl. Engagement Properties)",3976700,"508: [Engagement Manager][Properties][1.3.1]: Incorrect role radio is provided instead of tab to General, Trail balance, dates, Content and history",Bug,2,P1/P2,2,"Gupta, Himalaya (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976700
 "Add/Edit/Delete Engagement (incl. Engagement Properties)",3976746,"508: [Engagement Manager][Properties][4.1.2]: Incorrect state checked is announced instead of Selected for General, Trail balance, dates, Content and history",Bug,2,P1/P2,2,"Gupta, Himalaya (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976746
-"Add/Edit/Delete Engagement (incl. Engagement Properties)",3976750,"508: [Engagement Manager][Properties][2.4.7]: Focus outline is not clearly visible on ""Go Back button""",Bug,2,P1/P2,1,"Gupta, Himalaya (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976750
+"Add/Edit/Delete Engagement (incl. Engagement Properties)",3976750,"508: [Engagement Manager][Properties][2.4.7]: Focus outline is not clearly visible on Go Back button",Bug,2,P1/P2,1,"Gupta, Himalaya (TR Product)",New,https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3976750
 
 Pivot Summary,,,Item Count,Total SP,P1/P2 SP,P3/P4 SP,
 Add/Edit/Delete Engagement (incl. Engagement Properties),,,20,47,45,2,
