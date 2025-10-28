@@ -1,0 +1,274 @@
+Accessibility scope report working file — Engagement Manager a11y (New/Active/Ready) 
+Scope:
+- Project: TaxProf (Org: tr-tax)
+- Area Path: UNDER TaxProf\aafm\audit\engagementManager
+- Work item types: Bug, User Story (PBI excluded)
+- States: New, Active, Ready
+- Title keywords: a11y, accessibility, 508, 508:, EPC
+- Exclusion: titles containing "[Engagement Manager][Engagement setup]"
+
+Note: This file lists full results from the WIQL queries. Due to API size limits, items are appended in batches. This is Batch 1.
+
+---
+Item 2715757
+- Title: 508: [AdvanceFlow] [1.4.10] [Communications Tab]: 400% zoom test fails
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: Paveen, Asha (TR Tech, Content & Ops)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/2715757
+- Description + Repro Steps:
+
+
+---
+Item 2715758
+- Title: 508: [AdvanceFlow] [1.4.4] [Communications Tab]: Contents get cut in 200% zoom
+- Type: Bug | State: New | Priority: 3 | Story Points: 
+- Created By: Paveen, Asha (TR Tech, Content & Ops)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/2715758
+- Description + Repro Steps:
+
+
+---
+Item 2715771
+- Title: 508: [AdvanceFlow] [2.1.1] [Communications Tab]: Checkboxes are not operable with JAWS and keyboard
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: Paveen, Asha (TR Tech, Content & Ops)
+- Area Path: TaxProf\aafm\audit\engagementManager\Spartans | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/2715771
+- Description + Repro Steps:
+
+
+---
+Item 2715781
+- Title: 508: [AdvanceFlow] [3.3.2] [Communications Tab]: JAWS fails to announce the number of items in the list in the dropdown
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: Paveen, Asha (TR Tech, Content & Ops)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/2715781
+- Description + Repro Steps:
+
+
+---
+Item 3075521
+- Title: 508: [Cloud Audit Suite] [EPC] [1.4.12] [Workpapers]: The content on the page is getting truncated because of text spacing
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075521
+- Description + Repro Steps:
+<Copied HTML>
+<b><u><br><br>Copied from Repro Steps when changed from Bug to User Story</u></b><br><p style="margin:0cm;line-height:300%;font-size:11pt;font-family:Calibri, sans-serif;margin-right:0cm;margin-left:0cm;font-size:12pt;font-family:&quot;Times New Roman&quot;, serif;line-height:normal;"><span style="font-family:&quot;Segoe UI&quot;,sans-serif;color:black;background:white;">Summary:
+</span><span style="font-family:&quot;Segoe UI&quot;,sans-serif;color:#22232F;background:white;">People with low vision or dyslexia may override text spacing to enable
+readability or increased reading speed. Ensure that when users override text
+spacing via style sheet or another browser setting, there is no loss of content
+or functionality -- text must not be cut off or missing. When the content
+cannot adapt to user settings, users may not be able to use their preferred
+text spacing or may not be able to access content that is cut off or overlaps.</span> ...</p>
+
+---
+Item 3075523
+- Title: 508: [Cloud Audit Suite] [EPC] [2.4.1] [Workpapers]: Skip Links are not defined on the page.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075523
+- Description + Repro Steps:
+<Copied HTML>
+<b><u><br><br>Copied from Repro Steps when changed from Bug to User Story</u></b> ...
+
+---
+Item 3075524
+- Title: 508: [Cloud Audit Suite] [EPC] [2.4.7] [Workpapers]: Focus is not visible for buttons.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075524
+- Description + Repro Steps:
+<Copied HTML>
+<b><u><br><br>Copied from Repro Steps when changed from Bug to User Story</u></b> ...
+
+---
+Item 3075525
+- Title: 508: [Cloud Audit Suite] [EPC] [2.1.1] [Workpapers]: Tooltip information is not visible once the keyboard focuses triggers.
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075525
+- Description + Repro Steps:
+<Copied HTML>
+<b><u><br><br>Copied from Repro Steps when changed from Bug to User Story</u></b> ...
+
+---
+Item 3075529
+- Title: 508: [Cloud Audit Suite] [EPC] [2.1.1] [Workpapers]: B, I, U are Not accessible using keyboard.
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075529
+- Description + Repro Steps:
+<Copied HTML>
+<b><u><br><br>Copied from Repro Steps when changed from Bug to User Story</u></b> ...
+
+---
+Item 3075531
+- Title: 508: [Cloud Audit Suite] [EPC] [4.1.2] [Workpapers]: Ensures buttons have discernible text
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075531
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075533
+- Title: 508: [Cloud Audit Suite] [EPC] [4.1.2] [Workpapers]: Ensures links have discernible text
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075533
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075534
+- Title: 508: [Cloud Audit Suite] [EPC] [2.1.1] [Workpapers]: Checkboxes not accessible using the keyboard.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075534
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075535
+- Title: 508: [Cloud Audit Suite] [EPC] [1.4.10] [Workpapers]: Content is getting overlapped after resizing the page to 400% zoom.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075535
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075536
+- Title: 508: [Cloud Audit Suite] [EPC] [1.4.10] [Workpapers]:Ensure pages reflow without loss of content or functionality
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075536
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075537
+- Title: 508: [Cloud Audit Suite] [EPC] [TR Standard] [Workpapers]: Expanded list items are not getting closed esc key.
+- Type: Bug | State: Active | Priority: 4 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075537
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075542
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: The modal heading should be given as H2 level.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075542
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075546
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: Form inputs do not have properly associated labels in reports section. 
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075546
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075548
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: NVDA is not announcing the label associated with the form Field.
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075548
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075554
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: List items in drop down menus are not getting conveyed to the screen reader user.
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075554
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075555
+- Title: 508: [Cloud Audit Suite] [EPC] [1.4.11] [Workpapers]: Focus Indicator for datepicker doesn’t meet the required contrast ratio of 3:1
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075555
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075556
+- Title: 508: [Cloud Audit Suite] [EPC] [4.1.2] [Workpapers]: Datepicker needs discernible text
+- Type: Bug | State: New | Priority: 1 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075556
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075558
+- Title: 508: [Cloud Audit Suite] [EPC] [1.4.11] [Workpapers]: Close button doesn’t meet the required contrast ratio of 3:1.
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075558
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075559
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: Multiple H1 heading is defined on the page.
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075559
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075560
+- Title: 508: [Cloud Audit Suite] [EPC] [4.1.2] [Workpapers]: Radio buttons should be tab panel
+- Type: Bug | State: New | Priority: 2 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075560
+- Description + Repro Steps:
+<Copied HTML> ...
+
+---
+Item 3075565
+- Title: 508: [Cloud Audit Suite] [EPC] [1.3.1] [Workpapers]: NVDA is announcing a non-interactive element. Focus also moves to said element. 
+- Type: Bug | State: New | Priority: 3 | Story Points: 
+- Created By: M U, Suprada (TR Product)
+- Area Path: TaxProf\aafm\audit\engagementManager | Iteration: TaxProf
+- URL: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/3075565
+- Description + Repro Steps:
+<Copied HTML> ...
+
+
+[Batch 1 of N complete — more items will be appended in subsequent commits]
