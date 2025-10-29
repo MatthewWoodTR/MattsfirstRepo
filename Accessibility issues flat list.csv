@@ -1,5 +1,4 @@
 ID,Title,Work Item Type,State,Created By,Priority,Story Points,Parent,Category
-﻿ID,Title,Work Item Type,State,Created By,Priority,Story Points,Parent
 "2715757","508: [AdvanceFlow] [1.4.10] [Communications Tab]: 400% zoom test fails","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","2",,"3136758"
 "2715758","508: [AdvanceFlow] [1.4.4] [Communications Tab]: Contents get cut in 200% zoom","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","3",,"3136758"
 "2715771","508: [AdvanceFlow] [2.1.1] [Communications Tab]: Checkboxes are not operable with JAWS and keyboard","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","1",,"3136758"
@@ -503,4 +502,3 @@ ID,Title,Work Item Type,State,Created By,Priority,Story Points,Parent,Category
 "3075525","508: [Cloud Audit Suite] [EPC] [2.1.1] [Workpapers]: Tooltip information is not visible once the keyboard focuses triggers.","Bug","New","M U, Suprada (TR Product) <Suprada.MU@thomsonreuters.com>","2",,"3680361",
 "3075529","508: [Cloud Audit Suite] [EPC] [2.1.1] [Workpapers]: B, I, U are Not accessible using keyboard.","Bug","New","M U, Suprada (TR Product) <Suprada.MU@thomsonreuters.com>","2",,"3680361",
 "3075531","508: [Cloud Audit Suite] [EPC] [4.1.2] [Workpapers]: Ensures buttons have discernible text","Bug","New","M U, Suprada (TR Product) <Suprada.MU@thomsonreuters.com>","1",,"3680361",
-...
