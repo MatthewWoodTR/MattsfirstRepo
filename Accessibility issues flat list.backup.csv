@@ -1,7 +1,0 @@
-ID,Title,Work Item Type,State,Created By,Priority,Story Points,Parent
-"2715757","508: [AdvanceFlow] [1.4.10] [Communications Tab]: 400% zoom test fails","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","2",,"3136758"
-"2715758","508: [AdvanceFlow] [1.4.4] [Communications Tab]: Contents get cut in 200% zoom","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","3",,"3136758"
-"2715771","508: [AdvanceFlow] [2.1.1] [Communications Tab]: Checkboxes are not operable with JAWS and keyboard","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","1",,"3136758"
-"2715781","508: [AdvanceFlow] [3.3.2] [Communications Tab]: JAWS fails to announce the number of items in the list in the dropdown","Bug","New","Paveen, Asha (TR Tech, Content & Ops) <asha.joseph@thomsonreuters.com>","2",,"3136758"
-"3075521","508: [Cloud Audit Suite] [EPC] [1.4.12] [Workpapers]: The content on the page is getting truncated because of text spacing","Bug","New","M U, Suprada (TR Product) <Suprada.MU@thomsonreuters.com>","1",,"3680361"
-... (truncated for brevity in commit backup)
