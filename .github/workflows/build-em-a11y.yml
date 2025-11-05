@@ -3,38 +3,30 @@ name: Build EM Accessibility Reports (Batch 1)
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'data/Accessibility issues flat list (4).csv'
-      - 'scripts/build_em_accessibility_reports.py'
-      - '.github/workflows/build-em-a11y.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Python
+      - uses: actions/checkout@v4
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
       - name: Generate reports (Batch 1)
         run: |
-          set -e
           python scripts/build_em_accessibility_reports.py
       - name: Commit outputs
         run: |
-          set -e
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add reports/em-a11y/
+          git config user.name "em-a11y-bot"
+          git config user.email "em-a11y-bot@example.com"
+          git add reports/em-a11y || true
           if git diff --cached --quiet; then
-            echo "No changes to commit";
+            echo "No changes to commit"
           else
-            git commit -m "chore: generate EM a11y reports (Batch 1)"
+            git commit -m "chore: generate Batch 1 EM accessibility category reports"
             git push
           fi

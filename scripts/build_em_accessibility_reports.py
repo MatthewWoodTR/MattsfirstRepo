@@ -1,114 +1,175 @@
 #!/usr/bin/env python3
-import re, os, csv, sys
-from collections import defaultdict
+import csv, os, re, sys
+from pathlib import Path
 
-INPUT_PATH = 'data/Accessibility issues flat list (4).csv'
-OUT_DIR = 'reports/em-a11y'
-CATEGORY_DIR = os.path.join(OUT_DIR, 'by-category')
-ADO_URL_TMPL = 'https://dev.azure.com/tr-tax/taxProf/_workitems/edit/{id}'
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT/"data"/"Accessibility issues flat list (4).csv"
+OUT_DIR = ROOT/"reports"/"em-a11y"
+BY_CAT_DIR = OUT_DIR/"by-category"
 
-COMMUNICATION_PARENTS = {3136758, 3107305}
-WORKPAPERS_PARENT = 3680361
+CLIENT_COMM_PARENTS = {3136758, 3107305}
+WORKPAPERS_PARENTS = {3680361}
 
-header = ['Category','Work Item ID','Title','Type','Priority','Priority Group','Story Points','Created By','State','URL','Description','Steps to Reproduce']
+ADO_URL = "https://dev.azure.com/tr-tax/taxProf/_workitems/edit/{id}"
 
-pattern = re.compile(r'^ID:(?P<id>\d+),\s+Title:(?P<title>.*?),\s+Work Item Type:(?P<wit>[^,]+),\s+State:(?P<state>[^,]+),\s+Created By:(?P<created>.*?),\s+Priority:(?P<priority>[^,]+),\s+Story Points:(?P<sp>\d+),\s+Parent:(?P<parent>\d+)')
+PAIR_RE = re.compile(r"(ID|Title|Work Item Type|State|Created By|Priority|Story Points|Parent):\s*(.*?)(?=,\s*(?:ID|Title|Work Item Type|State|Created By|Priority|Story Points|Parent):|$)")
+PRIORITY_IN_TITLE = re.compile(r"\[(P[1-4])\]")
 
-rows = []
-with open(INPUT_PATH, 'r', encoding='utf-8') as f:
-    for line in f:
-        line = line.strip()
-        if not line:
-            continue
-        m = pattern.match(line)
-        if not m:
-            print(f'WARN: Failed to parse line: {line[:120]}...', file=sys.stderr)
-            continue
-        d = m.groupdict()
-        id_ = int(d['id'])
-        title = d['title']
-        wit = d['wit']
-        state = d['state']
-        created = d['created']
-        prio_raw = d['priority']
-        sp = int(d['sp'])
-        parent = int(d['parent'])
-        # infer category for Batch 1 only
-        if parent in COMMUNICATION_PARENTS:
-            category = 'Client Communications'
-        elif parent == WORKPAPERS_PARENT:
-            category = 'Workpapers (incl. Workpaper Properties)'
-        else:
-            # skip non-batch-1 rows now
-            continue
-        # derive priority
-        ptag = re.search(r'\[P([1-4])\]', title)
-        if ptag:
-            priority = int(ptag.group(1))
-        else:
+COLUMNS = [
+  "Category","Work Item ID","Title","Type","Priority","Priority Group","Story Points","Created By","State","URL","Description","Steps to Reproduce"
+]
+
+def parse_lines(path: Path):
+    rows = []
+    with path.open("r", encoding="utf-8") as f:
+        for ln, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            m = dict(PAIR_RE.findall(line))
+            if not m:
+                # Allow comments or accidental lines
+                print(f"WARN: Failed to parse line {ln}: {line[:120]}", file=sys.stderr)
+                continue
             try:
-                priority = int(prio_raw)
-            except:
-                priority = 3
-        pgroup = 'P1/P2' if priority in (1,2) else 'P3/P4'
-        url = ADO_URL_TMPL.format(id=id_)
-        desc = '' if wit != 'User Story' else ''
-        steps = '' if wit != 'Bug' else ''
-        rows.append([category, id_, title, wit, priority, pgroup, sp, created, state, url, desc, steps])
+                rid = int(m.get("ID", "").strip())
+            except ValueError:
+                print(f"WARN: Bad ID at line {ln}: {m.get('ID')}", file=sys.stderr)
+                continue
+            title = m.get("Title", "").strip()
+            wtype = m.get("Work Item Type", "").strip()
+            state = m.get("State", "").strip()
+            created_by = m.get("Created By", "").strip()
+            parent = int(m.get("Parent", "0").strip() or 0)
+            # story points
+            sp_raw = (m.get("Story Points", "") or "").strip()
+            try:
+                sp = int(float(sp_raw)) if sp_raw else 0
+            except ValueError:
+                sp = 0
+            # priority
+            pr_raw = (m.get("Priority", "") or "").strip().lower()
+            pr = None
+            mt = PRIORITY_IN_TITLE.search(title)
+            if mt:
+                pr = int(mt.group(1)[1])  # P1->1
+            else:
+                if pr_raw in ("", "nan", "none", "null"):
+                    pr = 3
+                else:
+                    try:
+                        pr = int(float(pr_raw))
+                    except ValueError:
+                        pr = 3
+            pr_group = "P1/P2" if pr in (1,2) else "P3/P4"
+            url = ADO_URL.format(id=rid)
+            rows.append({
+              "Work Item ID": rid,
+              "Title": title,
+              "Type": wtype,
+              "Priority": pr,
+              "Priority Group": pr_group,
+              "Story Points": sp,
+              "Created By": created_by,
+              "State": state,
+              "URL": url,
+              "Parent": parent,
+              "Description": "" if wtype != "User Story" else "",
+              "Steps to Reproduce": "" if wtype != "Bug" else "",
+            })
+    return rows
 
-# ensure output dirs
-os.makedirs(CATEGORY_DIR, exist_ok=True)
 
-# group by category and priority group order
-def sort_key(r):
-    return (0 if r[5]=='P1/P2' else 1, r[1])
+def category_for_parent(pid: int):
+    if pid in CLIENT_COMM_PARENTS:
+        return "Client Communications"
+    if pid in WORKPAPERS_PARENTS:
+        return "Workpapers (incl. Workpaper Properties)"
+    return None  # not part of Batch 1
 
-by_cat = defaultdict(list)
-for r in rows:
-    by_cat[r[0]].append(r)
 
-# write by-category files
-for cat, items in by_cat.items():
-    items_sorted = sorted(items, key=sort_key)
-    fname = f'{cat}.csv'
-    path = os.path.join(CATEGORY_DIR, fname)
-    with open(path, 'w', encoding='utf-8', newline='') as out:
-        w = csv.writer(out)
-        w.writerow(header)
-        w.writerows(items_sorted)
+def write_csv(path: Path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=COLUMNS)
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in COLUMNS})
 
-# write master (batch 1 subset)
-master_path = os.path.join(OUT_DIR, 'master.csv')
-with open(master_path, 'w', encoding='utf-8', newline='') as out:
-    w = csv.writer(out)
-    w.writerow(header)
-    for cat in sorted(by_cat.keys()):
-        for r in sorted(by_cat[cat], key=sort_key):
+
+def grouped_and_sorted(rows):
+    # P1/P2 first, then P3/P4
+    g1 = [r for r in rows if r["Priority Group"] == "P1/P2"]
+    g2 = [r for r in rows if r["Priority Group"] == "P3/P4"]
+    # stable sort by Priority then ID
+    g1.sort(key=lambda r: (r["Priority"], r["Work Item ID"]))
+    g2.sort(key=lambda r: (r["Priority"], r["Work Item ID"]))
+    return g1 + g2
+
+
+def totals(rows):
+    count = len(rows)
+    sp_total = sum(r.get("Story Points",0) or 0 for r in rows)
+    sp_p12 = sum((r.get("Story Points",0) or 0) for r in rows if r.get("Priority") in (1,2))
+    sp_p34 = sp_total - sp_p12
+    return count, sp_total, sp_p12, sp_p34
+
+
+def main():
+    rows = parse_lines(SRC)
+    # Derive categories for batch 1
+    batch1 = []
+    for r in rows:
+        cat = category_for_parent(r.get("Parent"))
+        if not cat:
+            continue
+        out = {**r}
+        out["Category"] = cat
+        batch1.append(out)
+
+    # Write per-category files
+    cats = {}
+    for r in batch1:
+        cats.setdefault(r["Category"], []).append(r)
+
+    for cat, rs in cats.items():
+        rs_sorted = grouped_and_sorted(rs)
+        safe_name = cat.replace("/", "-")
+        write_csv(BY_CAT_DIR/f"{safe_name}.csv", rs_sorted)
+
+    # Master (batch-1 subset)
+    master_sorted = grouped_and_sorted(batch1)
+    write_csv(OUT_DIR/"master.csv", master_sorted)
+
+    # Pivot summary for batch 1 categories
+    pivot_rows = []
+    grand_cnt = grand_sp = grand_p12 = grand_p34 = 0
+    for cat, rs in sorted(cats.items()):
+        cnt, sp, p12, p34 = totals(rs)
+        pivot_rows.append({
+            "Category": cat,
+            "Items": cnt,
+            "Total Story Points": sp,
+            "P1/P2 SP": p12,
+            "P3/P4 SP": p34,
+        })
+        grand_cnt += cnt; grand_sp += sp; grand_p12 += p12; grand_p34 += p34
+
+    # Write pivot
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    with (OUT_DIR/"pivot-summary.csv").open("w", newline="", encoding="utf-8") as f:
+        hdr = ["Category","Items","Total Story Points","P1/P2 SP","P3/P4 SP"]
+        w = csv.DictWriter(f, fieldnames=hdr)
+        w.writeheader()
+        for r in pivot_rows:
             w.writerow(r)
+        w.writerow({
+            "Category": "Grand Total (Batch 1)",
+            "Items": grand_cnt,
+            "Total Story Points": grand_sp,
+            "P1/P2 SP": grand_p12,
+            "P3/P4 SP": grand_p34,
+        })
 
-# pivot summary for batch 1
-summary_header = ['Category','Items','Total SP','P1/P2 SP','P3/P4 SP']
-summary_rows = []
-for cat, items in sorted(by_cat.items()):
-    total_sp = sum(i[6] for i in items)
-    p12_sp = sum(i[6] for i in items if i[5]=='P1/P2')
-    p34_sp = total_sp - p12_sp
-    summary_rows.append([cat, len(items), total_sp, p12_sp, p34_sp])
-
-# grand totals
-gt_items = sum(len(v) for v in by_cat.values())
-gt_sp = sum(sum(i[6] for i in v) for v in by_cat.values())
-gt_p12 = sum(sum(i[6] for i in v if i[5]=='P1/P2') for v in by_cat.values())
-gt_p34 = gt_sp - gt_p12
-
-pivot_path = os.path.join(OUT_DIR, 'pivot-summary.csv')
-with open(pivot_path, 'w', encoding='utf-8', newline='') as out:
-    w = csv.writer(out)
-    w.writerow(summary_header)
-    w.writerows(summary_rows)
-    w.writerow(['Grand Total', gt_items, gt_sp, gt_p12, gt_p34])
-
-print(f'Wrote: {master_path}')
-for cat in by_cat:
-    print(f'Wrote: {os.path.join(CATEGORY_DIR, cat + ".csv")}')
-print(f'Wrote: {pivot_path}')
+if __name__ == "__main__":
+    sys.exit(main())
