@@ -1,0 +1,225 @@
+name: Build EM Accessibility Reports
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Generate reports (Batch 1)
+        run: |
+          set -e
+          mkdir -p reports/em-a11y/by-category
+          python - << 'PY'
+          import os, re, csv, pathlib
+
+          src_path = 'data/accessibility-issues-flat-list-4.txt'
+          if not os.path.exists(src_path):
+            raise SystemExit(f'Source file not found: {src_path}')
+
+          pattern = re.compile(
+            r"^ID:(?P<ID>\d+),\s+Title:(?P<Title>.*?),\s+Work Item Type:(?P<Type>[^,]+),\s+State:(?P<State>[^,]+),\s+Created By:(?P<CreatedBy>.*?),\s+Priority:(?P<Priority>[^,]+),\s+Story Points:(?P<SP>\d+),\s+Parent:(?P<Parent>\d+)$"
+          )
+
+          rows = []
+          with open(src_path, 'r', encoding='utf-8') as f:
+            for line in f:
+              line = line.strip()
+              if not line:
+                continue
+              m = pattern.match(line)
+              if not m:
+                # try greedy Title up to last known keys
+                # fallback: find tokens by markers
+                try:
+                  # Extract fields by markers
+                  assert line.startswith('ID:')
+                  # ID
+                  idx = line.find(', Title:')
+                  id_val = line[3:idx]
+                  rest = line[idx+2:].lstrip()  # starts with 'Title:'
+                  # Title
+                  t_start = rest.find('Title:') + len('Title:')
+                  wi_marker = 'Work Item Type:'
+                  wi_pos = rest.rfind(wi_marker)
+                  title_val = rest[t_start:wi_pos].strip().rstrip(',')
+                  rest2 = rest[wi_pos:]
+                  # Remaining simple splits
+                  parts = {}
+                  for key in ['Work Item Type', 'State', 'Created By', 'Priority', 'Story Points', 'Parent']:
+                    key_pat = key + ':'
+                    if key == 'Parent':
+                      val = rest2.split(key_pat,1)[1].strip()
+                    else:
+                      val = rest2.split(key_pat,1)[1].split(',',1)[0].strip()
+                      rest2 = rest2.split(key_pat,1)[1].split(',',1)[1] if ',' in rest2.split(key_pat,1)[1] else ''
+                    parts[key] = val
+                  mobj = {
+                    'ID': id_val.strip(),
+                    'Title': title_val.strip(),
+                    'Type': parts['Work Item Type'],
+                    'State': parts['State'],
+                    'CreatedBy': parts['Created By'],
+                    'Priority': parts['Priority'],
+                    'SP': parts['Story Points'],
+                    'Parent': parts['Parent'],
+                  }
+                  rows.append(mobj)
+                  continue
+                except Exception as e:
+                  raise SystemExit(f'Failed to parse line: {line}\nError: {e}')
+              d = m.groupdict()
+              rows.append(d)
+
+          def norm_int(x, default=None):
+            try:
+              return int(str(x).strip())
+            except:
+              return default
+
+          # Category mapping by Parent ID with some title-based overrides for 3568023
+          def categorize(parent_id, title):
+            pid = norm_int(parent_id)
+            t = (title or '').lower()
+            if pid in {3136758, 3107305}:  # Communications + Client Collaboration Microsite
+              return 'Client Communications'
+            if pid == 3680361:  # Workpapers and Notes
+              return 'Workpapers (incl. Workpaper Properties)'
+            if pid in {3068226}:  # Add engagement / Properties under engagement
+              return 'Add/Edit/Delete Engagement (incl. Engagement Properties)'
+            if pid in {3813499, 3306472}:  # Journal Entries
+              return 'Journal Entries'
+            if pid == 3677319:
+              return 'Manage Users'
+            if pid == 3677320:
+              return 'Dashboard/Home/Status'
+            if pid == 4553113:
+              return 'Trial Balance'
+            if pid == 4553053:
+              return 'Setup'
+            if pid == 3568023:
+              if 'setup panel' in t or 'help and support' in t:
+                return 'Setup'
+              if 'external links' in t:
+                return 'Links'
+              if 'notification' in t:
+                return 'Header and Notifications'
+              return 'Header and Notifications'
+            return 'Other'
+
+          def derive_priority(title, raw):
+            # If title contains [P1]/[P2]/[P3]/[P4], use it
+            m = re.search(r"\[(P[1-4])\]", title or '')
+            if m:
+              pnum = int(m.group(1)[1])
+              return pnum
+            # Fallback to raw
+            try:
+              val = int(raw)
+              return val
+            except:
+              return 3
+
+          def priority_group(p):
+            return 'P1/P2' if p in (1,2) else 'P3/P4'
+
+          def build_url(id):
+            return f'https://dev.azure.com/tr-tax/taxProf/_workitems/edit/{id}'
+
+          # Build enriched rows
+          enriched = []
+          for r in rows:
+            cat = categorize(r['Parent'], r['Title'])
+            p = derive_priority(r['Title'], r.get('Priority','nan'))
+            enriched.append({
+              'Category': cat,
+              'Work Item ID': r['ID'],
+              'Title': r['Title'],
+              'Type': r['Type'],
+              'Priority': p,
+              'Priority Group (P1/P2 or P3/P4)': priority_group(p),
+              'Story Points': norm_int(r['SP'], 0) or 0,
+              'Created By': r['CreatedBy'],
+              'State': r['State'],
+              'URL': build_url(r['ID']),
+              'Description': '' if r['Type'] != 'User Story' else '',
+              'Steps to Reproduce': '' if r['Type'] != 'Bug' else '',
+            })
+
+          # Write master CSV (all rows)
+          master_path = pathlib.Path('reports/em-a11y/master.csv')
+          master_path.parent.mkdir(parents=True, exist_ok=True)
+          headers = ['Category','Work Item ID','Title','Type','Priority','Priority Group (P1/P2 or P3/P4)','Story Points','Created By','State','URL','Description','Steps to Reproduce']
+          with open(master_path, 'w', newline='', encoding='utf-8') as f:
+            w = csv.DictWriter(f, fieldnames=headers)
+            w.writeheader()
+            for e in enriched:
+              w.writerow(e)
+
+          # Helper to filter by category and write file sorted with P1/P2 first
+          def write_category(cat_name, file_name):
+            data = [e for e in enriched if e['Category'] == cat_name]
+            # sort: priority group P1/P2 before P3/P4, then by Priority asc, then ID
+            data.sort(key=lambda x: (0 if x['Priority'] in (1,2) else 1, x['Priority'], int(x['Work Item ID'])))
+            path = pathlib.Path('reports/em-a11y/by-category') / file_name
+            with open(path, 'w', newline='', encoding='utf-8') as f:
+              w = csv.DictWriter(f, fieldnames=headers)
+              w.writeheader()
+              for e in data:
+                w.writerow(e)
+            return data
+
+          cc = write_category('Client Communications', 'Client Communications.csv')
+          wp = write_category('Workpapers (incl. Workpaper Properties)', 'Workpapers (incl. Workpaper Properties).csv')
+
+          # Build pivot summary for Batch 1 (only these 2 categories)
+          def summarize(cat_name, data):
+            total_items = len(data)
+            total_sp = sum(e['Story Points'] for e in data)
+            p12_sp = sum(e['Story Points'] for e in data if e['Priority'] in (1,2))
+            p34_sp = total_sp - p12_sp
+            return [cat_name, total_items, total_sp, p12_sp, p34_sp]
+
+          summary_headers = ['Category','Item Count','Total Story Points','P1/P2 SP Total','P3/P4 SP Total']
+          pivot_path = pathlib.Path('reports/em-a11y/pivot-summary.csv')
+          with open(pivot_path, 'w', newline='', encoding='utf-8') as f:
+            w = csv.writer(f)
+            w.writerow(summary_headers)
+            s1 = summarize('Client Communications', cc)
+            s2 = summarize('Workpapers (incl. Workpaper Properties)', wp)
+            grand = ['Grand Total', s1[1]+s2[1], s1[2]+s2[2], s1[3]+s2[3], s1[4]+s2[4]]
+            w.writerow(s1)
+            w.writerow(s2)
+            w.writerow(grand)
+
+          print('Batch 1 reports generated.')
+          PY
+
+      - name: Commit generated reports
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add reports/em-a11y/*
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Generate EM accessibility reports (Batch 1)"
+            git push
+          fi
