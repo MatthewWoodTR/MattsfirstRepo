@@ -1,0 +1,21 @@
+[EM] Consolidation - Generate reports for child engagement's and insert into the parent engagement
+
+1. Customer Problem
+Teams cannot easily generate a report scoped to a child and insert it into the parent binder without manual steps.
+
+2. Customer Research
+Requested by multiple firms; matches legacy workflows (CSA, PFX). Screenshot artifacts highlight desire for division/child-per-column reporting.
+
+3. Our Solution
+- Add Child scope to reporting filters and to balance columns.
+- Insert generated report directly into parent’s Workpapers tab.
+- Support selection of grandchild in multi-tier.
+Out of scope: Tax export by division (handled separately).
+
+4. Product Metrics
+- Time to produce child-only report in parent: -60%.
+- Report insertion adoption: >75% of consolidated engagements.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233327
+- Repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-ait-core-be

@@ -1,0 +1,20 @@
+Make note dialogs larger
+
+1. Customer Problem
+Current note dialogs are cramped, forcing excessive scrolling and making long reviews difficult.
+
+2. Customer Research
+Raised by Anchin; aligns with visibility enhancements initiative.
+
+3. Our Solution
+- Resize dialogs to support fullscreen or large modal sizes.
+- Remember user preference per device.
+- Ensure accessibility and responsive behavior.
+
+4. Product Metrics
+- Note creation/edit time: -20%.
+- User satisfaction with note UX: +15 pts.
+
+Appendix
+- Epic/Feature: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4237578
+- Repos: tr/aafm-audit-em-web-components-fe

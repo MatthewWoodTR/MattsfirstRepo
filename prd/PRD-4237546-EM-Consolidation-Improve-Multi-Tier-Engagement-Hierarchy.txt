@@ -1,0 +1,31 @@
+[EM] Consolidation - Improve Multi-Tier Engagement Hierarchy navigation and Setup
+
+1. Customer Problem
+Why are we building this?
+Firms working on multi-tier consolidations struggle to navigate and configure complex parent/child structures efficiently. Today, setting up tiers, copying groupings, and moving between entities is time-consuming and error-prone, which slows onboarding and period-end close.
+
+2. Customer Research
+Why it matters?
+- Repeated feedback from firms (Anchin, Bennett Thrasher) that multi-tier consolidation feels cumbersome in EM compared to legacy tools.
+- Users want faster navigation, less context switching, and clearer mental models of tiers.
+- Attached artifacts: Anchin buckets doc and roadmap image indicate multi-tier as a first-wave priority.
+
+3. Our Solution
+What are we building?
+- Streamlined setup wizard for multi-tier structures, supporting up to 5+ levels.
+- Single-screen hierarchical navigation with quick-switch and breadcrumbs.
+- Easier propagation/copy of account groupings and engagement properties across children.
+- Clear parent/child scoping for reports and JEs.
+Out of scope: Changing underlying data model; reporting/JE enhancements delivered in separate epics.
+Dependencies: 4233330, 4233327, 4206592 for downstream workflow value.
+
+4. Product Metrics
+How will we know?
+- Time-to-setup first multi-tier structure: baseline (TBD), target -50% by 2026-06-30.
+- Average clicks to switch child: baseline (TBD), target -60%.
+- NPS for consolidation workflows: +10 by 2026-07-31.
+Review plan: Monthly through GA; compare support ticket themes.
+
+Appendix: Additional Links
+- ADO epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4237546
+- Relevant repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-cs-gateway-be, tr/aafm-audit-ait-core-be

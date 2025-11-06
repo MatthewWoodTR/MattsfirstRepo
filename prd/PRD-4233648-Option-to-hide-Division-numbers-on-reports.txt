@@ -1,0 +1,19 @@
+Division enhancement: Option to hide Division numbers on reports
+
+1. Customer Problem
+Division numbers clutter financials and confuse external readers.
+
+2. Customer Research
+Roadmap gray bar; requested in Table 1.
+
+3. Our Solution
+- Report setting to hide division numbers while preserving names/labels.
+- Defaults configurable at engagement or firm level.
+
+4. Product Metrics
+- Adoption: >60% of divisional reports use the setting at least once.
+- Support tickets on report formatting: -30%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233648
+- Repos: tr/aafm-audit-em-web-components-fe

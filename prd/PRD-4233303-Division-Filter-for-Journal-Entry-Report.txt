@@ -1,0 +1,18 @@
+Division enhancement: Division Filter for Journal Entry Report
+
+1. Customer Problem
+Teams cannot easily isolate JEs by division for audit/support.
+
+2. Customer Research
+Listed in Table 1 and roadmap image as June deliverable; a common reporting need.
+
+3. Our Solution
+- Add Division filter to JE report (single or multi-select).
+- Support export to CSV/PDF and binder insertion.
+
+4. Product Metrics
+- Report run time and usage; adoption >70% of divisional engagements.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233303
+- Repos: tr/aafm-audit-em-web-components-fe

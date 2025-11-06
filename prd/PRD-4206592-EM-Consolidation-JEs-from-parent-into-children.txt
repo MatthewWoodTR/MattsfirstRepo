@@ -1,0 +1,23 @@
+[EM] Consolidation - Make journal entries to any child engagement from within the parent
+
+1. Customer Problem
+Users must open each child to post JEs, slowing close and increasing context switching.
+
+2. Customer Research
+Anchin and others want a selector to post entries to a specific child from the parent (and filter by child when reviewing).
+
+3. Our Solution
+- From the parent, provide a Child selector on the JE entry screen.
+- Respect permissions; write to the child’s ledger and roll-up accordingly.
+- Views and reports filter by child and across-all.
+Assumptions: Multi-tier up to 5+ levels supported; eliminating entries handled in related epics.
+Dependencies: 4237546; reporting epics for end-to-end analysis.
+
+4. Product Metrics
+- Time to post multi-entity adjustments: -40%.
+- Support tickets on JE traceability: -30%.
+- Accuracy: no increase in posting errors.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4206592
+- Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe

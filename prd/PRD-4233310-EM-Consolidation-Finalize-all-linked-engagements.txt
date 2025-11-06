@@ -1,0 +1,20 @@
+[EM] Consolidation - Finalize all linked engagements at the same time.
+
+1. Customer Problem
+Finalizing multi-entity engagements individually is slow and error-prone.
+
+2. Customer Research
+Firms want a single action to finalize all linked children with audit trails.
+
+3. Our Solution
+- Bulk finalize from parent with eligibility checks.
+- Summary of blockers (e.g., pending check-outs, uncleared notes).
+- One audit artifact describing which entities finalized, by whom, and when.
+
+4. Product Metrics
+- Time to finalize: -70%.
+- Support tickets on missed child finalization: -80%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233310
+- Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe

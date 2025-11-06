@@ -1,0 +1,20 @@
+Financial Document Formula Drill-Down in Excel and Word
+
+1. Customer Problem
+Auditors need to trace numbers from financial statements back to underlying accounts quickly. Today they must run separate reports to troubleshoot.
+
+2. Customer Research
+Common request from multiple firms (see artifacts). Comp parity with PFX and CSA.
+
+3. Our Solution
+- In Word/Excel add-in, analyze a selected formula and show drill-down by account grouping/code and individual accounts with subtotals.
+- Export drill results into a binder report.
+Scope limits: No automatic cross-engagement linking changes.
+
+4. Product Metrics
+- Time to trace a number to accounts: -70%.
+- Accuracy confidence (survey): +20 pts.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4204113
+- Repos: tr/aafm-audit-em-office-addin, tr/aafm-audit-em-web-components-fe

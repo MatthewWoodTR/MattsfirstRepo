@@ -1,0 +1,23 @@
+[EM] Consolidation - Setting up child engagements
+
+1. Customer Problem
+Setting up multiple child engagements requires repeating the Add Engagement wizard many times, duplicating data entry and slowing teams.
+
+2. Customer Research
+Firms prefer creating children directly from the Consolidation setup screen with inherited defaults (type, dates, report release). Anchin called this a key friction.
+
+3. Our Solution
+- Add “Create child engagement” inline flow within Consolidation Setup.
+- Inherit properties from parent; require only client and engagement name.
+- Batch-create children; optionally copy account groupings from a template or sibling.
+Out of scope: Reporting; JE features (covered in other epics).
+Dependencies: 4237546.
+
+4. Product Metrics
+- Avg time to add a child: baseline (TBD) → target < 2 minutes.
+- Errors during setup: -50%.
+- Adoption: >70% of new consolidated engagements created via inline flow by 2026-06-30.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233330
+- Repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-ait-core-be

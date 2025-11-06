@@ -1,0 +1,19 @@
+Division enhancement: Allow the user to filter / limit journal entries to a single division
+
+1. Customer Problem
+Posting and reviewing across many divisions creates noise; users need simple scoping.
+
+2. Customer Research
+Spec in Table 1 and roadmap image (June items).
+
+3. Our Solution
+- Add division selector when creating JEs; default to current context.
+- Views and reports automatically filter by chosen division with option to see all.
+
+4. Product Metrics
+- Time to post division-scoped JEs: -50%.
+- Error rate from wrong-division postings: -70%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233646
+- Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe

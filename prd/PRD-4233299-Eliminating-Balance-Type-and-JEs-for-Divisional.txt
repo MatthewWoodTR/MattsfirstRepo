@@ -1,0 +1,20 @@
+Division enhancement: Eliminating Balance Type and Journal Entries for Divisional Engagements
+
+1. Customer Problem
+Divisional structures lack an eliminating balance type, limiting parity with consolidations.
+
+2. Customer Research
+Captured in artifacts; essential to produce elimination-adjusted totals while preserving per-division views.
+
+3. Our Solution
+- New balance type: Eliminating (division-level behavior).
+- Posting rules so eliminations do not change per-division adjusted balances.
+- Updated trial balance and reporting to reflect eliminations.
+
+4. Product Metrics
+- Cycle time to create elimination packages: -40%.
+- Support tickets referencing elimination workarounds: -60%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233299
+- Repos: tr/aafm-audit-ait-core-be

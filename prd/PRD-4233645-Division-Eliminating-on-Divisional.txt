@@ -1,0 +1,21 @@
+Division enhancement: Eliminating on divisional (scope correction from roadmap discussion)
+
+1. Customer Problem
+Divisional engagements need eliminating entries without polluting adjusted balances of individual divisions.
+
+2. Customer Research
+Requested by Anchin and others to match consolidation-style workflows within divisional structures.
+
+3. Our Solution
+- Add eliminating balance type and JE support for divisional engagements.
+- Ensure eliminating entries do not affect per-division adjusted balances; only roll to totals.
+- Provide JE reports by division and across-all.
+Related items: 4233299 expanding eliminating balance; 4233646 division-scoped JEs; 4233303 JE report filters.
+
+4. Product Metrics
+- Time to produce elimination-adjusted divisional FS: -50%.
+- Error rate posting eliminations: -50%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233645
+- Repos: tr/aafm-audit-ait-core-be

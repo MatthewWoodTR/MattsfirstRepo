@@ -1,0 +1,20 @@
+Note List Visibility Enhancement
+
+1. Customer Problem
+Notes are hard to review at a glance; preview text is truncated; finding cleared status is inefficient.
+
+2. Customer Research
+Anchin indicates the splitter panel alone is insufficient; parity with PFX preview and print flows is desired.
+
+3. Our Solution
+- Expand preview text (row expansion/wrap) across Notes list, Workpapers tab panel, and new add-in.
+- Respect line breaks; provide clearer cleared indicators.
+- Optional per-note quick actions.
+
+4. Product Metrics
+- Review time per 20 notes: -40%.
+- Satisfaction with notes review (survey): +20 pts.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4205843
+- Repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-em-office-addin

@@ -1,0 +1,21 @@
+[EM] Consolidation - Spreadsheet import of all child engagements at once
+
+1. Customer Problem
+Importing TBs for many children is repetitive and introduces mapping inconsistencies.
+
+2. Customer Research
+Firms want a single import to create/update many children at once, with consistent mapping and validation.
+
+3. Our Solution
+- Multi-child spreadsheet template and importer.
+- Validate per-child rows; partial success with clear error reports.
+- Option to create missing children inline.
+Dependencies: 4233330 child setup.
+
+4. Product Metrics
+- Import time per 10 children: target < 15 minutes.
+- Mapping errors per import: -50%.
+
+Appendix
+- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4442269
+- Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe
