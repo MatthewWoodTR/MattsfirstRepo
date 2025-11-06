@@ -1,23 +1,24 @@
-[EM] Consolidation - Make journal entries to any child engagement from within the parent
+[Product Roadmap Item Title]
+EM Consolidation: Make journal entries to any child from the parent
 
 1. Customer Problem
-Users must open each child to post JEs, slowing close and increasing context switching.
+Users need to post entries targeted to specific children without opening each child separately. Today’s workflow slows close and increases error risk.
 
-2. Customer Research
-Anchin and others want a selector to post entries to a specific child from the parent (and filter by child when reviewing).
+2. Customer Research (paraphrased)
+Firms want filtered views by child and consolidated JE visibility. ADO content calls for parent‑level JE creation with child selection and multi‑tier depth. Grant Thornton/Anchin want divisional‑like control applied to consolidations.
 
 3. Our Solution
-- From the parent, provide a Child selector on the JE entry screen.
-- Respect permissions; write to the child’s ledger and roll-up accordingly.
-- Views and reports filter by child and across-all.
-Assumptions: Multi-tier up to 5+ levels supported; eliminating entries handled in related epics.
-Dependencies: 4237546; reporting epics for end-to-end analysis.
+- Parent screen to create JEs scoped to a chosen child or across children.
+- Filters: by child, by balance type; show all vs specific child.
+- Respect tier depth and posting rules; traceability to workpapers.
+Out of scope: New approval flows. Dependencies: Hierarchy, reporting.
 
 4. Product Metrics
-- Time to post multi-entity adjustments: -40%.
-- Support tickets on JE traceability: -30%.
-- Accuracy: no increase in posting errors.
+- 50% reduction in time to post 10 child‑scoped JEs.
+- 0 regression in posting accuracy (audit log parity).
+- 30% increase in parent‑level JE usage after 60 days.
 
 Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4206592
+- ADO Epic 4206592
+- Related: 4237546, 4233327, 4233299 (divisional eliminations)
 - Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe

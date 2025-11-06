@@ -1,20 +1,19 @@
-Note List Visibility Enhancement
+[Product Roadmap Item Title]
+Notes: List visibility and readability enhancements
 
 1. Customer Problem
-Notes are hard to review at a glance; preview text is truncated; finding cleared status is inefficient.
+Notes are hard to scan and review quickly. Users want more text visible inline and clearer line‑break handling without opening each note.
 
-2. Customer Research
-Anchin indicates the splitter panel alone is insufficient; parity with PFX preview and print flows is desired.
+2. Customer Research (paraphrased)
+Anchin and others want expanded previews in grids, preserved formatting, and quicker recognition of note status. Existing ADO WI outlines UI targets.
 
 3. Our Solution
-- Expand preview text (row expansion/wrap) across Notes list, Workpapers tab panel, and new add-in.
-- Respect line breaks; provide clearer cleared indicators.
-- Optional per-note quick actions.
+- Expand preview rows; wrap text and respect line breaks in list and report.
+- Ensure add‑in and web lists behave consistently.
+Out of scope: New workflow states. Dependencies: Grid components.
 
 4. Product Metrics
-- Review time per 20 notes: -40%.
-- Satisfaction with notes review (survey): +20 pts.
+- 40% reduction in time to triage 20 notes.
+- 30% increase in note list usage vs opening details.
 
-Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4205843
-- Repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-em-office-addin
+Appendix: ADO 4205843; Related: 4237578

@@ -1,20 +1,18 @@
-[EM] Consolidation - Roll Forward all linked engagements at the same time.
+[Product Roadmap Item Title]
+EM Consolidation: Roll forward all linked engagements
 
 1. Customer Problem
-Annual roll forward repeats the same steps for every child engagement.
+Rolling forward child by child is slow and introduces drift in configurations.
 
-2. Customer Research
-Bulk roll-forward reduces manual work and risk for multi-tier structures.
+2. Customer Research (paraphrased)
+Requested parity with finalize‑all; ensure grouped settings copy forward consistently.
 
 3. Our Solution
-- From the parent, roll forward all linked children with consistent settings.
-- Copy forward selected properties (signoff types, groupings templates).
-- Pre-flight validation and per-child results.
+- Parent‑level roll forward for all linked children with preview of changes.
+- Post‑run validation and error handling per child.
 
 4. Product Metrics
-- Time to prepare next period: -60%.
-- Roll-forward error rate: -50%.
+- 60% reduction in time to roll forward a 5‑child consolidation.
+- <5% variance in expected vs actual copied settings.
 
-Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4379363
-- Repos: tr/aafm-audit-ait-core-be
+Appendix: ADO Epic 4379363; Related: 4233310

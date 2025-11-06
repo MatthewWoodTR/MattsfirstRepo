@@ -1,19 +1,18 @@
-Division enhancement: Allow the user to filter / limit journal entries to a single division
+[Product Roadmap Item Title]
+Division enhancement: Limit journal entries to a single division
 
 1. Customer Problem
-Posting and reviewing across many divisions creates noise; users need simple scoping.
+Teams need to restrict a JE to a division without repeating division codes on every line.
 
-2. Customer Research
-Spec in Table 1 and roadmap image (June items).
+2. Customer Research (paraphrased)
+Requested quick win to improve accuracy and speed in divisional workflows. ADO categorizes as small.
 
 3. Our Solution
-- Add division selector when creating JEs; default to current context.
-- Views and reports automatically filter by chosen division with option to see all.
+- JE header scope = selected division; defaults lines to that division.
+- Validation prevents cross‑division drift unless explicitly overridden.
 
 4. Product Metrics
-- Time to post division-scoped JEs: -50%.
-- Error rate from wrong-division postings: -70%.
+- 40% reduction in JE creation time for division‑scoped entries.
+- 50% drop in mis‑scoped JE corrections.
 
-Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233646
-- Repos: tr/aafm-audit-ait-core-be, tr/aafm-audit-em-web-components-fe
+Appendix: ADO 4233646; Related: 4233303, 4233299

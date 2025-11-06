@@ -1,20 +1,18 @@
-Make note dialogs larger
+[Product Roadmap Item Title]
+Notes: Make note dialogs larger / resizable
 
 1. Customer Problem
-Current note dialogs are cramped, forcing excessive scrolling and making long reviews difficult.
+Reviewing or editing long notes in small dialogs is tedious and obscures context.
 
-2. Customer Research
-Raised by Anchin; aligns with visibility enhancements initiative.
+2. Customer Research (paraphrased)
+Users want resizable dialogs and better use of screen real estate, especially during heavy review cycles.
 
 3. Our Solution
-- Resize dialogs to support fullscreen or large modal sizes.
-- Remember user preference per device.
-- Ensure accessibility and responsive behavior.
+- Larger default dialog; allow resize/fullscreen where supported.
+- Preserve readability and keyboard accessibility.
 
 4. Product Metrics
-- Note creation/edit time: -20%.
-- User satisfaction with note UX: +15 pts.
+- 25% reduction in time to edit long notes.
+- 20% drop in "open in separate window" actions when resizing is available.
 
-Appendix
-- Epic/Feature: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4237578
-- Repos: tr/aafm-audit-em-web-components-fe
+Appendix: ADO 4237578; Related: 4205843

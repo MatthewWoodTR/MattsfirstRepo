@@ -1,23 +1,24 @@
-[EM] Consolidation - Setting up child engagements
+[Product Roadmap Item Title]
+EM Consolidation: Setting up child engagements
 
 1. Customer Problem
-Setting up multiple child engagements requires repeating the Add Engagement wizard many times, duplicating data entry and slowing teams.
+Creating many children one‑by‑one through separate wizards is slow and duplicative. Most child properties match the parent; users retype the same information repeatedly.
 
-2. Customer Research
-Firms prefer creating children directly from the Consolidation setup screen with inherited defaults (type, dates, report release). Anchin called this a key friction.
+2. Customer Research (paraphrased)
+Firms report friction in onboarding multiple subsidiaries. ADO description emphasizes inheriting properties and enabling setup from the consolidation screen. Anchin artifacts reinforce that separate binders per subsidiary are cumbersome.
 
 3. Our Solution
-- Add “Create child engagement” inline flow within Consolidation Setup.
-- Inherit properties from parent; require only client and engagement name.
-- Batch-create children; optionally copy account groupings from a template or sibling.
-Out of scope: Reporting; JE features (covered in other epics).
-Dependencies: 4237546.
+- Add “Create multiple children” directly in Consolidation Setup.
+- Inherit defaults from parent (type, periods, key dates) with overrides.
+- Support copy/import of grouping and common settings.
+Out of scope: Client creation outside EM. Dependencies: Multi‑tier hierarchy.
 
 4. Product Metrics
-- Avg time to add a child: baseline (TBD) → target < 2 minutes.
-- Errors during setup: -50%.
-- Adoption: >70% of new consolidated engagements created via inline flow by 2026-06-30.
+- Time to create 5 children reduced by 60%.
+- Error rate (missing/incorrect defaults) < 5% in pilot.
+- 80% of new consolidations use bulk setup within 60 days.
 
 Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4233330
+- ADO Epic 4233330
+- Related: 4237546, 4233327, 4206592
 - Repos: tr/aafm-audit-em-web-components-fe, tr/aafm-audit-ait-core-be

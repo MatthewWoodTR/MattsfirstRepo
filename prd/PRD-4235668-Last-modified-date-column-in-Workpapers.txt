@@ -1,20 +1,18 @@
-Add last edit date / modified date for documents as a workpapers column
+[Product Roadmap Item Title]
+Workpapers: Last modified date column
 
 1. Customer Problem
-Reviewers lack a quick way to see what changed recently without opening each workpaper.
+Reviewers cannot quickly see which files changed recently; clicking into each item wastes time.
 
-2. Customer Research
-Common request across firms; called out by Anchin as an efficiency gap.
+2. Customer Research (paraphrased)
+Multiple firms requested a last‑modified column on the Workpapers tab to improve auditability and review flow.
 
 3. Our Solution
-- Add Last Modified Date column to Workpapers tab; sortable and filterable.
-- Include who modified last and a quick link to history.
-Out of scope: Full character-level audit trail.
+- Add sortable “Last modified date” column sourced from file history.
+- Ensure parity across web and add‑in views.
 
 4. Product Metrics
-- Reviewer time to find recent changes: -50%.
-- Usage: column enabled by default views in >70% of engagements after GA.
+- 30% reduction in time to locate latest‑edited workpapers.
+- 25% increase in column usage (sorting/filtering) in first 60 days.
 
-Appendix
-- Epic: https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4235668
-- Repos: tr/aafm-audit-em-web-components-fe
+Appendix: ADO 4235668; Related UX backlog
