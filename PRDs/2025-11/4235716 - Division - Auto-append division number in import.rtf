@@ -1,0 +1,25 @@
+{\rtf1\ansi\deff0\fs22
+\b Division enhancement: Automated Division Number Appending for Spreadsheet Import (Epic 4235716)\b0\par
+\par
+\b 1. Customer Problem\b0\par
+Users manually edit account numbers to append division digits before import, which is tedious and error‑prone.\par
+\par
+\b 2. Customer Research\b0\par
+Epic: add a division dropdown in import for divisional engagements; honor mask positions (DD*, *DD, CCDDCC).\par
+\par
+\b 3. Our Solution\b0\par
+- Import UI: choose division (number+description); transform account numbers per mask during import.\par
+- Preserve source data; log transformed results.\par
+Dependencies: import pipeline, mask service, engagement props.\par
+\par
+\b 4. Product Metrics\b0\par
+- Pre-import spreadsheet edits: -100%.\par
+- Import error rate due to number mismatch: <1%.\par
+\par
+\b Appendix: Child Features\b0\par
+- 4235757 Context-Aware Division Selection UI for Spreadsheet Import\par
+- 4235759 Dynamic Account Number Transformation\par
+\par
+\b Appendix: Links\b0\par
+\field{\*\fldinst HYPERLINK "https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4235716"}{\fldrslt Open Epic 4235716}\par
+}

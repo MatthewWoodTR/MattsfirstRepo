@@ -1,0 +1,28 @@
+{\rtf1\ansi\deff0\fs22
+\b [EM] Consolidation - Spreadsheet import of all child engagements at once (Epic 4442269)\b0\par
+\par
+\b 1. Customer Problem\b0\par
+Users import the same file repeatedly for each child to set up accounts, balances, and groupings, wasting time and creating inconsistency.\par
+\par
+\b 2. Customer Research\b0\par
+Epic and PDF examples: columns per child division/engagement with shared account number/description; need mapping UI that targets specific subsidiary per balance column.\par
+\par
+\b 3. Our Solution\b0\par
+- Enhanced import mapping: map Account No/Description once; for each balance column choose Balance Type and Target child engagement.\par
+- Copy groupings from parent; map codes/subcodes in each child.\par
+Dependencies: import service, mapping UI, engagement directory.\par
+\par
+\b 4. Product Metrics\b0\par
+- Imports to initialize 6 children: from 6 runs to 1.\par
+- Mapping reuse rate: >80%.\par
+- Post-import reconciliation deltas: <1%.\par
+\par
+\b Appendix: Child Features\b0\par
+(none listed)\par
+\par
+\b Appendix: Quick prototype\b0\par
+Division Set tables from PDF show per-division columns and totals; use as UX reference for column-to-child mapping.\par
+\par
+\b Appendix: Links\b0\par
+\field{\*\fldinst HYPERLINK "https://dev.azure.com/tr-tax/TaxProf/_workitems/edit/4442269"}{\fldrslt Open Epic 4442269}\par
+}
