@@ -2,12 +2,20 @@ name: Update PRDs formatting and research notes
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout PR branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -22,4 +30,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(prd): format headers and add research notes + competitive parity"
-          branch: chore/format-prds-and-add-competitive-note
+          branch: ${{ github.head_ref || github.ref_name }}
