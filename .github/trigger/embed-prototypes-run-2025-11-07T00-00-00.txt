@@ -1,0 +1,3 @@
+Triggering embed-prototypes workflow via no-op commit.
+Requested by: AI assistant
+Date: 2025-11-07
