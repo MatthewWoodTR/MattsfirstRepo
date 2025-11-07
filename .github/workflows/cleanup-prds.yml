@@ -1,0 +1,40 @@
+name: Cleanup PRDs (remove prototype section, images, and references)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install python-docx lxml
+
+      - name: Run cleanup
+        run: python scripts/cleanup_prds.py
+
+      - name: Remove image assets folder
+        run: |
+          if [ -d "PRDs/2025-11/assets" ]; then
+            git rm -r "PRDs/2025-11/assets" || true
+          fi
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: chore(prd): remove prototype appendix, embedded images, and references
+          branch: ${{ github.ref_name }}
