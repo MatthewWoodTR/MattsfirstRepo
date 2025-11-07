@@ -1,0 +1,25 @@
+name: Update PRDs formatting and research notes
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install python-docx lxml
+      - name: Update PRDs
+        run: |
+          python scripts/update_prds.py
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(prd): format headers and add research notes + competitive parity"
+          branch: chore/format-prds-and-add-competitive-note
