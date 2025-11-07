@@ -1,0 +1,60 @@
+name: Prefix PRD filenames with Engagement Manager
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create/checkout working branch
+        run: |
+          git checkout -b chore/prefix-engagement-manager-prds || git checkout chore/prefix-engagement-manager-prds
+
+      - name: Prefix filenames
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          dir="PRDs/2025-11"
+          changes=0
+          for f in "$dir"/*.docx; do
+            base="$(basename "$f")"
+            # Skip if already prefixed
+            if [[ "$base" == "[Engagement Manager]*" ]]; then
+              continue
+            fi
+            git mv "$f" "$dir/[Engagement Manager] $base"
+            changes=$((changes+1))
+          done
+          if [[ $changes -eq 0 ]]; then
+            echo "No files to rename"
+          fi
+
+      - name: Commit changes
+        run: |
+          if git status --porcelain | grep .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(prd): prefix filenames with [Engagement Manager]"
+            git push -u origin chore/prefix-engagement-manager-prds
+          else
+            echo "Nothing to commit"
+          fi
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/prefix-engagement-manager-prds
+          title: "chore(prd): prefix PRD filenames with [Engagement Manager]"
+          body: "Automated rename to add [Engagement Manager] prefix to PRDs under PRDs/2025-11."
+          base: main
