@@ -4,57 +4,41 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  rename:
+  prefix:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout current ref
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
-
-      - name: Create/checkout working branch
-        run: |
-          git checkout -b chore/prefix-engagement-manager-prds || git checkout chore/prefix-engagement-manager-prds
+          persist-credentials: true
+          ref: ${{ github.ref_name }}
 
       - name: Prefix filenames
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
-          dir="PRDs/2025-11"
-          changes=0
-          for f in "$dir"/*.docx; do
-            base="$(basename "$f")"
-            # Skip if already prefixed
-            if [[ "$base" == "[Engagement Manager]*" ]]; then
-              continue
+          changed=0
+          for f in PRDs/2025-11/*.docx; do
+            b="$(basename "$f")"
+            d="$(dirname "$f")"
+            if [[ "$b" != "[Engagement Manager]"* ]]; then
+              git mv "$f" "$d/[Engagement Manager] $b"
+              changed=1
             fi
-            git mv "$f" "$dir/[Engagement Manager] $base"
-            changes=$((changes+1))
           done
-          if [[ $changes -eq 0 ]]; then
-            echo "No files to rename"
-          fi
+          echo "CHANGED=$changed" >> $GITHUB_ENV
 
       - name: Commit changes
-        run: |
-          if git status --porcelain | grep .; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(prd): prefix filenames with [Engagement Manager]"
-            git push -u origin chore/prefix-engagement-manager-prds
-          else
-            echo "Nothing to commit"
-          fi
-
-      - name: Open pull request
-        uses: peter-evans/create-pull-request@v6
+        if: env.CHANGED == '1'
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: chore/prefix-engagement-manager-prds
-          title: "chore(prd): prefix PRD filenames with [Engagement Manager]"
-          body: "Automated rename to add [Engagement Manager] prefix to PRDs under PRDs/2025-11."
-          base: main
+          commit_message: "chore(prd): prefix filenames with [Engagement Manager]"
+          branch: ${{ github.ref_name }}
+
+      - name: No changes to commit
+        if: env.CHANGED != '1'
+        run: echo "No files required renaming."
