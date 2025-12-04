@@ -1019,6 +1019,43 @@
     </div>
 
     <script>
+        // ===== COLUMN CONFIGURATION TRACKING SYSTEM =====
+        // Created: January 2025
+        // Purpose: Foundation for duplicate prevention validation
+        
+        /**
+         * Object to store column configurations for validation
+         * Key: column index (5, 6, 7, etc.)
+         * Value: configuration object with columnType, engagementId, period, drcr
+         */
+        const columnConfigurations = {};
+        
+        /**
+         * Array of properties that define a unique configuration
+         * Used to generate configuration keys for duplicate detection
+         */
+        const configurationKeys = ['columnType', 'engagementId', 'period', 'drcr'];
+        
+        /**
+         * Generate a unique configuration key from column settings
+         * @param {Object} config - Column configuration object
+         * @returns {string} - Unique key for the configuration
+         */
+        function generateConfigurationKey(config) {
+            // Only include balance types in duplicate checking
+            const balanceTypes = ['unadjusted-balance', 'budget-balance', 'adjusted-budget-balance', 
+                                'adjusted-balance', 'report-balance', 'federal-tax-balance', 
+                                'state-tax-balance', 'other-balance', 'proposed-balance'];
+            
+            if (!balanceTypes.includes(config.columnType)) {
+                return null; // Non-balance types don't need duplicate checking
+            }
+            
+            return `${config.columnType}|${config.engagementId}|${config.period}|${config.drcr}`;
+        }
+        
+        // ===== END COLUMN CONFIGURATION TRACKING SYSTEM =====
+
         // Mock data for consolidation engagements - corrected structure
         const consolidationData = [
             { id: 1, label: 'Global Consolidated', structure: 'Consolidated', balance: 'Total', clientName: '053B2 - TEST CLIENT', clientNumber: '1984', engagementName: 'Global Consolidated Group', parentId: null, level: 1, displayOrder: 1 },
