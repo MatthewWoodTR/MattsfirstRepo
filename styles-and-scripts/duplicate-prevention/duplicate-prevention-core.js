@@ -68,9 +68,20 @@ function validateConfiguration() {
     // Get all columns that participate in validation (have balance types)
     const balanceColumns = getBalanceColumns();
     
+    // Ensure balanceColumns is always an array
+    if (!Array.isArray(balanceColumns)) {
+        console.error('getBalanceColumns() did not return an array:', balanceColumns);
+        return result;
+    }
+    
     // Check business rules for each column
     for (const columnIndex of balanceColumns) {
         const config = window.columnConfigurations[columnIndex];
+        if (!config) {
+            console.warn(`No configuration found for column ${columnIndex}`);
+            continue;
+        }
+        
         const businessRuleCheck = checkBusinessRules(config);
         
         if (!businessRuleCheck.valid) {
@@ -106,7 +117,7 @@ function checkBusinessRules(config) {
         violations: []
     };
     
-    if (!config.period || !config.balanceType) {
+    if (!config || !config.period || !config.balanceType) {
         return result; // Skip validation if incomplete
     }
     
@@ -139,10 +150,22 @@ function checkForDuplicates(balanceColumns) {
         conflicts: []
     };
     
+    // Ensure balanceColumns is an array
+    if (!Array.isArray(balanceColumns)) {
+        console.error('checkForDuplicates: balanceColumns is not an array:', balanceColumns);
+        return result;
+    }
+    
     const configurationMap = new Map();
     
     for (const columnIndex of balanceColumns) {
         const config = window.columnConfigurations[columnIndex];
+        
+        // Skip if no configuration exists
+        if (!config) {
+            console.warn(`No configuration found for column ${columnIndex}`);
+            continue;
+        }
         
         // Skip incomplete configurations
         if (!config.engagement || !config.balanceType || !config.period || !config.drCr) {
