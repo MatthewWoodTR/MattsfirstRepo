@@ -13,6 +13,11 @@
 
     // Track original functions to preserve existing functionality
     let originalHandleColumnTypeChange = null;
+    let originalOpenColumnDialog = null;
+    let originalSaveColumnDetails = null;
+    
+    // Track the current column being configured
+    let currentColumnIndex = null;
 
     /**
      * Initialize dropdown integration when DOM is ready
@@ -23,14 +28,11 @@
         // Preserve existing functions
         preserveExistingFunctions();
         
-        // Set up event listeners
-        setupColumnTypeListeners();
-        setupPeriodListeners();
-        setupDrCrListeners();
-        setupEngagementListeners();
+        // Override existing functions to track column index
+        overrideExistingFunctions();
         
-        // Set up mutation observers for dynamic content
-        setupMutationObservers();
+        // Set up event listeners
+        setupEventListeners();
         
         console.log('Dropdown integration initialized successfully');
     }
@@ -42,478 +44,428 @@
         if (typeof window.handleColumnTypeChange === 'function') {
             originalHandleColumnTypeChange = window.handleColumnTypeChange;
         }
+        if (typeof window.openColumnDialog === 'function') {
+            originalOpenColumnDialog = window.openColumnDialog;
+        }
+        if (typeof window.saveColumnDetails === 'function') {
+            originalSaveColumnDetails = window.saveColumnDetails;
+        }
     }
 
     /**
-     * Set up column type dropdown listeners
+     * Override existing functions to add our tracking
      */
-    function setupColumnTypeListeners() {
-        // Override the existing handleColumnTypeChange function
+    function overrideExistingFunctions() {
+        // Override openColumnDialog to track which column is being configured
+        window.openColumnDialog = function(columnIndex) {
+            console.log('Opening column dialog for column:', columnIndex);
+            currentColumnIndex = columnIndex;
+            
+            // Call original function
+            if (originalOpenColumnDialog) {
+                originalOpenColumnDialog.call(this, columnIndex);
+            }
+            
+            // Load existing configuration for this column
+            loadColumnConfiguration(columnIndex);
+        };
+
+        // Override saveColumnDetails to validate and save configuration
+        window.saveColumnDetails = function() {
+            console.log('Saving column details for column:', currentColumnIndex);
+            
+            // Get current form values
+            const config = getCurrentFormConfiguration();
+            
+            // Validate the configuration
+            const validation = validateColumnConfiguration(currentColumnIndex, config);
+            
+            if (!validation.isValid) {
+                // Show error messages
+                showValidationErrors(validation.errors);
+                return; // Don't save if invalid
+            }
+            
+            // Save the configuration
+            updateColumnConfiguration(currentColumnIndex, config);
+            
+            // Update the column header display
+            updateColumnHeaderDisplay(currentColumnIndex, config);
+            
+            // Call original function
+            if (originalSaveColumnDetails) {
+                originalSaveColumnDetails.call(this);
+            } else {
+                // If no original function, close the dialog ourselves
+                closeColumnDialog();
+            }
+            
+            // Show success message
+            showSuccessMessage('Column configuration saved successfully!');
+        };
+
+        // Override handleColumnTypeChange to add validation
         window.handleColumnTypeChange = function() {
-            // Call original function first if it exists
+            // Call original function first
             if (originalHandleColumnTypeChange) {
-                originalHandleColumnTypeChange.apply(this, arguments);
+                originalHandleColumnTypeChange.call(this);
             }
             
             // Add our validation logic
             handleColumnTypeValidation();
         };
-        
-        // Also set up direct event listeners for column type dropdowns
-        const columnTypeDropdowns = document.querySelectorAll('#columnType, select[name*="columnType"], .column-type-select');
-        columnTypeDropdowns.forEach(dropdown => {
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const balanceType = event.target.value;
-                
-                // Update configuration
-                updateColumnConfiguration(columnIndex, {
-                    balanceType: balanceType
-                });
-                
-                // Update dropdown states
-                updateDropdownStates();
-            });
-        });
     }
 
     /**
-     * Set up period dropdown listeners
+     * Set up all event listeners
      */
-    function setupPeriodListeners() {
-        // Find period dropdowns and add event listeners
-        const periodDropdowns = document.querySelectorAll('#period, select[name*="period"], .period-select');
-        periodDropdowns.forEach(dropdown => {
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const period = event.target.value;
-                
-                // Update configuration
-                updateColumnConfiguration(columnIndex, {
-                    period: period
-                });
-                
-                // Update dropdown states to enforce business rules
-                updateDropdownStates();
-                
-                // Validate business rules specifically for period changes
-                validatePeriodBusinessRules(columnIndex, period);
+    function setupEventListeners() {
+        // Column type dropdown
+        const columnTypeDropdown = document.getElementById('columnType');
+        if (columnTypeDropdown) {
+            columnTypeDropdown.addEventListener('change', function() {
+                const config = getCurrentFormConfiguration();
+                updateColumnConfiguration(currentColumnIndex, config);
+                validateCurrentConfiguration();
             });
-        });
-    }
+        }
 
-    /**
-     * Set up debit/credit dropdown listeners
-     */
-    function setupDrCrListeners() {
-        const drCrDropdowns = document.querySelectorAll('#drcr, select[name*="drcr"], select[name*="debit"], select[name*="credit"], .drcr-select');
-        drCrDropdowns.forEach(dropdown => {
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const drCr = event.target.value;
-                
-                // Update configuration
-                updateColumnConfiguration(columnIndex, {
-                    drCr: drCr
-                });
-                
-                // Update dropdown states
-                updateDropdownStates();
+        // Period dropdown
+        const periodDropdown = document.getElementById('period');
+        if (periodDropdown) {
+            periodDropdown.addEventListener('change', function() {
+                const config = getCurrentFormConfiguration();
+                updateColumnConfiguration(currentColumnIndex, config);
+                validateCurrentConfiguration();
+                enforceBusinessRules();
             });
-        });
-    }
+        }
 
-    /**
-     * Set up engagement selector listeners
-     */
-    function setupEngagementListeners() {
-        // Handle both select dropdowns and custom engagement selectors
-        const engagementDropdowns = document.querySelectorAll('#engagement, select[name*="engagement"], .engagement-select');
-        engagementDropdowns.forEach(dropdown => {
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const engagement = event.target.value;
-                
-                // Update configuration
-                updateColumnConfiguration(columnIndex, {
-                    engagement: engagement
-                });
-                
-                // Update dropdown states
-                updateDropdownStates();
+        // DR/CR dropdown
+        const drcrDropdown = document.getElementById('drcr');
+        if (drcrDropdown) {
+            drcrDropdown.addEventListener('change', function() {
+                const config = getCurrentFormConfiguration();
+                updateColumnConfiguration(currentColumnIndex, config);
+                validateCurrentConfiguration();
             });
-        });
-        
-        // Handle custom engagement dropdown with click events
-        setupCustomEngagementListeners();
-    }
+        }
 
-    /**
-     * Set up custom engagement dropdown listeners (for click-based selectors)
-     */
-    function setupCustomEngagementListeners() {
-        // Look for engagement buttons or custom selectors
+        // Engagement selection (custom dropdown)
         document.addEventListener('click', function(event) {
-            const target = event.target;
-            
-            // Check if this is an engagement selection
-            if (target.matches('.engagement-option, .dropdown-item[data-engagement], button[data-engagement]')) {
-                const columnIndex = determineColumnIndex(target);
-                const engagement = target.getAttribute('data-engagement') || target.textContent.trim();
+            if (event.target.matches('.engagement-item, [data-engagement]')) {
+                const engagement = event.target.getAttribute('data-engagement') || event.target.textContent.trim();
+                
+                // Update the selected engagement display
+                const selectedEngagement = document.getElementById('selectedEngagement');
+                if (selectedEngagement) {
+                    selectedEngagement.textContent = engagement;
+                }
                 
                 // Update configuration
-                updateColumnConfiguration(columnIndex, {
-                    engagement: engagement
-                });
+                const config = getCurrentFormConfiguration();
+                config.engagement = engagement;
+                updateColumnConfiguration(currentColumnIndex, config);
+                validateCurrentConfiguration();
                 
-                // Update dropdown states
-                updateDropdownStates();
-                
-                // Update the display if needed
-                updateEngagementDisplay(columnIndex, engagement);
-            }
-        });
-    }
-
-    /**
-     * Update engagement display in the UI
-     */
-    function updateEngagementDisplay(columnIndex, engagement) {
-        // Find the engagement display element for this column
-        const displayElement = document.querySelector(`#selectedEngagement${columnIndex}, .engagement-display[data-column="${columnIndex}"], .selected-engagement`);
-        if (displayElement) {
-            displayElement.textContent = engagement;
-        }
-    }
-
-    /**
-     * Determine which column index a dropdown belongs to
-     */
-    function determineColumnIndex(element) {
-        // Method 1: Check for data attributes
-        const dataColumn = element.getAttribute('data-column');
-        if (dataColumn !== null) {
-            return parseInt(dataColumn);
-        }
-        
-        // Method 2: Check parent elements for column indicators
-        let parent = element.parentElement;
-        while (parent) {
-            const parentColumn = parent.getAttribute('data-column');
-            if (parentColumn !== null) {
-                return parseInt(parentColumn);
-            }
-            
-            // Check for column class patterns
-            const classList = parent.classList;
-            for (const className of classList) {
-                if (className.startsWith('column-') && /column-\d+/.test(className)) {
-                    return parseInt(className.replace('column-', ''));
+                // Close the engagement dropdown
+                const dropdownMenu = document.getElementById('engagementDropdownMenu');
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = 'none';
                 }
             }
+        });
+    }
+
+    /**
+     * Get current form configuration from the modal
+     */
+    function getCurrentFormConfiguration() {
+        const columnType = document.getElementById('columnType');
+        const period = document.getElementById('period');
+        const drcr = document.getElementById('drcr');
+        const selectedEngagement = document.getElementById('selectedEngagement');
+
+        return {
+            balanceType: columnType ? columnType.value : '',
+            period: period ? period.value : '',
+            drCr: drcr ? drcr.value : '',
+            engagement: selectedEngagement ? selectedEngagement.textContent.trim() : ''
+        };
+    }
+
+    /**
+     * Load existing configuration for a column into the form
+     */
+    function loadColumnConfiguration(columnIndex) {
+        const config = getColumnConfiguration(columnIndex);
+        
+        // Populate form fields with existing values
+        const columnType = document.getElementById('columnType');
+        const period = document.getElementById('period');
+        const drcr = document.getElementById('drcr');
+        const selectedEngagement = document.getElementById('selectedEngagement');
+
+        if (columnType && config.balanceType) {
+            columnType.value = config.balanceType;
+        }
+        if (period && config.period) {
+            period.value = config.period;
+        }
+        if (drcr && config.drCr) {
+            drcr.value = config.drCr;
+        }
+        if (selectedEngagement && config.engagement) {
+            selectedEngagement.textContent = config.engagement;
+        }
+    }
+
+    /**
+     * Validate current configuration and show real-time feedback
+     */
+    function validateCurrentConfiguration() {
+        if (currentColumnIndex === null) return;
+        
+        const config = getCurrentFormConfiguration();
+        const validation = validateColumnConfiguration(currentColumnIndex, config);
+        
+        // Clear previous error states
+        clearValidationErrors();
+        
+        if (!validation.isValid) {
+            showValidationErrors(validation.errors);
+        }
+        
+        // Update dropdown states to prevent conflicts
+        updateDropdownStates();
+    }
+
+    /**
+     * Validate a column configuration
+     */
+    function validateColumnConfiguration(columnIndex, config) {
+        const errors = [];
+        
+        // Skip validation if configuration is incomplete
+        if (!config.balanceType || !config.period || !config.drCr || !config.engagement) {
+            return { isValid: true, errors: [] }; // Allow incomplete configurations
+        }
+        
+        // Check for duplicates
+        const conflicts = checkForDuplicates();
+        const currentKey = generateConfigurationKey(config.engagement, config.balanceType, config.period, config.drCr);
+        
+        for (const conflict of conflicts) {
+            if (conflict.key === currentKey && conflict.columns.indexOf(columnIndex) === -1) {
+                // This configuration would create a duplicate
+                const conflictColumns = conflict.columns.join(', ');
+                errors.push(`This configuration duplicates columns ${conflictColumns}. Each column must have a unique combination of engagement, balance type, period, and debit/credit.`);
+                break;
+            }
+        }
+        
+        // Check business rules
+        const businessRuleErrors = checkBusinessRules(config);
+        errors.push(...businessRuleErrors);
+        
+        return {
+            isValid: errors.length === 0,
+            errors: errors
+        };
+    }
+
+    /**
+     * Check business rules for a configuration
+     */
+    function checkBusinessRules(config) {
+        const errors = [];
+        
+        // Rule: Current period = unadjusted only
+        if (config.period && config.period.toLowerCase().includes('current')) {
+            if (config.balanceType && !config.balanceType.toLowerCase().includes('unadjusted')) {
+                errors.push('Current Period can only be used with Unadjusted Balance types.');
+            }
+        }
+        
+        // Rule: Prior periods = other balance types only
+        if (config.period && !config.period.toLowerCase().includes('current')) {
+            if (config.balanceType && config.balanceType.toLowerCase().includes('unadjusted')) {
+                errors.push('Prior periods cannot be used with Unadjusted Balance types.');
+            }
+        }
+        
+        return errors;
+    }
+
+    /**
+     * Enforce business rules by updating dropdown options
+     */
+    function enforceBusinessRules() {
+        const period = document.getElementById('period');
+        const columnType = document.getElementById('columnType');
+        
+        if (!period || !columnType) return;
+        
+        const selectedPeriod = period.value;
+        
+        // Get all column type options
+        const options = columnType.querySelectorAll('option');
+        
+        options.forEach(option => {
+            const value = option.value.toLowerCase();
+            const text = option.textContent.toLowerCase();
             
-            parent = parent.parentElement;
-        }
-        
-        // Method 3: Find the column based on position
-        const allColumns = document.querySelectorAll('.column, [data-column]');
-        for (let i = 0; i < allColumns.length; i++) {
-            if (allColumns[i].contains(element)) {
-                return i;
-            }
-        }
-        
-        // Method 4: Use the current column being configured (fallback)
-        const currentColumn = getCurrentColumnIndex();
-        if (currentColumn !== null) {
-            return currentColumn;
-        }
-        
-        // Default to 0 if we can't determine the column
-        console.warn('Could not determine column index for element:', element);
-        return 0;
-    }
-
-    /**
-     * Get the currently active/selected column index
-     */
-    function getCurrentColumnIndex() {
-        // Look for active column indicators
-        const activeColumn = document.querySelector('.column.active, .column.selected, [data-column].active');
-        if (activeColumn) {
-            return parseInt(activeColumn.getAttribute('data-column')) || 0;
-        }
-        
-        // Look for currently visible column configuration
-        const visibleConfig = document.querySelector('.column-config:not(.hidden), .column-configuration.show');
-        if (visibleConfig) {
-            const columnAttr = visibleConfig.getAttribute('data-column');
-            if (columnAttr !== null) {
-                return parseInt(columnAttr);
-            }
-        }
-        
-        return null;
-    }
-
-    /**
-     * Handle column type validation after selection
-     */
-    function handleColumnTypeValidation() {
-        // This is called after the original handleColumnTypeChange
-        // We can add any additional validation logic here
-        
-        // Trigger a full validation check
-        if (typeof validateConfiguration === 'function') {
-            validateConfiguration();
-        }
-    }
-
-    /**
-     * Validate business rules specifically for period changes
-     */
-    function validatePeriodBusinessRules(columnIndex, period) {
-        if (!period) return;
-        
-        const config = getColumnConfiguration(columnIndex);
-        
-        // Enforce business rule: Current period = unadjusted only
-        if (period.toLowerCase().includes('current')) {
-            // Update balance type dropdown to show only unadjusted options
-            filterBalanceTypeOptions(columnIndex, period, 'unadjusted-only');
-        }
-        
-        // Enforce business rule: Prior periods = other balance types only
-        if (period.toLowerCase().includes('prior')) {
-            // Update balance type dropdown to exclude unadjusted options
-            filterBalanceTypeOptions(columnIndex, period, 'no-unadjusted');
-        }
-    }
-
-    /**
-     * Filter balance type options based on business rules
-     */
-    function filterBalanceTypeOptions(columnIndex, period, filterType) {
-        // Find the balance type dropdown for this column
-        const balanceTypeDropdowns = document.querySelectorAll('#columnType, select[name*="columnType"], .column-type-select');
-        
-        balanceTypeDropdowns.forEach(dropdown => {
-            const dropdownColumnIndex = determineColumnIndex(dropdown);
-            if (dropdownColumnIndex === columnIndex) {
-                const options = dropdown.querySelectorAll('option');
-                
-                options.forEach(option => {
-                    const value = option.value.toLowerCase();
-                    const text = option.textContent.toLowerCase();
-                    
-                    if (filterType === 'unadjusted-only') {
-                        // Only allow unadjusted options for current period
-                        if (!value.includes('unadjusted') && !text.includes('unadjusted') && option.value !== '') {
-                            option.disabled = true;
-                            option.classList.add('dropdown-option-disabled');
-                        } else {
-                            option.disabled = false;
-                            option.classList.remove('dropdown-option-disabled');
-                        }
-                    } else if (filterType === 'no-unadjusted') {
-                        // Disable unadjusted options for prior periods
-                        if ((value.includes('unadjusted') || text.includes('unadjusted')) && option.value !== '') {
-                            option.disabled = true;
-                            option.classList.add('dropdown-option-disabled');
-                        } else {
-                            option.disabled = false;
-                            option.classList.remove('dropdown-option-disabled');
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    /**
-     * Update dropdown states to prevent conflicts
-     */
-    window.updateDropdownStates = function() {
-        // Get all configured columns
-        const configuredColumns = getBalanceColumns();
-        
-        // For each column, update its dropdown options
-        configuredColumns.forEach(columnIndex => {
-            updateColumnDropdownStates(columnIndex);
-        });
-        
-        // Also update any currently active column dropdowns
-        updateActiveColumnDropdowns();
-    };
-
-    /**
-     * Update dropdown states for a specific column
-     */
-    function updateColumnDropdownStates(columnIndex) {
-        const config = getColumnConfiguration(columnIndex);
-        
-        // Update engagement dropdown
-        filterConflictingEngagements(columnIndex, config);
-        
-        // Update balance type dropdown
-        filterConflictingBalanceTypes(columnIndex, config);
-        
-        // Update period dropdown
-        filterConflictingPeriods(columnIndex, config);
-        
-        // Update debit/credit dropdown
-        filterConflictingDrCr(columnIndex, config);
-    }
-
-    /**
-     * Update dropdown states for any currently active/visible column
-     */
-    function updateActiveColumnDropdowns() {
-        // Find active dropdowns and update them
-        const activeDropdowns = document.querySelectorAll('select:not([disabled]), .dropdown.show select');
-        
-        activeDropdowns.forEach(dropdown => {
-            const columnIndex = determineColumnIndex(dropdown);
-            updateColumnDropdownStates(columnIndex);
-        });
-    }
-
-    /**
-     * Filter conflicting engagement options
-     */
-    function filterConflictingEngagements(columnIndex, currentConfig) {
-        // Implementation depends on how engagements are handled
-        // This would disable engagement options that would create conflicts
-        
-        const engagementDropdowns = document.querySelectorAll('#engagement, select[name*="engagement"], .engagement-select');
-        engagementDropdowns.forEach(dropdown => {
-            const dropdownColumnIndex = determineColumnIndex(dropdown);
-            if (dropdownColumnIndex === columnIndex) {
-                // Mark conflicting options
-                filterConflictingOptions(dropdown, 'engagement', currentConfig);
-            }
-        });
-    }
-
-    /**
-     * Filter conflicting balance type options
-     */
-    function filterConflictingBalanceTypes(columnIndex, currentConfig) {
-        const balanceTypeDropdowns = document.querySelectorAll('#columnType, select[name*="columnType"], .column-type-select');
-        balanceTypeDropdowns.forEach(dropdown => {
-            const dropdownColumnIndex = determineColumnIndex(dropdown);
-            if (dropdownColumnIndex === columnIndex) {
-                filterConflictingOptions(dropdown, 'balanceType', currentConfig);
-            }
-        });
-    }
-
-    /**
-     * Filter conflicting period options
-     */
-    function filterConflictingPeriods(columnIndex, currentConfig) {
-        const periodDropdowns = document.querySelectorAll('#period, select[name*="period"], .period-select');
-        periodDropdowns.forEach(dropdown => {
-            const dropdownColumnIndex = determineColumnIndex(dropdown);
-            if (dropdownColumnIndex === columnIndex) {
-                filterConflictingOptions(dropdown, 'period', currentConfig);
-            }
-        });
-    }
-
-    /**
-     * Filter conflicting debit/credit options
-     */
-    function filterConflictingDrCr(columnIndex, currentConfig) {
-        const drCrDropdowns = document.querySelectorAll('#drcr, select[name*="drcr"], .drcr-select');
-        drCrDropdowns.forEach(dropdown => {
-            const dropdownColumnIndex = determineColumnIndex(dropdown);
-            if (dropdownColumnIndex === columnIndex) {
-                filterConflictingOptions(dropdown, 'drCr', currentConfig);
-            }
-        });
-    }
-
-    /**
-     * Generic function to filter conflicting options in a dropdown
-     */
-    function filterConflictingOptions(dropdown, fieldType, currentConfig) {
-        if (!dropdown || !dropdown.options) return;
-        
-        const options = dropdown.options;
-        const columnIndex = determineColumnIndex(dropdown);
-        
-        // Get all other configured columns
-        const otherConfigurations = [];
-        for (const colIndex in window.columnConfigurations) {
-            const colNum = parseInt(colIndex);
-            if (colNum !== columnIndex) {
-                const config = window.columnConfigurations[colIndex];
-                if (config.engagement && config.balanceType && config.period && config.drCr) {
-                    otherConfigurations.push(config);
+            if (selectedPeriod && selectedPeriod.toLowerCase().includes('current')) {
+                // Current period: only allow unadjusted
+                if (!value.includes('unadjusted') && !text.includes('unadjusted') && option.value !== '') {
+                    option.disabled = true;
+                    option.style.color = '#999';
+                    option.title = 'Current Period can only be used with Unadjusted Balance types';
+                } else {
+                    option.disabled = false;
+                    option.style.color = '';
+                    option.title = '';
                 }
-            }
-        }
-        
-        // Check each option for conflicts
-        for (let i = 0; i < options.length; i++) {
-            const option = options[i];
-            if (option.value === '') continue; // Skip empty options
-            
-            // Create a test configuration with this option
-            const testConfig = {...currentConfig};
-            testConfig[fieldType] = option.value;
-            
-            // Check if this would create a conflict
-            const wouldConflict = wouldCreateConflict(testConfig, otherConfigurations);
-            
-            if (wouldConflict) {
-                option.classList.add('dropdown-option-conflict');
-                option.title = 'This selection would create a duplicate configuration';
+            } else if (selectedPeriod && !selectedPeriod.toLowerCase().includes('current')) {
+                // Prior periods: exclude unadjusted
+                if ((value.includes('unadjusted') || text.includes('unadjusted')) && option.value !== '') {
+                    option.disabled = true;
+                    option.style.color = '#999';
+                    option.title = 'Prior periods cannot be used with Unadjusted Balance types';
+                } else {
+                    option.disabled = false;
+                    option.style.color = '';
+                    option.title = '';
+                }
             } else {
-                option.classList.remove('dropdown-option-conflict');
+                // No period selected: enable all options
+                option.disabled = false;
+                option.style.color = '';
                 option.title = '';
             }
-        }
+        });
+    }
+
+    /**
+     * Update dropdown states to show conflicts
+     */
+    function updateDropdownStates() {
+        if (currentColumnIndex === null) return;
+        
+        const currentConfig = getCurrentFormConfiguration();
+        
+        // Update each dropdown to show conflicting options
+        updateColumnTypeDropdownStates(currentConfig);
+        updatePeriodDropdownStates(currentConfig);
+        updateDrCrDropdownStates(currentConfig);
+    }
+
+    /**
+     * Update column type dropdown to show conflicts
+     */
+    function updateColumnTypeDropdownStates(currentConfig) {
+        const columnType = document.getElementById('columnType');
+        if (!columnType) return;
+        
+        const options = columnType.querySelectorAll('option');
+        options.forEach(option => {
+            if (option.value === '') return;
+            
+            const testConfig = { ...currentConfig, balanceType: option.value };
+            const wouldConflict = wouldCreateConflict(testConfig);
+            
+            if (wouldConflict) {
+                option.style.backgroundColor = '#ffe6e6';
+                option.title = 'This selection would create a duplicate configuration';
+            } else {
+                option.style.backgroundColor = '';
+                option.title = '';
+            }
+        });
+    }
+
+    /**
+     * Update period dropdown to show conflicts
+     */
+    function updatePeriodDropdownStates(currentConfig) {
+        const period = document.getElementById('period');
+        if (!period) return;
+        
+        const options = period.querySelectorAll('option');
+        options.forEach(option => {
+            if (option.value === '') return;
+            
+            const testConfig = { ...currentConfig, period: option.value };
+            const wouldConflict = wouldCreateConflict(testConfig);
+            
+            if (wouldConflict) {
+                option.style.backgroundColor = '#ffe6e6';
+                option.title = 'This selection would create a duplicate configuration';
+            } else {
+                option.style.backgroundColor = '';
+                option.title = '';
+            }
+        });
+    }
+
+    /**
+     * Update DR/CR dropdown to show conflicts
+     */
+    function updateDrCrDropdownStates(currentConfig) {
+        const drcr = document.getElementById('drcr');
+        if (!drcr) return;
+        
+        const options = drcr.querySelectorAll('option');
+        options.forEach(option => {
+            if (option.value === '') return;
+            
+            const testConfig = { ...currentConfig, drCr: option.value };
+            const wouldConflict = wouldCreateConflict(testConfig);
+            
+            if (wouldConflict) {
+                option.style.backgroundColor = '#ffe6e6';
+                option.title = 'This selection would create a duplicate configuration';
+            } else {
+                option.style.backgroundColor = '';
+                option.title = '';
+            }
+        });
     }
 
     /**
      * Check if a configuration would create a conflict
      */
-    function wouldCreateConflict(testConfig, otherConfigurations) {
-        // Skip if configuration is incomplete
+    function wouldCreateConflict(testConfig) {
         if (!testConfig.engagement || !testConfig.balanceType || !testConfig.period || !testConfig.drCr) {
             return false;
         }
         
-        // Check against all other configurations
-        for (const otherConfig of otherConfigurations) {
-            // Check for exact duplicate
+        // Get all other configured columns
+        for (const columnIndex in window.columnConfigurations) {
+            const colNum = parseInt(columnIndex);
+            if (colNum === currentColumnIndex) continue;
+            
+            const otherConfig = window.columnConfigurations[columnIndex];
+            if (!otherConfig.engagement || !otherConfig.balanceType || !otherConfig.period || !otherConfig.drCr) {
+                continue;
+            }
+            
+            // Check for exact match
             if (testConfig.engagement === otherConfig.engagement &&
                 testConfig.balanceType === otherConfig.balanceType &&
                 testConfig.period === otherConfig.period &&
                 testConfig.drCr === otherConfig.drCr) {
-                return true;
-            }
-            
-            // Special case: Unadjusted Current Period Dr/Cr can be duplicate if different engagements
-            const isUnadjustedCurrent = 
-                testConfig.balanceType.toLowerCase().includes('unadjusted') && 
-                testConfig.period.toLowerCase().includes('current');
                 
-            const otherIsUnadjustedCurrent = 
-                otherConfig.balanceType.toLowerCase().includes('unadjusted') && 
-                otherConfig.period.toLowerCase().includes('current');
-                
-            if (isUnadjustedCurrent && otherIsUnadjustedCurrent) {
-                // Allow if engagements are different
-                if (testConfig.engagement !== otherConfig.engagement) {
+                // Special case: Multiple 'Unadjusted Current Period Dr/Cr' allowed if different engagements
+                const isUnadjustedCurrent = 
+                    testConfig.balanceType.toLowerCase().includes('unadjusted') && 
+                    testConfig.period.toLowerCase().includes('current');
+                    
+                if (isUnadjustedCurrent && testConfig.engagement !== otherConfig.engagement) {
                     continue; // Not a conflict
                 }
-                // Same engagement + same Dr/Cr = conflict
-                if (testConfig.drCr === otherConfig.drCr) {
-                    return true;
-                }
+                
+                return true; // Conflict found
             }
         }
         
@@ -521,82 +473,69 @@
     }
 
     /**
-     * Set up mutation observers to handle dynamic content
+     * Show validation errors in the UI
      */
-    function setupMutationObservers() {
-        // Watch for new dropdown elements being added to the DOM
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach(function(node) {
-                        if (node.nodeType === 1) { // Element node
-                            // Check if new dropdowns were added
-                            const newDropdowns = node.querySelectorAll ? node.querySelectorAll('select') : [];
-                            newDropdowns.forEach(dropdown => {
-                                setupDropdownListener(dropdown);
-                            });
-                            
-                            // Check if the added node itself is a dropdown
-                            if (node.tagName === 'SELECT') {
-                                setupDropdownListener(node);
-                            }
-                        }
-                    });
-                }
-            });
-        });
+    function showValidationErrors(errors) {
+        // Remove existing error messages
+        clearValidationErrors();
         
-        // Start observing
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
+        // Show each error
+        errors.forEach(error => {
+            showErrorMessage(error);
         });
     }
 
     /**
-     * Set up listener for a single dropdown
+     * Clear validation error displays
      */
-    function setupDropdownListener(dropdown) {
-        // Determine what type of dropdown this is and set up appropriate listener
-        const id = dropdown.id;
-        const name = dropdown.name || '';
-        const className = dropdown.className || '';
+    function clearValidationErrors() {
+        // Clear any existing error styling
+        const dropdowns = ['columnType', 'period', 'drcr'];
+        dropdowns.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.borderColor = '';
+                element.classList.remove('error');
+            }
+        });
+    }
+
+    /**
+     * Update column header display with new configuration
+     */
+    function updateColumnHeaderDisplay(columnIndex, config) {
+        const header = document.getElementById(`header-col-${columnIndex}`);
+        if (!header) return;
         
-        if (id.includes('columnType') || name.includes('columnType') || className.includes('column-type')) {
-            // Column type dropdown
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const balanceType = event.target.value;
-                updateColumnConfiguration(columnIndex, { balanceType: balanceType });
-                updateDropdownStates();
-            });
-        } else if (id.includes('period') || name.includes('period') || className.includes('period')) {
-            // Period dropdown
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const period = event.target.value;
-                updateColumnConfiguration(columnIndex, { period: period });
-                updateDropdownStates();
-                validatePeriodBusinessRules(columnIndex, period);
-            });
-        } else if (id.includes('drcr') || id.includes('debit') || id.includes('credit') || 
-                   name.includes('drcr') || className.includes('drcr')) {
-            // Dr/Cr dropdown
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const drCr = event.target.value;
-                updateColumnConfiguration(columnIndex, { drCr: drCr });
-                updateDropdownStates();
-            });
-        } else if (id.includes('engagement') || name.includes('engagement') || className.includes('engagement')) {
-            // Engagement dropdown
-            dropdown.addEventListener('change', function(event) {
-                const columnIndex = determineColumnIndex(event.target);
-                const engagement = event.target.value;
-                updateColumnConfiguration(columnIndex, { engagement: engagement });
-                updateDropdownStates();
-            });
+        // Update the header content
+        let headerContent = '';
+        
+        if (config.balanceType === 'not-used' || !config.balanceType) {
+            headerContent = 'Not Used';
+        } else {
+            const engagementName = config.engagement || 'No Engagement';
+            const balanceType = config.balanceType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const period = config.period === 'current-period' ? 'CP' : config.period;
+            const drCr = config.drCr.toUpperCase();
+            
+            headerContent = `
+                <div class="column-header-with-engagement">
+                    <div class="engagement-name-header">${engagementName}</div>
+                    <div class="balance-type-header">${balanceType}</div>
+                    <div class="period-drcr-header">${period} | ${drCr}</div>
+                </div>
+            `;
         }
+        
+        header.innerHTML = headerContent;
+    }
+
+    /**
+     * Handle column type validation
+     */
+    function handleColumnTypeValidation() {
+        validateCurrentConfiguration();
+        enforceBusinessRules();
     }
 
     // Initialize when DOM is ready
