@@ -1054,6 +1054,72 @@
             return `${config.columnType}|${config.engagementId}|${config.period}|${config.drcr}`;
         }
         
+        // ===== CONFIGURATION STORAGE FUNCTIONS =====
+        // Created: January 2025
+        // Purpose: Store and retrieve column configuration data
+        
+        /**
+         * Save column configuration to the tracking system
+         * @param {number} columnIndex - Column index (5, 6, 7, etc.)
+         * @param {Object} config - Configuration object {columnType, engagementId, period, drcr}
+         */
+        function saveColumnConfiguration(columnIndex, config) {
+            if (!columnIndex || !config) {
+                console.warn('saveColumnConfiguration: Invalid parameters');
+                return;
+            }
+            
+            columnConfigurations[columnIndex] = {
+                columnType: config.columnType || null,
+                engagementId: config.engagementId || null,
+                period: config.period || null,
+                drcr: config.drcr || null,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log(`Column ${columnIndex} configuration saved:`, columnConfigurations[columnIndex]);
+        }
+        
+        /**
+         * Get column configuration from the tracking system
+         * @param {number} columnIndex - Column index to retrieve
+         * @returns {Object|null} - Configuration object or null if not found
+         */
+        function getColumnConfiguration(columnIndex) {
+            if (!columnIndex) {
+                console.warn('getColumnConfiguration: Invalid column index');
+                return null;
+            }
+            
+            return columnConfigurations[columnIndex] || null;
+        }
+        
+        /**
+         * Clear column configuration from the tracking system
+         * @param {number} columnIndex - Column index to clear
+         */
+        function clearColumnConfiguration(columnIndex) {
+            if (!columnIndex) {
+                console.warn('clearColumnConfiguration: Invalid column index');
+                return;
+            }
+            
+            if (columnConfigurations[columnIndex]) {
+                delete columnConfigurations[columnIndex];
+                console.log(`Column ${columnIndex} configuration cleared`);
+            }
+        }
+        
+        /**
+         * Get all configured columns
+         * @returns {Array} - Array of column indices that have configurations
+         */
+        function getAllConfiguredColumns() {
+            return Object.keys(columnConfigurations).map(key => parseInt(key));
+        }
+        
+        // ===== END CONFIGURATION STORAGE FUNCTIONS =====
+        
         // ===== END COLUMN CONFIGURATION TRACKING SYSTEM =====
 
         // Mock data for consolidation engagements - corrected structure
@@ -1236,6 +1302,16 @@
                 alert('Please select a target engagement for balance columns');
                 return;
             }
+
+            // Save configuration using new storage functions
+            const config = {
+                columnType: columnType,
+                engagementId: selectedEngagementId,
+                period: period,
+                drcr: drcr
+            };
+            
+            saveColumnConfiguration(currentColumn, config);
 
             // Update column header
             updateColumnHeader(currentColumn, columnType, selectedEngagementId, period, drcr);
