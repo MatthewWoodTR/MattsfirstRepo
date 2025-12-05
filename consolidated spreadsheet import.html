@@ -5,7 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trial Balance Import - Consolidation-Aware Column Mapping</title>
     <style>
-
+        /* Additional styles for column header layout */
+        .grid-header-cell {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .column-header-content {
+            flex: 1;
+        }
+        
+        .column-header-edit-btn {
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        
+        .edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .edit-btn:hover {
+            background-color: rgba(0, 102, 204, 0.1);
+        }
     </style>
     <link rel="stylesheet" href="styles-and-scripts/duplicate-prevention/conflict-visual-indicators.css">
     <link rel="stylesheet" href="styles-and-scripts/ssimportstyle.css">
@@ -146,23 +175,41 @@
                             <div class="grid-header-cell">Account Number</div>
                             <div class="grid-header-cell">Account Description</div>
                             <div class="grid-header-cell" id="header-col-5">
-                                <div class="column-header-with-engagement">
-                                    <div class="engagement-name-header">US East Subsidiary 1</div>
-                                    <div class="balance-type-header">Unadjusted Balance</div>
-                                    <div class="period-drcr-header">CP | DR/CR</div>
+                                <div class="column-header-content">
+                                    <span>not used</span>
                                 </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(5)">✏️</button>
                             </div>
                             <div class="grid-header-cell" id="header-col-6">
-                                <div class="column-header-with-engagement">
-                                    <div class="engagement-name-header">US West Subsidiary 1</div>
-                                    <div class="balance-type-header">Adjusted Balance</div>
-                                    <div class="period-drcr-header">12/31/2022 | DR</div>
+                                <div class="column-header-content">
+                                    <span>not used</span>
                                 </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(6)">✏️</button>
                             </div>
-                            <div class="grid-header-cell" id="header-col-7">Not Used</div>
-                            <div class="grid-header-cell" id="header-col-8">Not Used</div>
-                            <div class="grid-header-cell" id="header-col-9">Not Used</div>
-                            <div class="grid-header-cell" id="header-col-10">Not Used</div>
+                            <div class="grid-header-cell" id="header-col-7">
+                                <div class="column-header-content">
+                                    <span>Not Used</span>
+                                </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(7)">✏️</button>
+                            </div>
+                            <div class="grid-header-cell" id="header-col-8">
+                                <div class="column-header-content">
+                                    <span>Not Used</span>
+                                </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(8)">✏️</button>
+                            </div>
+                            <div class="grid-header-cell" id="header-col-9">
+                                <div class="column-header-content">
+                                    <span>Not Used</span>
+                                </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(9)">✏️</button>
+                            </div>
+                            <div class="grid-header-cell" id="header-col-10">
+                                <div class="column-header-content">
+                                    <span>Not Used</span>
+                                </div>
+                                <button class="edit-btn column-header-edit-btn" onclick="openColumnDialog(10)">✏️</button>
+                            </div>
                         </div>
 
                         <div class="grid-row">
@@ -172,24 +219,12 @@
                             <div class="grid-cell"></div>
                             <div class="grid-cell">City of Tillman Training...</div>
                             <div class="grid-cell"></div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(5)">✏️</button>
-                            </div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(6)">✏️</button>
-                            </div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(7)">✏️</button>
-                            </div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(8)">✏️</button>
-                            </div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(9)">✏️</button>
-                            </div>
-                            <div class="grid-cell">
-                                <button class="edit-btn" onclick="openColumnDialog(10)">✏️</button>
-                            </div>
+                            <div class="grid-cell"></div>
+                            <div class="grid-cell"></div>
+                            <div class="grid-cell"></div>
+                            <div class="grid-cell"></div>
+                            <div class="grid-cell"></div>
+                            <div class="grid-cell"></div>
                         </div>
 
                         <div class="grid-row">
