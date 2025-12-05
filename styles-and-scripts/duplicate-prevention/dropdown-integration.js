@@ -68,6 +68,11 @@
             
             // Load existing configuration for this column
             loadColumnConfiguration(columnIndex);
+            
+            // Initialize dropdown states
+            setTimeout(() => {
+                initializeDropdownStates();
+            }, 100);
         };
 
         // Override saveColumnDetails to validate and save configuration
@@ -127,6 +132,7 @@
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
                 validateCurrentConfiguration();
+                updateDropdownStates(); // Update conflict indicators
             });
         }
 
@@ -137,7 +143,7 @@
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
                 validateCurrentConfiguration();
-                enforceBusinessRules();
+                updateDropdownStates(); // Update conflict indicators
             });
         }
 
@@ -148,6 +154,7 @@
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
                 validateCurrentConfiguration();
+                updateDropdownStates(); // Update conflict indicators
             });
         }
 
@@ -167,6 +174,7 @@
                 config.engagement = engagement;
                 updateColumnConfiguration(currentColumnIndex, config);
                 validateCurrentConfiguration();
+                updateDropdownStates(); // Update conflict indicators
                 
                 // Close the engagement dropdown
                 const dropdownMenu = document.getElementById('engagementDropdownMenu');
@@ -174,6 +182,37 @@
                     dropdownMenu.style.display = 'none';
                 }
             }
+        });
+    }
+
+    /**
+     * Initialize dropdown states when dialog opens
+     */
+    function initializeDropdownStates() {
+        // Reset all dropdowns to show all options initially
+        resetDropdownStates();
+        
+        // Then apply business rules and conflict detection
+        updateDropdownStates();
+    }
+
+    /**
+     * Reset all dropdown options to enabled state
+     */
+    function resetDropdownStates() {
+        const dropdowns = ['columnType', 'period', 'drcr'];
+        
+        dropdowns.forEach(dropdownId => {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
+            
+            const options = dropdown.querySelectorAll('option');
+            options.forEach(option => {
+                option.disabled = false;
+                option.style.color = '';
+                option.style.backgroundColor = '';
+                option.title = '';
+            });
         });
     }
 
@@ -235,9 +274,6 @@
         if (!validation.isValid) {
             showValidationErrors(validation.errors);
         }
-        
-        // Update dropdown states to prevent conflicts
-        updateDropdownStates();
     }
 
     /**
@@ -251,25 +287,17 @@
             return { isValid: true, errors: [] }; // Allow incomplete configurations
         }
         
-        // Get all balance columns for duplicate checking
-        const balanceColumns = getAllBalanceColumns();
-        
-        // Check for duplicates - pass the required parameter
-        const conflicts = checkForDuplicates(balanceColumns) || []; // Ensure it's always an array
-        const currentKey = generateConfigurationKey(config.engagement, config.balanceType, config.period, config.drCr);
-        
-        for (const conflict of conflicts) {
-            if (conflict.key === currentKey && conflict.columns.indexOf(columnIndex) === -1) {
-                // This configuration would create a duplicate
-                const conflictColumns = conflict.columns.join(', ');
-                errors.push(`This configuration duplicates columns ${conflictColumns}. Each column must have a unique combination of engagement, balance type, period, and debit/credit.`);
-                break;
-            }
-        }
-        
-        // Check business rules
+        // Check business rules first
         const businessRuleErrors = checkBusinessRules(config);
         errors.push(...businessRuleErrors);
+        
+        // Check for duplicates only if business rules pass
+        if (businessRuleErrors.length === 0) {
+            const conflicts = checkForDuplicateConfiguration(columnIndex, config);
+            if (conflicts.length > 0) {
+                errors.push(...conflicts);
+            }
+        }
         
         return {
             isValid: errors.length === 0,
@@ -278,33 +306,46 @@
     }
 
     /**
-     * Get all balance columns for validation
+     * Check for duplicate configurations
      */
-    function getAllBalanceColumns() {
-        const balanceColumns = [];
+    function checkForDuplicateConfiguration(columnIndex, config) {
+        const errors = [];
         
-        // Check if columnConfigurations exists
         if (!window.columnConfigurations) {
-            return balanceColumns;
+            return errors;
         }
         
-        // Iterate through all configured columns
-        for (const columnIndex in window.columnConfigurations) {
-            const config = window.columnConfigurations[columnIndex];
+        // Check against all other configured columns
+        for (const otherColumnIndex in window.columnConfigurations) {
+            const otherColNum = parseInt(otherColumnIndex);
+            if (otherColNum === columnIndex) continue;
             
-            // Only include balance columns (not 'not-used')
-            if (config && config.balanceType && config.balanceType !== 'not-used') {
-                balanceColumns.push({
-                    columnIndex: parseInt(columnIndex),
-                    engagement: config.engagement || '',
-                    balanceType: config.balanceType || '',
-                    period: config.period || '',
-                    drCr: config.drCr || ''
-                });
+            const otherConfig = window.columnConfigurations[otherColumnIndex];
+            if (!otherConfig || !otherConfig.engagement || !otherConfig.balanceType || 
+                !otherConfig.period || !otherConfig.drCr) {
+                continue;
+            }
+            
+            // Check for exact match
+            if (config.engagement === otherConfig.engagement &&
+                config.balanceType === otherConfig.balanceType &&
+                config.period === otherConfig.period &&
+                config.drCr === otherConfig.drCr) {
+                
+                // Special case: Multiple 'Unadjusted Current Period Dr/Cr' allowed if different engagements
+                const isUnadjustedCurrent = 
+                    config.balanceType.toLowerCase().includes('unadjusted') && 
+                    config.period.toLowerCase().includes('current');
+                    
+                if (isUnadjustedCurrent && config.engagement !== otherConfig.engagement) {
+                    continue; // Not a conflict - different engagements allowed
+                }
+                
+                errors.push(`This configuration duplicates Column ${otherColNum}. Each column must have a unique combination of engagement, balance type, period, and debit/credit.`);
             }
         }
         
-        return balanceColumns;
+        return errors;
     }
 
     /**
@@ -331,9 +372,24 @@
     }
 
     /**
-     * Enforce business rules by updating dropdown options
+     * Update dropdown states to show conflicts and enforce business rules
      */
-    function enforceBusinessRules() {
+    function updateDropdownStates() {
+        if (currentColumnIndex === null) return;
+        
+        const currentConfig = getCurrentFormConfiguration();
+        
+        // Apply business rules first
+        applyBusinessRulesToDropdowns(currentConfig);
+        
+        // Then apply conflict detection
+        applyConflictDetectionToDropdowns(currentConfig);
+    }
+
+    /**
+     * Apply business rules to dropdown options
+     */
+    function applyBusinessRulesToDropdowns(currentConfig) {
         const period = document.getElementById('period');
         const columnType = document.getElementById('columnType');
         
@@ -348,16 +404,19 @@
             const value = option.value.toLowerCase();
             const text = option.textContent.toLowerCase();
             
+            // Reset business rule styling first
+            if (!option.hasAttribute('data-conflict')) {
+                option.disabled = false;
+                option.style.color = '';
+                option.title = '';
+            }
+            
             if (selectedPeriod && selectedPeriod.toLowerCase().includes('current')) {
                 // Current period: only allow unadjusted
                 if (!value.includes('unadjusted') && !text.includes('unadjusted') && option.value !== '') {
                     option.disabled = true;
                     option.style.color = '#999';
                     option.title = 'Current Period can only be used with Unadjusted Balance types';
-                } else {
-                    option.disabled = false;
-                    option.style.color = '';
-                    option.title = '';
                 }
             } else if (selectedPeriod && !selectedPeriod.toLowerCase().includes('current')) {
                 // Prior periods: exclude unadjusted
@@ -365,148 +424,55 @@
                     option.disabled = true;
                     option.style.color = '#999';
                     option.title = 'Prior periods cannot be used with Unadjusted Balance types';
-                } else {
-                    option.disabled = false;
-                    option.style.color = '';
-                    option.title = '';
                 }
-            } else {
-                // No period selected: enable all options
-                option.disabled = false;
-                option.style.color = '';
-                option.title = '';
             }
         });
     }
 
     /**
-     * Update dropdown states to show conflicts
+     * Apply conflict detection to dropdown options
      */
-    function updateDropdownStates() {
-        if (currentColumnIndex === null) return;
-        
-        const currentConfig = getCurrentFormConfiguration();
-        
-        // Update each dropdown to show conflicting options
-        updateColumnTypeDropdownStates(currentConfig);
-        updatePeriodDropdownStates(currentConfig);
-        updateDrCrDropdownStates(currentConfig);
-    }
-
-    /**
-     * Update column type dropdown to show conflicts
-     */
-    function updateColumnTypeDropdownStates(currentConfig) {
-        const columnType = document.getElementById('columnType');
-        if (!columnType) return;
-        
-        const options = columnType.querySelectorAll('option');
-        options.forEach(option => {
-            if (option.value === '') return;
-            
-            const testConfig = { ...currentConfig, balanceType: option.value };
-            const wouldConflict = wouldCreateConflict(testConfig);
-            
-            if (wouldConflict) {
-                option.style.backgroundColor = '#ffe6e6';
-                option.title = 'This selection would create a duplicate configuration';
-            } else {
-                option.style.backgroundColor = '';
-                option.title = '';
-            }
-        });
-    }
-
-    /**
-     * Update period dropdown to show conflicts
-     */
-    function updatePeriodDropdownStates(currentConfig) {
-        const period = document.getElementById('period');
-        if (!period) return;
-        
-        const options = period.querySelectorAll('option');
-        options.forEach(option => {
-            if (option.value === '') return;
-            
-            const testConfig = { ...currentConfig, period: option.value };
-            const wouldConflict = wouldCreateConflict(testConfig);
-            
-            if (wouldConflict) {
-                option.style.backgroundColor = '#ffe6e6';
-                option.title = 'This selection would create a duplicate configuration';
-            } else {
-                option.style.backgroundColor = '';
-                option.title = '';
-            }
-        });
-    }
-
-    /**
-     * Update DR/CR dropdown to show conflicts
-     */
-    function updateDrCrDropdownStates(currentConfig) {
-        const drcr = document.getElementById('drcr');
-        if (!drcr) return;
-        
-        const options = drcr.querySelectorAll('option');
-        options.forEach(option => {
-            if (option.value === '') return;
-            
-            const testConfig = { ...currentConfig, drCr: option.value };
-            const wouldConflict = wouldCreateConflict(testConfig);
-            
-            if (wouldConflict) {
-                option.style.backgroundColor = '#ffe6e6';
-                option.title = 'This selection would create a duplicate configuration';
-            } else {
-                option.style.backgroundColor = '';
-                option.title = '';
-            }
-        });
-    }
-
-    /**
-     * Check if a configuration would create a conflict
-     */
-    function wouldCreateConflict(testConfig) {
-        if (!testConfig.engagement || !testConfig.balanceType || !testConfig.period || !testConfig.drCr) {
-            return false;
+    function applyConflictDetectionToDropdowns(currentConfig) {
+        // Only apply conflict detection if we have enough information
+        if (!currentConfig.engagement || !currentConfig.balanceType || 
+            !currentConfig.period || !currentConfig.drCr) {
+            return;
         }
         
-        // Get all other configured columns
-        if (!window.columnConfigurations) {
-            return false;
-        }
+        // Check engagement conflicts
+        updateEngagementConflictStates(currentConfig);
+    }
+
+    /**
+     * Update engagement dropdown to show conflicts
+     */
+    function updateEngagementConflictStates(currentConfig) {
+        // This would be implemented when we have the engagement dropdown structure
+        // For now, we'll focus on the main dropdowns
         
-        for (const columnIndex in window.columnConfigurations) {
-            const colNum = parseInt(columnIndex);
-            if (colNum === currentColumnIndex) continue;
-            
-            const otherConfig = window.columnConfigurations[columnIndex];
-            if (!otherConfig.engagement || !otherConfig.balanceType || !otherConfig.period || !otherConfig.drCr) {
-                continue;
-            }
-            
-            // Check for exact match
-            if (testConfig.engagement === otherConfig.engagement &&
-                testConfig.balanceType === otherConfig.balanceType &&
-                testConfig.period === otherConfig.period &&
-                testConfig.drCr === otherConfig.drCr) {
-                
-                // Special case: Multiple 'Unadjusted Current Period Dr/Cr' allowed if different engagements
-                const isUnadjustedCurrent = 
-                    testConfig.balanceType.toLowerCase().includes('unadjusted') && 
-                    testConfig.period.toLowerCase().includes('current');
-                    
-                if (isUnadjustedCurrent && testConfig.engagement !== otherConfig.engagement) {
-                    continue; // Not a conflict
-                }
-                
-                return true; // Conflict found
-            }
-        }
+        // Check if current configuration would conflict with existing columns
+        const wouldConflict = checkForDuplicateConfiguration(currentColumnIndex, currentConfig);
         
-        return false;
+        if (wouldConflict.length > 0) {
+            // Show visual indicator that this combination is conflicting
+            showConflictWarning(currentConfig);
+        }
+    }
+
+    /**
+     * Show conflict warning for current configuration
+     */
+    function showConflictWarning(config) {
+        // Add visual indicators to show the conflict
+        const dropdowns = ['columnType', 'period', 'drcr'];
+        
+        dropdowns.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.borderColor = '#ff6600';
+                element.style.borderWidth = '2px';
+            }
+        });
     }
 
     /**
@@ -520,6 +486,17 @@
         errors.forEach(error => {
             showErrorMessage(error);
         });
+        
+        // Add visual indicators to form elements
+        const dropdowns = ['columnType', 'period', 'drcr'];
+        dropdowns.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.borderColor = '#dc3545';
+                element.style.borderWidth = '2px';
+                element.classList.add('error');
+            }
+        });
     }
 
     /**
@@ -532,6 +509,7 @@
             const element = document.getElementById(id);
             if (element) {
                 element.style.borderColor = '';
+                element.style.borderWidth = '';
                 element.classList.remove('error');
             }
         });
@@ -572,7 +550,7 @@
      */
     function handleColumnTypeValidation() {
         validateCurrentConfiguration();
-        enforceBusinessRules();
+        updateDropdownStates();
     }
 
     // Initialize when DOM is ready
