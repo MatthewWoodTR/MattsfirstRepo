@@ -69,7 +69,7 @@
             // Load existing configuration for this column
             loadColumnConfiguration(columnIndex);
             
-            // Initialize dropdown states
+            // Initialize dropdown states - show ALL options initially
             setTimeout(() => {
                 initializeDropdownStates();
             }, 100);
@@ -131,8 +131,7 @@
             columnTypeDropdown.addEventListener('change', function() {
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
-                validateCurrentConfiguration();
-                updateDropdownStates(); // Update conflict indicators
+                updateDropdownStates(); // Apply filtering based on new selection
             });
         }
 
@@ -142,8 +141,7 @@
             periodDropdown.addEventListener('change', function() {
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
-                validateCurrentConfiguration();
-                updateDropdownStates(); // Update conflict indicators
+                updateDropdownStates(); // Apply business rules and filtering
             });
         }
 
@@ -153,8 +151,7 @@
             drcrDropdown.addEventListener('change', function() {
                 const config = getCurrentFormConfiguration();
                 updateColumnConfiguration(currentColumnIndex, config);
-                validateCurrentConfiguration();
-                updateDropdownStates(); // Update conflict indicators
+                updateDropdownStates(); // Apply engagement filtering
             });
         }
 
@@ -173,8 +170,6 @@
                 const config = getCurrentFormConfiguration();
                 config.engagement = engagement;
                 updateColumnConfiguration(currentColumnIndex, config);
-                validateCurrentConfiguration();
-                updateDropdownStates(); // Update conflict indicators
                 
                 // Close the engagement dropdown
                 const dropdownMenu = document.getElementById('engagementDropdownMenu');
@@ -186,14 +181,14 @@
     }
 
     /**
-     * Initialize dropdown states when dialog opens
+     * Initialize dropdown states when dialog opens - SHOW ALL OPTIONS INITIALLY
      */
     function initializeDropdownStates() {
-        // Reset all dropdowns to show all options initially
+        // Reset all dropdowns to show ALL options initially
         resetDropdownStates();
         
-        // Then apply business rules and conflict detection
-        updateDropdownStates();
+        // Don't apply any restrictions initially - let user make selections first
+        console.log('Dropdown states initialized - all options available');
     }
 
     /**
@@ -212,7 +207,24 @@
                 option.style.color = '';
                 option.style.backgroundColor = '';
                 option.title = '';
+                option.removeAttribute('data-conflict');
             });
+        });
+
+        // Reset engagement dropdown options too
+        resetEngagementDropdownStates();
+    }
+
+    /**
+     * Reset engagement dropdown states
+     */
+    function resetEngagementDropdownStates() {
+        const engagementItems = document.querySelectorAll('.engagement-item, [data-engagement]');
+        engagementItems.forEach(item => {
+            item.style.display = '';
+            item.style.color = '';
+            item.style.backgroundColor = '';
+            item.removeAttribute('data-conflict');
         });
     }
 
@@ -256,23 +268,6 @@
         }
         if (selectedEngagement && config.engagement) {
             selectedEngagement.textContent = config.engagement;
-        }
-    }
-
-    /**
-     * Validate current configuration and show real-time feedback
-     */
-    function validateCurrentConfiguration() {
-        if (currentColumnIndex === null) return;
-        
-        const config = getCurrentFormConfiguration();
-        const validation = validateColumnConfiguration(currentColumnIndex, config);
-        
-        // Clear previous error states
-        clearValidationErrors();
-        
-        if (!validation.isValid) {
-            showValidationErrors(validation.errors);
         }
     }
 
@@ -372,53 +367,52 @@
     }
 
     /**
-     * Update dropdown states to show conflicts and enforce business rules
+     * Update dropdown states based on current selections - PROACTIVE FILTERING
      */
     function updateDropdownStates() {
         if (currentColumnIndex === null) return;
         
         const currentConfig = getCurrentFormConfiguration();
         
-        // Apply business rules first
-        applyBusinessRulesToDropdowns(currentConfig);
+        // Only apply restrictions when user has made selections
+        // Step 1: Apply business rules when period is selected
+        if (currentConfig.period) {
+            applyBusinessRulesToBalanceTypes(currentConfig);
+        }
         
-        // Then apply conflict detection
-        applyConflictDetectionToDropdowns(currentConfig);
+        // Step 2: Apply duplicate prevention when enough info is available
+        if (currentConfig.balanceType && currentConfig.period && currentConfig.drCr) {
+            filterConflictingEngagements(currentConfig);
+        }
     }
 
     /**
-     * Apply business rules to dropdown options
+     * Apply business rules to balance type options based on selected period
      */
-    function applyBusinessRulesToDropdowns(currentConfig) {
-        const period = document.getElementById('period');
+    function applyBusinessRulesToBalanceTypes(currentConfig) {
         const columnType = document.getElementById('columnType');
+        if (!columnType) return;
         
-        if (!period || !columnType) return;
-        
-        const selectedPeriod = period.value;
-        
-        // Get all column type options
+        const selectedPeriod = currentConfig.period.toLowerCase();
         const options = columnType.querySelectorAll('option');
         
         options.forEach(option => {
             const value = option.value.toLowerCase();
             const text = option.textContent.toLowerCase();
             
-            // Reset business rule styling first
-            if (!option.hasAttribute('data-conflict')) {
-                option.disabled = false;
-                option.style.color = '';
-                option.title = '';
-            }
+            // Reset styling first
+            option.disabled = false;
+            option.style.color = '';
+            option.title = '';
             
-            if (selectedPeriod && selectedPeriod.toLowerCase().includes('current')) {
+            if (selectedPeriod.includes('current')) {
                 // Current period: only allow unadjusted
                 if (!value.includes('unadjusted') && !text.includes('unadjusted') && option.value !== '') {
                     option.disabled = true;
                     option.style.color = '#999';
                     option.title = 'Current Period can only be used with Unadjusted Balance types';
                 }
-            } else if (selectedPeriod && !selectedPeriod.toLowerCase().includes('current')) {
+            } else {
                 // Prior periods: exclude unadjusted
                 if ((value.includes('unadjusted') || text.includes('unadjusted')) && option.value !== '') {
                     option.disabled = true;
@@ -430,47 +424,33 @@
     }
 
     /**
-     * Apply conflict detection to dropdown options
+     * Filter engagement options that would create conflicts
      */
-    function applyConflictDetectionToDropdowns(currentConfig) {
-        // Only apply conflict detection if we have enough information
-        if (!currentConfig.engagement || !currentConfig.balanceType || 
-            !currentConfig.period || !currentConfig.drCr) {
-            return;
-        }
+    function filterConflictingEngagements(currentConfig) {
+        if (!window.columnConfigurations) return;
         
-        // Check engagement conflicts
-        updateEngagementConflictStates(currentConfig);
-    }
-
-    /**
-     * Update engagement dropdown to show conflicts
-     */
-    function updateEngagementConflictStates(currentConfig) {
-        // This would be implemented when we have the engagement dropdown structure
-        // For now, we'll focus on the main dropdowns
+        // Get all engagement items
+        const engagementItems = document.querySelectorAll('.engagement-item, [data-engagement]');
         
-        // Check if current configuration would conflict with existing columns
-        const wouldConflict = checkForDuplicateConfiguration(currentColumnIndex, currentConfig);
-        
-        if (wouldConflict.length > 0) {
-            // Show visual indicator that this combination is conflicting
-            showConflictWarning(currentConfig);
-        }
-    }
-
-    /**
-     * Show conflict warning for current configuration
-     */
-    function showConflictWarning(config) {
-        // Add visual indicators to show the conflict
-        const dropdowns = ['columnType', 'period', 'drcr'];
-        
-        dropdowns.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.borderColor = '#ff6600';
-                element.style.borderWidth = '2px';
+        engagementItems.forEach(item => {
+            const engagement = item.getAttribute('data-engagement') || item.textContent.trim();
+            
+            // Check if this engagement would create a conflict
+            const testConfig = {
+                ...currentConfig,
+                engagement: engagement
+            };
+            
+            const conflicts = checkForDuplicateConfiguration(currentColumnIndex, testConfig);
+            
+            if (conflicts.length > 0) {
+                // Hide conflicting engagement
+                item.style.display = 'none';
+                item.setAttribute('data-conflict', 'true');
+            } else {
+                // Show available engagement
+                item.style.display = '';
+                item.removeAttribute('data-conflict');
             }
         });
     }
@@ -549,7 +529,6 @@
      * Handle column type validation
      */
     function handleColumnTypeValidation() {
-        validateCurrentConfiguration();
         updateDropdownStates();
     }
 
