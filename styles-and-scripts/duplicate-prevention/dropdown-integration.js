@@ -251,8 +251,11 @@
             return { isValid: true, errors: [] }; // Allow incomplete configurations
         }
         
-        // Check for duplicates
-        const conflicts = checkForDuplicates();
+        // Get all balance columns for duplicate checking
+        const balanceColumns = getAllBalanceColumns();
+        
+        // Check for duplicates - pass the required parameter
+        const conflicts = checkForDuplicates(balanceColumns) || []; // Ensure it's always an array
         const currentKey = generateConfigurationKey(config.engagement, config.balanceType, config.period, config.drCr);
         
         for (const conflict of conflicts) {
@@ -272,6 +275,36 @@
             isValid: errors.length === 0,
             errors: errors
         };
+    }
+
+    /**
+     * Get all balance columns for validation
+     */
+    function getAllBalanceColumns() {
+        const balanceColumns = [];
+        
+        // Check if columnConfigurations exists
+        if (!window.columnConfigurations) {
+            return balanceColumns;
+        }
+        
+        // Iterate through all configured columns
+        for (const columnIndex in window.columnConfigurations) {
+            const config = window.columnConfigurations[columnIndex];
+            
+            // Only include balance columns (not 'not-used')
+            if (config && config.balanceType && config.balanceType !== 'not-used') {
+                balanceColumns.push({
+                    columnIndex: parseInt(columnIndex),
+                    engagement: config.engagement || '',
+                    balanceType: config.balanceType || '',
+                    period: config.period || '',
+                    drCr: config.drCr || ''
+                });
+            }
+        }
+        
+        return balanceColumns;
     }
 
     /**
@@ -441,6 +474,10 @@
         }
         
         // Get all other configured columns
+        if (!window.columnConfigurations) {
+            return false;
+        }
+        
         for (const columnIndex in window.columnConfigurations) {
             const colNum = parseInt(columnIndex);
             if (colNum === currentColumnIndex) continue;

@@ -11,6 +11,23 @@
 window.columnConfigurations = {};
 
 /**
+ * Configuration keys used for validation
+ */
+window.configurationKeys = ['engagement', 'balanceType', 'period', 'drCr'];
+
+/**
+ * Generate unique configuration key for duplicate detection
+ * @param {string} engagement - Engagement name
+ * @param {string} balanceType - Balance type
+ * @param {string} period - Period
+ * @param {string} drCr - Debit/Credit
+ * @returns {string} Unique configuration key
+ */
+function generateConfigurationKey(engagement, balanceType, period, drCr) {
+    return `${engagement}|${balanceType}|${period}|${drCr}`;
+}
+
+/**
  * Update column configuration when user makes selections
  * @param {number} columnIndex - The column being configured
  * @param {Object} config - Configuration object with engagement, balanceType, period, drCr
@@ -45,7 +62,7 @@ function getBalanceColumns() {
     
     for (const columnIndex in window.columnConfigurations) {
         const config = window.columnConfigurations[columnIndex];
-        if (config.balanceType && config.balanceType !== '') {
+        if (config.balanceType && config.balanceType !== '' && config.balanceType !== 'not-used') {
             balanceColumns.push(parseInt(columnIndex));
         }
     }
@@ -95,9 +112,9 @@ function validateConfiguration() {
     
     // Check for duplicate configurations
     const duplicateCheck = checkForDuplicates(balanceColumns);
-    if (duplicateCheck.conflicts.length > 0) {
+    if (duplicateCheck && Array.isArray(duplicateCheck) && duplicateCheck.length > 0) {
         result.valid = false;
-        result.conflicts = duplicateCheck.conflicts;
+        result.conflicts = duplicateCheck;
     }
     
     // Update UI based on validation results
@@ -143,17 +160,15 @@ function checkBusinessRules(config) {
 /**
  * Check for duplicate engagement/balance type/period/debit credit combinations
  * @param {Array} balanceColumns - Array of column indices to check
- * @returns {Object} Duplicate validation result
+ * @returns {Array} Array of conflict objects
  */
 function checkForDuplicates(balanceColumns) {
-    const result = {
-        conflicts: []
-    };
+    const conflicts = [];
     
     // Ensure balanceColumns is an array
     if (!Array.isArray(balanceColumns)) {
         console.error('checkForDuplicates: balanceColumns is not an array:', balanceColumns);
-        return result;
+        return conflicts; // Return empty array instead of undefined
     }
     
     const configurationMap = new Map();
@@ -173,7 +188,7 @@ function checkForDuplicates(balanceColumns) {
         }
         
         // Create unique key for this configuration
-        const configKey = `${config.engagement}|${config.balanceType}|${config.period}|${config.drCr}`;
+        const configKey = generateConfigurationKey(config.engagement, config.balanceType, config.period, config.drCr);
         
         // Special case: Multiple 'Unadjusted Current Period Dr/Cr' allowed if engagements differ
         const isUnadjustedCurrentPeriod = 
@@ -182,11 +197,12 @@ function checkForDuplicates(balanceColumns) {
             
         if (isUnadjustedCurrentPeriod) {
             // For unadjusted current period, only check engagement+drCr (allow same if different engagements)
-            const specialKey = `${config.engagement}|${config.drCr}`;
+            const specialKey = `unadjusted-current-${config.engagement}-${config.drCr}`;
             
             if (configurationMap.has(specialKey)) {
                 const existingColumns = configurationMap.get(specialKey);
-                result.conflicts.push({
+                conflicts.push({
+                    key: configKey,
                     type: 'duplicate',
                     message: 'Multiple Unadjusted Current Period Dr/Cr selections must use different engagements',
                     columns: [...existingColumns, columnIndex],
@@ -199,7 +215,8 @@ function checkForDuplicates(balanceColumns) {
             // Standard duplicate checking for all other configurations
             if (configurationMap.has(configKey)) {
                 const existingColumns = configurationMap.get(configKey);
-                result.conflicts.push({
+                conflicts.push({
+                    key: configKey,
                     type: 'duplicate',
                     message: 'Duplicate engagement/balance type/period/debit credit combination not allowed',
                     columns: [...existingColumns, columnIndex],
@@ -211,7 +228,7 @@ function checkForDuplicates(balanceColumns) {
         }
     }
     
-    return result;
+    return conflicts; // Always return array
 }
 
 /**
