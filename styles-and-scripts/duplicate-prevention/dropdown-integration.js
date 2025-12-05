@@ -171,6 +171,9 @@
                 config.engagement = engagement;
                 updateColumnConfiguration(currentColumnIndex, config);
                 
+                // Apply filtering based on engagement selection
+                updateDropdownStates();
+                
                 // Close the engagement dropdown
                 const dropdownMenu = document.getElementById('engagementDropdownMenu');
                 if (dropdownMenu) {
@@ -204,6 +207,7 @@
             const options = dropdown.querySelectorAll('option');
             options.forEach(option => {
                 option.disabled = false;
+                option.style.display = '';
                 option.style.color = '';
                 option.style.backgroundColor = '';
                 option.title = '';
@@ -367,58 +371,115 @@
     }
 
     /**
-     * Update dropdown states based on current selections - PROACTIVE FILTERING
+     * Update dropdown states based on current selections - PROGRESSIVE FILTERING
      */
     function updateDropdownStates() {
         if (currentColumnIndex === null) return;
         
         const currentConfig = getCurrentFormConfiguration();
         
-        // Only apply restrictions when user has made selections
-        // Step 1: Apply business rules when period is selected
-        if (currentConfig.period) {
-            applyBusinessRulesToBalanceTypes(currentConfig);
+        // Progressive filtering based on what user has selected:
+        
+        // Step 1: Filter periods based on balance type (business rules)
+        if (currentConfig.balanceType) {
+            filterPeriodsByBalanceType(currentConfig);
         }
         
-        // Step 2: Apply duplicate prevention when enough info is available
+        // Step 2: Filter periods based on existing configurations (duplicates)
+        if (currentConfig.balanceType && currentConfig.engagement) {
+            filterConflictingPeriods(currentConfig);
+        }
+        
+        // Step 3: Filter engagements based on complete configuration
         if (currentConfig.balanceType && currentConfig.period && currentConfig.drCr) {
             filterConflictingEngagements(currentConfig);
         }
     }
 
     /**
-     * Apply business rules to balance type options based on selected period
+     * Filter period options based on selected balance type (business rules)
      */
-    function applyBusinessRulesToBalanceTypes(currentConfig) {
-        const columnType = document.getElementById('columnType');
-        if (!columnType) return;
+    function filterPeriodsByBalanceType(currentConfig) {
+        const periodDropdown = document.getElementById('period');
+        if (!periodDropdown) return;
         
-        const selectedPeriod = currentConfig.period.toLowerCase();
-        const options = columnType.querySelectorAll('option');
+        const selectedBalanceType = currentConfig.balanceType.toLowerCase();
+        const options = periodDropdown.querySelectorAll('option');
         
         options.forEach(option => {
             const value = option.value.toLowerCase();
             const text = option.textContent.toLowerCase();
             
             // Reset styling first
+            option.style.display = '';
             option.disabled = false;
             option.style.color = '';
             option.title = '';
             
-            if (selectedPeriod.includes('current')) {
-                // Current period: only allow unadjusted
-                if (!value.includes('unadjusted') && !text.includes('unadjusted') && option.value !== '') {
-                    option.disabled = true;
-                    option.style.color = '#999';
+            if (selectedBalanceType.includes('unadjusted')) {
+                // Unadjusted: only allow current period
+                if (!value.includes('current') && !text.includes('current') && option.value !== '') {
+                    option.style.display = 'none'; // Hide completely
+                    option.title = 'Unadjusted Balance types can only use Current Period';
+                }
+            } else if (selectedBalanceType && selectedBalanceType !== '') {
+                // Non-unadjusted: hide current period
+                if ((value.includes('current') || text.includes('current')) && option.value !== '') {
+                    option.style.display = 'none'; // Hide completely
                     option.title = 'Current Period can only be used with Unadjusted Balance types';
                 }
-            } else {
-                // Prior periods: exclude unadjusted
-                if ((value.includes('unadjusted') || text.includes('unadjusted')) && option.value !== '') {
-                    option.disabled = true;
-                    option.style.color = '#999';
-                    option.title = 'Prior periods cannot be used with Unadjusted Balance types';
+            }
+        });
+    }
+
+    /**
+     * Filter period options that would create conflicts with existing configurations
+     */
+    function filterConflictingPeriods(currentConfig) {
+        if (!window.columnConfigurations) return;
+        
+        const periodDropdown = document.getElementById('period');
+        if (!periodDropdown) return;
+        
+        const options = periodDropdown.querySelectorAll('option');
+        
+        options.forEach(option => {
+            if (option.value === '' || option.style.display === 'none') return; // Skip empty or already hidden
+            
+            const testPeriod = option.value;
+            
+            // Check if this period would create a conflict
+            const testConfig = {
+                ...currentConfig,
+                period: testPeriod,
+                drCr: currentConfig.drCr || 'dr' // Use existing or default DR/CR
+            };
+            
+            // Check against all existing configurations
+            let hasConflict = false;
+            for (const otherColumnIndex in window.columnConfigurations) {
+                const otherColNum = parseInt(otherColumnIndex);
+                if (otherColNum === currentColumnIndex) continue;
+                
+                const otherConfig = window.columnConfigurations[otherColumnIndex];
+                if (!otherConfig || !otherConfig.engagement || !otherConfig.balanceType || 
+                    !otherConfig.period || !otherConfig.drCr) {
+                    continue;
                 }
+                
+                // Check if this would create a duplicate
+                if (testConfig.engagement === otherConfig.engagement &&
+                    testConfig.balanceType === otherConfig.balanceType &&
+                    testConfig.period === otherConfig.period &&
+                    testConfig.drCr === otherConfig.drCr) {
+                    hasConflict = true;
+                    break;
+                }
+            }
+            
+            if (hasConflict) {
+                option.style.display = 'none';
+                option.title = `Period ${testPeriod} already used for this engagement and balance type combination`;
             }
         });
     }
@@ -435,24 +496,80 @@
         engagementItems.forEach(item => {
             const engagement = item.getAttribute('data-engagement') || item.textContent.trim();
             
-            // Check if this engagement would create a conflict
-            const testConfig = {
-                ...currentConfig,
-                engagement: engagement
-            };
+            // Check if this engagement has any available periods for the current balance type
+            const availablePeriods = getAvailablePeriodsForEngagement(engagement, currentConfig.balanceType);
             
-            const conflicts = checkForDuplicateConfiguration(currentColumnIndex, testConfig);
-            
-            if (conflicts.length > 0) {
-                // Hide conflicting engagement
+            if (availablePeriods.length === 0) {
+                // No available periods - hide this engagement
                 item.style.display = 'none';
                 item.setAttribute('data-conflict', 'true');
+                item.title = `${engagement} has no available periods for ${currentConfig.balanceType}`;
             } else {
-                // Show available engagement
+                // Has available periods - show this engagement
                 item.style.display = '';
                 item.removeAttribute('data-conflict');
+                item.title = '';
             }
         });
+    }
+
+    /**
+     * Get available periods for a specific engagement and balance type combination
+     */
+    function getAvailablePeriodsForEngagement(engagement, balanceType) {
+        if (!window.columnConfigurations || !engagement || !balanceType) return [];
+        
+        // Get all possible periods based on balance type
+        const allPeriods = getAllPeriodsForBalanceType(balanceType);
+        
+        // Filter out periods already used by this engagement + balance type combination
+        const availablePeriods = allPeriods.filter(period => {
+            // Check if this period is already used
+            for (const otherColumnIndex in window.columnConfigurations) {
+                const otherColNum = parseInt(otherColumnIndex);
+                if (otherColNum === currentColumnIndex) continue;
+                
+                const otherConfig = window.columnConfigurations[otherColumnIndex];
+                if (!otherConfig || !otherConfig.engagement || !otherConfig.balanceType || 
+                    !otherConfig.period || !otherConfig.drCr) {
+                    continue;
+                }
+                
+                // Check if this period is used by same engagement + balance type
+                if (engagement === otherConfig.engagement &&
+                    balanceType === otherConfig.balanceType &&
+                    period === otherConfig.period) {
+                    return false; // Period is already used
+                }
+            }
+            return true; // Period is available
+        });
+        
+        return availablePeriods;
+    }
+
+    /**
+     * Get all possible periods for a balance type (based on business rules)
+     */
+    function getAllPeriodsForBalanceType(balanceType) {
+        const isUnadjusted = balanceType.toLowerCase().includes('unadjusted');
+        
+        if (isUnadjusted) {
+            return ['current-period']; // Only current period for unadjusted
+        } else {
+            // All prior periods for non-unadjusted (get from dropdown options)
+            const periodDropdown = document.getElementById('period');
+            if (!periodDropdown) return [];
+            
+            const periods = [];
+            const options = periodDropdown.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value && !option.value.toLowerCase().includes('current')) {
+                    periods.push(option.value);
+                }
+            });
+            return periods;
+        }
     }
 
     /**
